@@ -1,47 +1,27 @@
-#include "Application.h"
+#include "Core/Application.h"
 
-#include "Renderer/GLUtils.h"
-
-#include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp>
-
-#include <assert.h>
-#include <iostream>
-
-namespace Core {
-
+namespace Core
+{
 	static Application* s_Application = nullptr;
 
-	static void GLFWErrorCallback(int error, const char* description)
-	{
-		std::cerr << "[GLFW Error]: " << description << std::endl;
-	}
-
-	Application::Application(const ApplicationSpecification& specification)
-		: m_Specification(specification)
+	Application::Application(const ApplicationSpecification& spec)
+		: m_Specification(spec)
 	{
 		s_Application = this;
 
-		glfwSetErrorCallback(GLFWErrorCallback);
 		glfwInit();
 
-		// Set window title to app name if empty
 		if (m_Specification.WindowSpec.Title.empty())
 			m_Specification.WindowSpec.Title = m_Specification.Name;
 
 		m_Window = std::make_shared<Window>(m_Specification.WindowSpec);
 		m_Window->Create();
-
-		Renderer::Utils::InitOpenGLDebugMessageCallback();
 	}
 
 	Application::~Application()
 	{
 		m_Window->Destroy();
-
 		glfwTerminate();
-
 		s_Application = nullptr;
 	}
 
@@ -49,10 +29,9 @@ namespace Core {
 	{
 		m_Running = true;
 
-		float lastTime = GetTime();
+		float lastFrameTime = GetTime();
 
-		// Main Application loop
-		while (m_Running)
+		while(m_Running)
 		{
 			glfwPollEvents();
 
@@ -62,22 +41,12 @@ namespace Core {
 				break;
 			}
 
-			float currentTime = GetTime();
-			float timestep = glm::clamp(currentTime - lastTime, 0.001f, 0.1f);
-			lastTime = currentTime;
+			float currentFrameTime = GetTime();
+			float timeStep = glm::clamp(currentFrameTime - lastFrameTime, 0.001f, 0.1f);
 
-			// Main layer update here
-			for (const std::unique_ptr<Layer>& layer : m_LayerStack)
-				layer->OnUpdate(timestep);
-
-			// NOTE: rendering can be done elsewhere (eg. render thread)
-			for (const std::unique_ptr<Layer>& layer : m_LayerStack)
-				layer->OnRender();
-
-			m_Window->Update();
+			// Foreach layer: Update and Render
 		}
 	}
-
 	void Application::Stop()
 	{
 		m_Running = false;
@@ -90,13 +59,11 @@ namespace Core {
 
 	Application& Application::Get()
 	{
-		assert(s_Application);
 		return *s_Application;
 	}
 
 	float Application::GetTime()
 	{
-		return (float)glfwGetTime();
+		return glfwGetTime();
 	}
-
 }

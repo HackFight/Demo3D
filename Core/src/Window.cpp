@@ -1,17 +1,16 @@
-#include "Window.h"
+#include "Core/Window.h"
 
-#include <glad/gl.h>
+#include <glad/glad.h>
 
 #include <iostream>
 #include <assert.h>
 
 namespace Core {
 
-	Window::Window(const WindowSpecification& specification)
-		: m_Specification(specification)
+	Window::Window(const WindowSpecification& spec)
+		: m_Specification(spec)
 	{
 	}
-
 	Window::~Window()
 	{
 		Destroy();
@@ -24,44 +23,43 @@ namespace Core {
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
-		m_Handle = glfwCreateWindow(m_Specification.Width, m_Specification.Height,
+		m_WindowHandle = glfwCreateWindow(m_Specification.Width, m_Specification.Height,
 			m_Specification.Title.c_str(), nullptr, nullptr);
 
-		if (!m_Handle)
+		if (!m_WindowHandle)
 		{
 			std::cerr << "Failed to create GLFW window!\n";
 			assert(false);
 		}
 
-		glfwMakeContextCurrent(m_Handle);
-		gladLoadGL(glfwGetProcAddress);
+		glfwMakeContextCurrent(m_WindowHandle);
+		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 		glfwSwapInterval(m_Specification.VSync ? 1 : 0);
 	}
 
 	void Window::Destroy()
 	{
-		if (m_Handle)
-			glfwDestroyWindow(m_Handle);
+		if (m_WindowHandle)
+			glfwDestroyWindow(m_WindowHandle);
 
-		m_Handle = nullptr;
+		m_WindowHandle = nullptr;
 	}
 
 	void Window::Update()
 	{
-		glfwSwapBuffers(m_Handle);
+		glfwSwapBuffers(m_WindowHandle);
 	}
 
 	glm::vec2 Window::GetFramebufferSize()
 	{
 		int width, height;
-		glfwGetFramebufferSize(m_Handle, &width, &height);
+		glfwGetFramebufferSize(m_WindowHandle, &width, &height);
 		return { width, height };
 	}
 
 	bool Window::ShouldClose() const
 	{
-		return glfwWindowShouldClose(m_Handle) != 0;
+		return glfwWindowShouldClose(m_WindowHandle) != 0;
 	}
-
 }
