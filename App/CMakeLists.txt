@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(App)
+
+# We create MY_SOURCES, a list of all the source files of the project
+file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+add_executable(App "${MY_SOURCES}")
+
+target_link_libraries(App Core)
+
+# We include all the files in the include directory
+target_include_directories(App PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
