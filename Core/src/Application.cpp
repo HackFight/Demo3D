@@ -45,6 +45,8 @@ namespace Core
 			float timeStep = glm::clamp(currentFrameTime - lastFrameTime, 0.001f, 0.1f);
 
 			// Foreach layer: Update and Render
+
+			m_Window->Update();
 		}
 	}
 	void Application::Stop()

@@ -31,9 +31,13 @@ namespace Core {
 			std::cerr << "Failed to create GLFW window!\n";
 			assert(false);
 		}
-
 		glfwMakeContextCurrent(m_WindowHandle);
-		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		{
+			std::cerr << "Failed to initialize GLAD\n";
+			assert(false);
+		}
 
 		glfwSwapInterval(m_Specification.VSync ? 1 : 0);
 	}
