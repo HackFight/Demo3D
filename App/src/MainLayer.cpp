@@ -1,9 +1,9 @@
 #include "MainLayer.h"
 
 #include "Core/Application.h"
-#include "Renderer/RendererAPI.h"
-#include "Renderer/Buffer.h"
-#include "Renderer/VertexArray.h"
+#include "RendererAPI/RendererAPI.h"
+#include "RendererAPI/Buffer.h"
+#include "RendererAPI/VertexArray.h"
 
 // std
 #include <memory>
@@ -37,7 +37,8 @@ MainLayer::MainLayer()
 }
 MainLayer::~MainLayer() {}
 
-void MainLayer::OnUpdate(float ts)
+void MainLayer::OnUpdate(float ts) {}
+void MainLayer::OnRender()
 {
     renderer->Clear();
     glm::vec2 viewportSize = Core::Application::Get().GetFramebufferSize();
@@ -46,4 +47,3 @@ void MainLayer::OnUpdate(float ts)
     shader->Bind();
     renderer->DrawIndexed(vertexArray);
 }
-void MainLayer::OnRender() {}

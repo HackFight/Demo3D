@@ -1,7 +1,7 @@
 #include "Core/Application.h"
 #include <memory>
 
-#include "Renderer/GLUtils.h"
+#include "RendererAPI/GLUtils.h"
 
 namespace Core
 {

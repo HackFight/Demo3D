@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Renderer/VertexArray.h"
+#include "RendererAPI/VertexArray.h"
 
 // libs
 #include <glm/glm.hpp>

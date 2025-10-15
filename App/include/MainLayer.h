@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Core/Layer.h"
-#include "Renderer/Buffer.h"
-#include "Renderer/RendererAPI.h"
-#include "Renderer/Shader.h"
-#include "Renderer/VertexArray.h"
+#include "RendererAPI/Buffer.h"
+#include "RendererAPI/RendererAPI.h"
+#include "RendererAPI/Shader.h"
+#include "RendererAPI/VertexArray.h"
 #include <memory>
 
 class MainLayer : public Core::Layer
