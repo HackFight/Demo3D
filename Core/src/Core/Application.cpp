@@ -1,4 +1,7 @@
 #include "Core/Application.h"
+#include <memory>
+
+#include "Renderer/GLUtils.h"
 
 namespace Core
 {
@@ -16,6 +19,8 @@ namespace Core
 
 		m_Window = std::make_shared<Window>(m_Specification.WindowSpec);
 		m_Window->Create();
+
+		Renderer::Utils::InitOpenGLDebugMessageCallback();
 	}
 
 	Application::~Application()
@@ -42,10 +47,14 @@ namespace Core
 			}
 
 			float currentFrameTime = GetTime();
-			float timeStep = glm::clamp(currentFrameTime - lastFrameTime, 0.001f, 0.1f);
+			float timeStep = currentFrameTime - lastFrameTime;
+			lastFrameTime = currentFrameTime;
 
 			// Foreach layer: Update and Render
+			for (const std::unique_ptr<Layer>& layer : m_LayerStack) { layer->OnUpdate(timeStep); }
 
+			for (const std::unique_ptr<Layer>& layer : m_LayerStack) { layer->OnRender(); }
+			
 			m_Window->Update();
 		}
 	}
@@ -64,7 +73,7 @@ namespace Core
 		return *s_Application;
 	}
 
-	float Application::GetTime()
+	double Application::GetTime()
 	{
 		return glfwGetTime();
 	}

@@ -1,5 +1,7 @@
 #include "Core/Application.h"
 
+#include "MainLayer.h"
+
 int main()
 {
 	Core::ApplicationSpecification appSpec;
@@ -8,6 +10,7 @@ int main()
 	appSpec.WindowSpec.Height = 800;
 
 	Core::Application app(appSpec);
+	app.PushLayer<MainLayer>();
 	app.Run();
 
     return 0;
