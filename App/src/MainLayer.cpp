@@ -33,7 +33,7 @@ MainLayer::MainLayer()
 
     renderer = std::make_unique<Core::RendererAPI>();
     renderer->Init();
-    renderer->SetClearColor(glm::vec4(1.0));
+    renderer->SetClearColor(glm::vec4(0.0f));
 }
 MainLayer::~MainLayer() {}
 
