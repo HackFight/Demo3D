@@ -30,9 +30,9 @@ namespace Core {
 
 		static std::shared_ptr<VertexBuffer> Create(uint32_t size);
 		static std::shared_ptr<VertexBuffer> Create(float* vertices, uint32_t size);
-
-  private:
-    uint32_t m_RendererID;
+	
+	private:
+		uint32_t m_RendererID;
 	};
 
 	// Currently Hazel only supports 32-bit index buffers
@@ -45,7 +45,7 @@ namespace Core {
 		void Bind() const;
 		void Unbind() const;
 
-		uint32_t GetCount() const {return m_Count; }
+		uint32_t GetCount() const { return m_Count; }
 
 		static std::shared_ptr<IndexBuffer> Create(uint32_t* indices, uint32_t count);
 
