@@ -2,6 +2,7 @@
 
 #include "Core/Application.h"
 #include "RendererAPI/RendererAPI.h"
+#include "Renderer/Camera.h"
 #include "RendererAPI/Buffer.h"
 #include "RendererAPI/VertexArray.h"
 
@@ -45,5 +46,8 @@ void MainLayer::OnRender()
     renderer->SetViewport(0, 0, viewportSize.x, viewportSize.y);
 
     shader->Bind();
+    shader->setmat4("modelMat", glm::mat4(1.0f));
+    shader->setmat4("viewMat", glm::mat4(1.0f));
+    shader->setmat4("projMat", glm::mat4(1.0f));
     renderer->DrawIndexed(vertexArray);
 }
