@@ -1,12 +1,14 @@
 #include "MainLayer.h"
 
 #include "Core/Application.h"
+#include "Core/Window.h"
 #include "RendererAPI/RendererAPI.h"
 #include "Renderer/Camera.h"
 #include "RendererAPI/Buffer.h"
 #include "RendererAPI/VertexArray.h"
 
 // std
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -35,10 +37,35 @@ MainLayer::MainLayer()
     renderer = std::make_unique<Core::RendererAPI>();
     renderer->Init();
     renderer->SetClearColor(glm::vec4(0.0f));
+
+    camera = std::make_shared<Core::Camera>(0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, -90.0f, 0.0f);
 }
 MainLayer::~MainLayer() {}
 
-void MainLayer::OnUpdate(float ts) {}
+void MainLayer::OnUpdate(float ts)
+{
+    timeAcc += ts;
+    frameCounter++;
+
+    if(timeAcc >= 1.0)
+    {
+        timeAcc -= 1.0;
+        std::cout << frameCounter << " FPS\n";
+        frameCounter = 0;
+    }
+
+    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_W) == GLFW_PRESS)
+        camera->ProcessKeyboard(Core::FORWARD, ts);
+    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_S) == GLFW_PRESS)
+        camera->ProcessKeyboard(Core::BACKWARD, ts);
+    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_A) == GLFW_PRESS)
+        camera->ProcessKeyboard(Core::LEFT, ts);
+    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_D) == GLFW_PRESS)
+        camera->ProcessKeyboard(Core::RIGHT, ts);
+
+    double xpos, ypos;
+    glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
+}
 void MainLayer::OnRender()
 {
     renderer->Clear();
@@ -47,7 +74,7 @@ void MainLayer::OnRender()
 
     shader->Bind();
     shader->setmat4("modelMat", glm::mat4(1.0f));
-    shader->setmat4("viewMat", glm::mat4(1.0f));
-    shader->setmat4("projMat", glm::mat4(1.0f));
+    shader->setmat4("viewMat", camera->getViewMatrix());
+    shader->setmat4("projMat", camera->getProjectionMatrix());
     renderer->DrawIndexed(vertexArray);
 }

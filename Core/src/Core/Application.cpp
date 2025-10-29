@@ -68,6 +68,11 @@ namespace Core
 		return m_Window->GetFramebufferSize();
 	}
 
+	std::shared_ptr<Window> Application::GetWindow()
+	{
+		return m_Window;
+	}
+
 	Application& Application::Get()
 	{
 		return *s_Application;

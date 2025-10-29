@@ -37,6 +37,7 @@ namespace Core {
 		}
 
 		glm::vec2 GetFramebufferSize() const;
+		std::shared_ptr<Window> GetWindow();
 
 		static Application& Get();
 		static double GetTime();

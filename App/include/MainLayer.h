@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Layer.h"
+#include "Renderer/Camera.h"
 #include "RendererAPI/Buffer.h"
 #include "RendererAPI/RendererAPI.h"
 #include "RendererAPI/Shader.h"
@@ -18,8 +19,15 @@ public:
 
 private:
 	std::unique_ptr<Core::RendererAPI> renderer;
+	std::shared_ptr<Core::Camera> camera;
+
 	std::shared_ptr<Core::VertexBuffer> vertexBuffer;
 	std::shared_ptr<Core::IndexBuffer> indexBuffer;
 	std::shared_ptr<Core::VertexArray> vertexArray;
 	std::shared_ptr<Core::Shader> shader;
+
+	double timeAcc = 0.0;
+	int frameCounter = 0;
+
+	double mousedX, mousedY;
 };
