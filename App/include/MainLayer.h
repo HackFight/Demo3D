@@ -26,7 +26,9 @@ private:
 	std::shared_ptr<Core::VertexBuffer> vertexBuffer;
 	std::shared_ptr<Core::IndexBuffer> indexBuffer;
 	std::shared_ptr<Core::VertexArray> vertexArray;
-	std::shared_ptr<Core::Shader> shader;
+
+	std::shared_ptr<Core::Shader> defaultShader;
+	std::shared_ptr<Core::Shader> phongShader;
 
 	double timeAcc = 0.0;
 	int frameCounter = 0;

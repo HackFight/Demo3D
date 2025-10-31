@@ -34,6 +34,11 @@ namespace Core {
         return glm::perspective(glm::radians(45.0f), 1920.0f / 1200.0f, 0.1f, 100.0f);
     }
 
+    glm::vec3 Camera::getPos()
+    {
+        return position;
+    }
+
     void Camera::ProcessKeyboard(CameraMovement direction, double deltaTime)
     {
         float velocity = MovementSpeed * deltaTime;

@@ -15,9 +15,10 @@
 
 MainLayer::MainLayer()
 {
-    vertexArray = MeshGen::GetCube();
+    vertexArray = MeshGen::GetQuad();
 
-    shader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/default.frag");
+    defaultShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/default.frag");
+    phongShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/phong.frag");
 
     renderer = std::make_unique<Core::RendererAPI>();
     renderer->Init();
@@ -27,7 +28,20 @@ MainLayer::MainLayer()
     double xpos, ypos;
     glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
     lastX = xpos; lastY = ypos;
+    
     camera = std::make_shared<Core::Camera>(0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, -90.0f, 0.0f);
+
+
+    phongShader->Bind();
+    phongShader->set3f("light.position",  0.0f, 1.0f, 2.0f);
+    phongShader->set3f("light.ambient",  0.2f, 0.2f, 0.2f);
+    phongShader->set3f("light.diffuse",  0.5f, 0.5f, 0.5f); // darken diffuse light a bit
+    phongShader->set3f("light.specular", 1.0f, 1.0f, 1.0f); 
+
+    phongShader->set3f("material.ambient", 1.0f, 0.5f, 0.31f);
+    phongShader->set3f("material.diffuse", 1.0f, 0.5f, 0.31f);
+    phongShader->set3f("material.specular", 0.5f, 0.5f, 0.5f);
+    phongShader->setFloat("material.shininess", 32.0f);
 }
 MainLayer::~MainLayer() {}
 
@@ -51,10 +65,7 @@ void MainLayer::OnRender()
     glm::vec2 viewportSize = Core::Application::Get().GetFramebufferSize();
     renderer->SetViewport(0, 0, viewportSize.x, viewportSize.y);
 
-    shader->Bind();
-    shader->setmat4("modelMat", glm::mat4(1.0f));
-    shader->setmat4("viewMat", camera->getViewMatrix());
-    shader->setmat4("projMat", camera->getProjectionMatrix());
+    phongShader->set3f("viewPos", camera->getPos());
     renderer->DrawIndexed(vertexArray);
 }
 

@@ -35,6 +35,8 @@ namespace Core {
         glm::mat4 getViewMatrix();
         glm::mat4 getProjectionMatrix();
 
+        glm::vec3 getPos();
+
         void ProcessKeyboard(CameraMovement direction, double deltaTime);
         void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
 
