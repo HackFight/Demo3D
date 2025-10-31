@@ -32,6 +32,8 @@ private:
 
 	double timeAcc = 0.0;
 	int frameCounter = 0;
+	bool mouseDisabled = true;
+	bool canPress = true;
 
 	double lastX, lastY;
 };

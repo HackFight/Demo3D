@@ -15,10 +15,10 @@
 
 MainLayer::MainLayer()
 {
-    vertexArray = MeshGen::GetQuad();
+    vertexArray = MeshGen::GetCube();
 
     defaultShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/default.frag");
-    phongShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/phong.frag");
+    phongShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/depth.frag");
 
     renderer = std::make_unique<Core::RendererAPI>();
     renderer->Init();
@@ -33,10 +33,10 @@ MainLayer::MainLayer()
 
 
     phongShader->Bind();
-    phongShader->set3f("light.position",  0.0f, 1.0f, 2.0f);
+    phongShader->set3f("light.direction",  -1.0f, -3.0f, -2.0f);
     phongShader->set3f("light.ambient",  0.2f, 0.2f, 0.2f);
     phongShader->set3f("light.diffuse",  0.5f, 0.5f, 0.5f); // darken diffuse light a bit
-    phongShader->set3f("light.specular", 1.0f, 1.0f, 1.0f); 
+    phongShader->set3f("light.specular", 1.0f, 1.0f, 1.0f);
 
     phongShader->set3f("material.ambient", 1.0f, 0.5f, 0.31f);
     phongShader->set3f("material.diffuse", 1.0f, 0.5f, 0.31f);
@@ -74,6 +74,14 @@ void MainLayer::OnRender()
 
 void MainLayer::ProcessInput(double ts)
 {
+    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_ESCAPE) == GLFW_PRESS && canPress)
+    {
+        mouseDisabled ? glfwSetInputMode(Core::Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL) : glfwSetInputMode(Core::Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		mouseDisabled = !mouseDisabled;
+        canPress = false;
+    }
+    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_ESCAPE) == GLFW_RELEASE)
+        canPress = true;
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_W) == GLFW_PRESS)
         camera->ProcessKeyboard(Core::FORWARD, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_S) == GLFW_PRESS)
