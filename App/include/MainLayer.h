@@ -14,10 +14,12 @@ public:
 	MainLayer();
 	virtual ~MainLayer();
 
-	virtual void OnUpdate(float ts) override;
+	virtual void OnUpdate(double ts) override;
 	virtual void OnRender() override;
 
 private:
+	void ProcessInput(double ts);
+
 	std::unique_ptr<Core::RendererAPI> renderer;
 	std::shared_ptr<Core::Camera> camera;
 
@@ -29,5 +31,5 @@ private:
 	double timeAcc = 0.0;
 	int frameCounter = 0;
 
-	double mousedX, mousedY;
+	double lastX, lastY;
 };

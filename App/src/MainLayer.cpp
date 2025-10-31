@@ -1,36 +1,21 @@
 #include "MainLayer.h"
 
 #include "Core/Application.h"
-#include "Core/Window.h"
+#include "GLFW/glfw3.h"
+#include "MeshGen.h"
 #include "RendererAPI/RendererAPI.h"
 #include "Renderer/Camera.h"
-#include "RendererAPI/Buffer.h"
-#include "RendererAPI/VertexArray.h"
+
+// libs
+#include <GL/gl.h>
 
 // std
 #include <iostream>
 #include <memory>
-#include <vector>
 
 MainLayer::MainLayer()
 {
-    std::vector<Core::Vertex> vertices
-    {
-        {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-        {{0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-        {{0.5f, 0.5f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-        {{-0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}}
-    };
-    vertexBuffer = Core::VertexBuffer::Create((float*)vertices.data(), vertices.size()*sizeof(Core::Vertex));
-    uint32_t indices[]{
-        0, 1, 2,
-        0, 2, 3
-    };
-    indexBuffer = Core::IndexBuffer::Create(indices, 6);
-
-    vertexArray = std::make_shared<Core::VertexArray>();
-    vertexArray->AddVertexBuffer(vertexBuffer);
-    vertexArray->SetIndexBuffer(indexBuffer);
+    vertexArray = MeshGen::GetCube();
 
     shader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/default.frag");
 
@@ -38,11 +23,15 @@ MainLayer::MainLayer()
     renderer->Init();
     renderer->SetClearColor(glm::vec4(0.0f));
 
+    glfwSetInputMode(Core::Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    double xpos, ypos;
+    glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
+    lastX = xpos; lastY = ypos;
     camera = std::make_shared<Core::Camera>(0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, -90.0f, 0.0f);
 }
 MainLayer::~MainLayer() {}
 
-void MainLayer::OnUpdate(float ts)
+void MainLayer::OnUpdate(double ts)
 {
     timeAcc += ts;
     frameCounter++;
@@ -54,17 +43,7 @@ void MainLayer::OnUpdate(float ts)
         frameCounter = 0;
     }
 
-    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_W) == GLFW_PRESS)
-        camera->ProcessKeyboard(Core::FORWARD, ts);
-    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_S) == GLFW_PRESS)
-        camera->ProcessKeyboard(Core::BACKWARD, ts);
-    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_A) == GLFW_PRESS)
-        camera->ProcessKeyboard(Core::LEFT, ts);
-    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_D) == GLFW_PRESS)
-        camera->ProcessKeyboard(Core::RIGHT, ts);
-
-    double xpos, ypos;
-    glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
+    ProcessInput(ts);
 }
 void MainLayer::OnRender()
 {
@@ -77,4 +56,24 @@ void MainLayer::OnRender()
     shader->setmat4("viewMat", camera->getViewMatrix());
     shader->setmat4("projMat", camera->getProjectionMatrix());
     renderer->DrawIndexed(vertexArray);
+}
+
+void MainLayer::ProcessInput(double ts)
+{
+    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_W) == GLFW_PRESS)
+        camera->ProcessKeyboard(Core::FORWARD, ts);
+    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_S) == GLFW_PRESS)
+        camera->ProcessKeyboard(Core::BACKWARD, ts);
+    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_A) == GLFW_PRESS)
+        camera->ProcessKeyboard(Core::LEFT, ts);
+    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_D) == GLFW_PRESS)
+        camera->ProcessKeyboard(Core::RIGHT, ts);
+
+    double xpos, ypos;
+    glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
+    double xoffset = xpos - lastX;
+    double yoffset = lastY - ypos;
+    lastX = xpos;
+    lastY = ypos;
+    camera->ProcessMouseMovement(xoffset, yoffset);
 }

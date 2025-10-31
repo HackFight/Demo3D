@@ -7,7 +7,7 @@ namespace Core {
     public:
         virtual ~Layer() = default;
         
-        virtual void OnUpdate(float ts) {}
+        virtual void OnUpdate(double ts) {}
         virtual void OnRender() {}
     };
 }

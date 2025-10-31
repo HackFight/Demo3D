@@ -34,7 +34,7 @@ namespace Core
 	{
 		m_Running = true;
 
-		float lastFrameTime = GetTime();
+		double lastFrameTime = GetTime();
 
 		while(m_Running)
 		{
@@ -46,8 +46,8 @@ namespace Core
 				break;
 			}
 
-			float currentFrameTime = GetTime();
-			float timeStep = currentFrameTime - lastFrameTime;
+			double currentFrameTime = GetTime();
+			double timeStep = currentFrameTime - lastFrameTime;
 			lastFrameTime = currentFrameTime;
 
 			// Foreach layer: Update and Render

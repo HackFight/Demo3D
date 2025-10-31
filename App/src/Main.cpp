@@ -8,7 +8,7 @@ int main()
 	appSpec.Name = "Test Application";
 	appSpec.WindowSpec.Width = 800;
 	appSpec.WindowSpec.Height = 800;
-	appSpec.WindowSpec.VSync = false;
+	appSpec.WindowSpec.VSync = true;
 
 	Core::Application app(appSpec);
 	app.PushLayer<MainLayer>();
