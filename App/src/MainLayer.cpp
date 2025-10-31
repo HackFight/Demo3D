@@ -66,6 +66,9 @@ void MainLayer::OnRender()
     renderer->SetViewport(0, 0, viewportSize.x, viewportSize.y);
 
     phongShader->set3f("viewPos", camera->getPos());
+    phongShader->setmat4("modelMat", glm::mat4(1.0f));
+    phongShader->setmat4("viewMat", camera->getViewMatrix());
+    phongShader->setmat4("projMat", camera->getProjectionMatrix());
     renderer->DrawIndexed(vertexArray);
 }
 
