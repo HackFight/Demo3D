@@ -1,6 +1,6 @@
 #include "MaterialGen.h"
 
-void MaterialGen::setBlinnPhongMaterial(Core::Shader* shader, BlinnPhongMaterial material)
+void MaterialGen::setBlinnPhongMaterial(std::shared_ptr<Core::Shader> shader, BlinnPhongMaterial material)
 {
 	switch (material)
 	{

@@ -2,7 +2,6 @@
 
 #include "Core/Layer.h"
 #include "Renderer/Camera.h"
-#include "RendererAPI/Buffer.h"
 #include "RendererAPI/RendererAPI.h"
 #include "GameObject.h"
 #include <memory>
@@ -24,8 +23,6 @@ private:
 	std::shared_ptr<Core::Camera> camera;
 
 	std::vector<GameObject> gameObjects;
-
-	std::shared_ptr<Core::Shader> blinnPhongShader;
 
 	double timeAcc = 0.0;
 	int frameCounter = 0;

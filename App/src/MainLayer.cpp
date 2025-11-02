@@ -2,10 +2,6 @@
 
 #include "GLFW/glfw3.h"
 #include "Core/Application.h"
-#include "MeshGen.h"
-#include "MaterialGen.h"
-#include "RendererAPI/RendererAPI.h"
-#include "Renderer/Camera.h"
 
 // libs
 #include <GL/gl.h>
@@ -13,6 +9,7 @@
 // std
 #include <iostream>
 #include <memory>
+#include <MeshGen.h>
 
 MainLayer::MainLayer()
 {
@@ -50,12 +47,9 @@ void MainLayer::OnRender()
     glm::vec2 viewportSize = Core::Application::Get().GetFramebufferSize();
     renderer->SetViewport(0, 0, viewportSize.x, viewportSize.y);
 
-    blinnPhongShader->set3f("viewPos", camera->getPos());
-    blinnPhongShader->setmat4("viewMat", camera->getViewMatrix());
-    blinnPhongShader->setmat4("projMat", camera->getProjectionMatrix());
     for (GameObject object : gameObjects)
     {
-        object.Render(renderer.get());
+        object.Render(renderer, camera);
     }
 }
 
@@ -89,22 +83,21 @@ void MainLayer::ProcessInput(double ts)
 
 void MainLayer::LoadAssets()
 {
-    blinnPhongShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
+    ShaderGen::InitShaders();
 
-    gameObjects.push_back(GameObject(MeshGen::GetPlane(10), blinnPhongShader, CyanPlastic));
+    gameObjects.push_back(GameObject(MeshGen::GetPlane(1000), CyanPlastic));
 
     for (int i = 0; i < 24; i++)
     {
-		gameObjects.push_back(GameObject(MeshGen::GetCube(), blinnPhongShader, static_cast<BlinnPhongMaterial>(i), glm::vec3((i % 6) * 2.0f - 5.0f, 0.5f, (i / 6) * 2.0f - 3.0f)));
+		gameObjects.push_back(GameObject(MeshGen::GetCube(), static_cast<BlinnPhongMaterial>(i), glm::vec3((i % 6) * 2.0f - 5.0f, 0.5f, (i / 6) * 2.0f - 3.0f)));
     }
 
     camera = std::make_shared<Core::Camera>(0.0f, 1.0f, 2.0f, 0.0f, 1.0f, 0.0f, -90.0f, 0.0f);
 
+    std::shared_ptr<Core::Shader> blinnPhongShader = ShaderGen::GetShader(BlinnPhong);
     blinnPhongShader->Bind();
     blinnPhongShader->set3f("light.direction", -1.0f, -3.0f, -2.0f);
     blinnPhongShader->set3f("light.ambient", 1.0f, 1.0f, 1.0f);
     blinnPhongShader->set3f("light.diffuse", 1.0f, 1.0f, 1.0f);
     blinnPhongShader->set3f("light.specular", 1.0f, 1.0f, 1.0f);
-
-    MaterialGen::setBlinnPhongMaterial(blinnPhongShader.get(), CyanPlastic);
 }

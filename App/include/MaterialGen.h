@@ -2,6 +2,8 @@
 
 #include "RendererAPI/Shader.h"
 
+#include <memory>
+
 enum BlinnPhongMaterial
 {
     Emerald,
@@ -33,5 +35,5 @@ enum BlinnPhongMaterial
 class MaterialGen
 {
 public:
-    static void setBlinnPhongMaterial(Core::Shader* shader, BlinnPhongMaterial material);
+    static void setBlinnPhongMaterial(std::shared_ptr<Core::Shader> shader, BlinnPhongMaterial material);
 };
