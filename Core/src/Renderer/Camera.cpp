@@ -1,4 +1,6 @@
 #include "Renderer/Camera.h"
+#include "Core/Application.h"
+
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/geometric.hpp"
 
@@ -31,7 +33,8 @@ namespace Core {
     }
     glm::mat4 Camera::getProjectionMatrix()
     {
-        return glm::perspective(glm::radians(45.0f), 1920.0f / 1200.0f, 0.1f, 100.0f);
+        glm::vec2 viewportSize = Application::Get().GetFramebufferSize();
+        return glm::perspective(glm::radians(45.0f), viewportSize.x / viewportSize.y, 0.1f, 100.0f);
     }
 
     glm::vec3 Camera::getPos()

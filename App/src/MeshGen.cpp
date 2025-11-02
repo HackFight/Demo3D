@@ -85,3 +85,40 @@ std::shared_ptr<Core::VertexArray> MeshGen::GetCube()
 
     return vertexArray;
 }
+
+std::shared_ptr<Core::VertexArray> MeshGen::GetPlane(const int size)
+{
+    std::vector<Core::Vertex> vertices;
+    for(int x = 0; x <= size; x++)
+    {
+        for(int z = 0; z <= size; z++)
+        {
+            vertices.push_back({{x - size/2.0f, 0.0f, z - size/2.0f}, {x, z}, {0.0f, 1.0f, 0.0f}, {x+z, x+z, 1.0f}});
+        }
+	}
+    std::shared_ptr<Core::VertexBuffer> vertexBuffer = Core::VertexBuffer::Create((float*)vertices.data(), vertices.size() * sizeof(Core::Vertex));
+    
+    std::vector<uint32_t> indices;
+    for (int z = 0; z < size; z++)
+    {
+        for (int x = 0; x < size; x++)
+        {
+            int length = size + 1;
+
+            indices.push_back(x +      z      * length);
+            indices.push_back(x + 1 +  z      * length);
+            indices.push_back(x + 1 + (z + 1) * length);
+
+            indices.push_back(x +      z      * length);
+            indices.push_back(x + 1 + (z + 1) * length);
+            indices.push_back(x +     (z + 1) * length);
+        }
+    }
+    std::shared_ptr<Core::IndexBuffer> indexBuffer = Core::IndexBuffer::Create((uint32_t*)indices.data(), indices.size());
+
+    std::shared_ptr<Core::VertexArray> vertexArray = std::make_shared<Core::VertexArray>();
+    vertexArray->AddVertexBuffer(vertexBuffer);
+    vertexArray->SetIndexBuffer(indexBuffer);
+
+    return vertexArray;
+}

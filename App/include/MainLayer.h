@@ -4,8 +4,7 @@
 #include "Renderer/Camera.h"
 #include "RendererAPI/Buffer.h"
 #include "RendererAPI/RendererAPI.h"
-#include "RendererAPI/Shader.h"
-#include "RendererAPI/VertexArray.h"
+#include "GameObject.h"
 #include <memory>
 
 class MainLayer : public Core::Layer
@@ -19,16 +18,14 @@ public:
 
 private:
 	void ProcessInput(double ts);
+	void LoadAssets();
 
-	std::unique_ptr<Core::RendererAPI> renderer;
+	std::shared_ptr<Core::RendererAPI> renderer;
 	std::shared_ptr<Core::Camera> camera;
 
-	std::shared_ptr<Core::VertexBuffer> vertexBuffer;
-	std::shared_ptr<Core::IndexBuffer> indexBuffer;
-	std::shared_ptr<Core::VertexArray> vertexArray;
+	std::vector<GameObject> gameObjects;
 
-	std::shared_ptr<Core::Shader> defaultShader;
-	std::shared_ptr<Core::Shader> phongShader;
+	std::shared_ptr<Core::Shader> blinnPhongShader;
 
 	double timeAcc = 0.0;
 	int frameCounter = 0;
