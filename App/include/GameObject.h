@@ -13,20 +13,24 @@
 class GameObject
 {
 public:
-	GameObject(std::shared_ptr<Core::VertexArray> mesh, std::shared_ptr<Core::Shader> blinnPhongShader, BlinnPhongMaterial material = WhitePlastic, glm::vec3 position = glm::vec3(0.0f));
-	GameObject(std::shared_ptr<Core::VertexArray> mesh, std::shared_ptr<Core::Shader> texturedShader, std::shared_ptr<Core::Texture> texture, glm::vec3 position = glm::vec3(0.0f));
-	~GameObject();
-
-	void Render(std::shared_ptr<Core::RendererAPI> renderer, std::shared_ptr<Core::Camera> camera);
-
-private:
-
 	enum ShaderType
 	{
+		Default,
 		BlinnPhong,
 		Textured
 	};
 
+	GameObject(std::shared_ptr<Core::VertexArray> mesh, std::shared_ptr<Core::Shader> shader, glm::vec3 position = glm::vec3(0.0f), ShaderType shaderType = BlinnPhong, BlinnPhongMaterial material = WhitePlastic);
+	~GameObject();
+
+	void AddTexture(std::shared_ptr<Core::Texture> texture)
+	{
+		textures.push_back(texture);
+	}
+
+	void Render(std::shared_ptr<Core::RendererAPI> renderer, std::shared_ptr<Core::Camera> camera);
+
+private:
 	std::shared_ptr<Core::VertexArray> mesh;
 	std::shared_ptr<Core::Shader> shader;
 	ShaderType shaderType;

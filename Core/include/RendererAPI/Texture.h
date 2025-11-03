@@ -11,6 +11,7 @@ namespace Core {
 	public:
     	Texture();
 		Texture(int width, int height, uint32_t param, uint32_t format, const void* data);
+		Texture(const char* filename, uint32_t param, uint32_t format);
 		~Texture();
 
 		void Bind() const;
