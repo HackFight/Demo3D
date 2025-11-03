@@ -21,11 +21,11 @@ namespace Core {
 
     void Texture::Bind() const
     {
-        glBindTexture(GL_TEXTURE0, m_RendererID);
+        glBindTexture(GL_TEXTURE_2D, m_RendererID);
     }
     void Texture::Unbind() const
     {
-        glBindTexture(GL_TEXTURE0, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void Texture::SetData(int width, int height, uint32_t param, uint32_t format, const void* data)

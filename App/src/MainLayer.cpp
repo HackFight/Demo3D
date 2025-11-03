@@ -1,15 +1,16 @@
 #include "MainLayer.h"
 
-#include "GLFW/glfw3.h"
 #include "Core/Application.h"
+#include "MeshGen.h"
+#include "RendererAPI/Texture.h"
 
 // libs
+#include <GLFW/glfw3.h>
 #include <GL/gl.h>
 
 // std
 #include <iostream>
 #include <memory>
-#include <MeshGen.h>
 
 MainLayer::MainLayer()
 {
@@ -83,21 +84,21 @@ void MainLayer::ProcessInput(double ts)
 
 void MainLayer::LoadAssets()
 {
-    ShaderGen::InitShaders();
-
-    gameObjects.push_back(GameObject(MeshGen::GetPlane(1000), CyanPlastic));
-
-    for (int i = 0; i < 24; i++)
-    {
-		gameObjects.push_back(GameObject(MeshGen::GetCube(), static_cast<BlinnPhongMaterial>(i), glm::vec3((i % 6) * 2.0f - 5.0f, 0.5f, (i / 6) * 2.0f - 3.0f)));
-    }
-
-    camera = std::make_shared<Core::Camera>(0.0f, 1.0f, 2.0f, 0.0f, 1.0f, 0.0f, -90.0f, 0.0f);
-
-    std::shared_ptr<Core::Shader> blinnPhongShader = ShaderGen::GetShader(BlinnPhong);
+    std::shared_ptr<Core::Shader> blinnPhongShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
     blinnPhongShader->Bind();
-    blinnPhongShader->set3f("light.direction", -1.0f, -3.0f, -2.0f);
+    blinnPhongShader->set3f("light.position", 0.0f, 3.0f, 0.0f);
     blinnPhongShader->set3f("light.ambient", 1.0f, 1.0f, 1.0f);
     blinnPhongShader->set3f("light.diffuse", 1.0f, 1.0f, 1.0f);
     blinnPhongShader->set3f("light.specular", 1.0f, 1.0f, 1.0f);
+
+    gameObjects.push_back(GameObject(MeshGen::GetPlane(1000), blinnPhongShader, CyanPlastic));
+
+    for (int i = 0; i < 24; i++)
+    {
+		gameObjects.push_back(GameObject(MeshGen::GetCube(), blinnPhongShader, static_cast<BlinnPhongMaterial>(i), glm::vec3((i % 6) * 2.0f - 5.0f, 0.5f, (i / 6) * 2.0f - 3.0f)));
+    }
+
+    std::shared_ptr<Core::Texture> boxTexture = std::make_shared<Core::Texture>();
+
+    camera = std::make_shared<Core::Camera>(0.0f, 1.0f, 2.0f, 0.0f, 1.0f, 0.0f, -90.0f, 0.0f);
 }
