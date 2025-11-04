@@ -39,15 +39,18 @@ void GameObject::Render(std::shared_ptr<Core::RendererAPI> renderer, std::shared
 		shader->setmat4("projMat", camera->getProjectionMatrix());
 		shader->setmat4("modelMat", glm::translate(glm::mat4(1.0f), position));
 		
+		shader->setInt("material.diffuse", 0);
+		shader->setInt("material.specular", 1);
+		shader->setInt("material.emission", 2);
+		shader->setFloat("material.shininess", 32.0f);
+
 		glActiveTexture(GL_TEXTURE0);
 		textures[0]->Bind();
 		glActiveTexture(GL_TEXTURE1);
-		textures[1]->Bind();
+		textures.size() > 1 ? textures[1]->Bind() : textures[0]->Unbind();
+		glActiveTexture(GL_TEXTURE2);
+		textures.size() > 2 ? textures[2]->Bind() : textures[0]->Unbind();
 
-		shader->setInt("material.diffuse", 0);
-		shader->setInt("material.specular", 1);
-		shader->setFloat("material.shininess", 32.0f);
-		
 		renderer->DrawIndexed(mesh);
 		break;
 	}
