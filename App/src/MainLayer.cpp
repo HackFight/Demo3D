@@ -53,6 +53,14 @@ void MainLayer::OnRender()
         object.Render(camera);
     }
 
+	texturedShader->Bind();
+    texturedShader->set3f("viewPos", camera->getPos());
+    texturedShader->setmat4("viewMat", camera->getViewMatrix());
+    texturedShader->setmat4("projMat", camera->getProjectionMatrix());
+    texturedShader->setmat4("modelMat", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, -7.0f)));
+	texturedShader->setFloat("material.shininess", 32.0f);
+
+	renderer->UnbindAllTextures();
     backpack->Draw(texturedShader);
 }
 

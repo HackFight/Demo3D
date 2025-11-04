@@ -19,6 +19,7 @@ namespace Core {
 
 		void SetClearColor(const glm::vec4& color);
 		void Clear();
+		void UnbindAllTextures();
 
 		void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0);
 		void DrawLines(const std::shared_ptr<VertexArray>& vertexArray, uint32_t vertexCount);

@@ -23,6 +23,7 @@ namespace Core {
         glGenTextures(1, &m_RendererID);
 
         int width, height, nrChannels;
+        stbi_set_flip_vertically_on_load(true);
         unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
         if (data == nullptr)
         {

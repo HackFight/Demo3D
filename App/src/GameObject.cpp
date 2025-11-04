@@ -41,9 +41,9 @@ void GameObject::Render(std::shared_ptr<Core::Camera> camera)
 		shader->setmat4("projMat", camera->getProjectionMatrix());
 		shader->setmat4("modelMat", glm::translate(glm::mat4(1.0f), position));
 		
-		shader->setInt("material.diffuse", 0);
-		shader->setInt("material.specular", 1);
-		shader->setInt("material.emission", 2);
+		shader->setInt("material.texture_diffuse1", 0);
+		shader->setInt("material.texture_specular1", 1);
+		shader->setInt("material.texture_emission1", 2);
 		shader->setFloat("material.shininess", 32.0f);
 
 		glActiveTexture(GL_TEXTURE0);
