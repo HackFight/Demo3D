@@ -4,12 +4,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
 
-GameObject::GameObject(std::shared_ptr<Core::VertexArray> mesh, std::shared_ptr<Core::Shader> shader, glm::vec3 position, ShaderType shaderType, BlinnPhongMaterial material)
-	: mesh(mesh), shader(shader), position(position), shaderType(shaderType), material(material) {}
+GameObject::GameObject(std::shared_ptr<Core::VertexArray> vertexArray, std::shared_ptr<Core::Shader> shader, glm::vec3 position, ShaderType shaderType, BlinnPhongMaterial material)
+	: vertexArray(vertexArray), shader(shader), position(position), shaderType(shaderType), material(material) {}
 
 GameObject::~GameObject() {}
 
-void GameObject::Render(std::shared_ptr<Core::RendererAPI> renderer, std::shared_ptr<Core::Camera> camera)
+void GameObject::Render(std::shared_ptr<Core::Camera> camera)
 {
 	switch(shaderType)
 	{
@@ -18,7 +18,8 @@ void GameObject::Render(std::shared_ptr<Core::RendererAPI> renderer, std::shared
 		shader->setmat4("viewMat", camera->getViewMatrix());
 		shader->setmat4("projMat", camera->getProjectionMatrix());
 		shader->setmat4("modelMat", glm::translate(glm::mat4(1.0f), position));
-		renderer->DrawIndexed(mesh);
+		vertexArray->Bind();
+		glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 		break;
 
 	case BlinnPhong:
@@ -28,7 +29,8 @@ void GameObject::Render(std::shared_ptr<Core::RendererAPI> renderer, std::shared
 		shader->setmat4("projMat", camera->getProjectionMatrix());
 		shader->setmat4("modelMat", glm::translate(glm::mat4(1.0f), position));
 		MaterialGen::setBlinnPhongMaterial(shader, material);
-		renderer->DrawIndexed(mesh);
+		vertexArray->Bind();
+		glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 		break;
 
 	case Textured:
@@ -51,7 +53,8 @@ void GameObject::Render(std::shared_ptr<Core::RendererAPI> renderer, std::shared
 		glActiveTexture(GL_TEXTURE2);
 		textures.size() > 2 ? textures[2]->Bind() : textures[0]->Unbind();
 
-		renderer->DrawIndexed(mesh);
+		vertexArray->Bind();
+		glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 		break;
 	}
 }

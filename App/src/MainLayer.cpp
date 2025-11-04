@@ -1,6 +1,7 @@
 #include "MainLayer.h"
 
 #include "Core/Application.h"
+#include "Core/Model.h"
 #include "MeshGen.h"
 
 // libs
@@ -49,8 +50,10 @@ void MainLayer::OnRender()
 
     for (GameObject object : gameObjects)
     {
-        object.Render(renderer, camera);
+        object.Render(camera);
     }
+
+    backpack->Draw(texturedShader);
 }
 
 void MainLayer::ProcessInput(double ts)
@@ -90,7 +93,7 @@ void MainLayer::LoadAssets()
     blinnPhongShader->set3f("light.diffuse", 1.0f, 1.0f, 1.0f);
     blinnPhongShader->set3f("light.specular", 1.0f, 1.0f, 1.0f);
 
-    std::shared_ptr<Core::Shader> texturedShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured.frag");
+    texturedShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured.frag");
     texturedShader->Bind();
     texturedShader->set3f("light.position", 0.0f, 3.0f, 0.0f);
     texturedShader->set3f("light.ambient", 0.0f, 0.0f, 0.0f);
@@ -126,6 +129,8 @@ void MainLayer::LoadAssets()
     redstoneOre.AddTexture(redstoneOreSpecular);
     redstoneOre.AddTexture(redstoneOreEmission);
 	gameObjects.push_back(redstoneOre);
+
+    backpack = Core::Model::Create(RESOURCES_PATH "models/backpack/backpack.obj");
 
     camera = std::make_shared<Core::Camera>(0.0f, 1.0f, 2.0f, 0.0f, 1.0f, 0.0f, -90.0f, 0.0f);
 }
