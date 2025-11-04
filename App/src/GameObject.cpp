@@ -24,6 +24,8 @@ void GameObject::Render(std::shared_ptr<Core::Camera> camera)
 		shader->setInt("material.texture_emission1", 2);
 		shader->setFloat("material.shininess", 32.0f);
 
+		shader->set3f("viewPos", camera->getPos());
+
 		for (int i = 0; i < 16; i++)
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
@@ -35,10 +37,13 @@ void GameObject::Render(std::shared_ptr<Core::Camera> camera)
 
 	case BlinnPhong:
 		shader->Bind();
-		shader->set3f("viewPos", camera->getPos());
+
 		shader->setmat4("viewMat", camera->getViewMatrix());
 		shader->setmat4("projMat", camera->getProjectionMatrix());
 		shader->setmat4("modelMat", glm::translate(glm::mat4(1.0f), position));
+
+		shader->set3f("viewPos", camera->getPos());
+
 		MaterialGen::setBlinnPhongMaterial(shader, material);
 		model->Draw(shader);
 		break;

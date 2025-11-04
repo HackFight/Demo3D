@@ -954,7 +954,6 @@ _deps
 *.slo
 *.lo
 *.o
-*.obj
 
 # Precompiled Headers
 *.gch
@@ -990,7 +989,6 @@ _deps
 # Object files
 *.o
 *.ko
-*.obj
 *.elf
 
 # Linker output

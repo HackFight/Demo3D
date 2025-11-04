@@ -136,7 +136,10 @@ void MainLayer::LoadAssets()
 	gameObjects.push_back(GameObject(ModelGen::GetCube(redstoneOreTextures), texturedShader, glm::vec3(1.0f, 0.5f, -5.0f), GameObject::ShaderType::Default));
 
 	// create the backpack
-	gameObjects.push_back(GameObject(Core::Model::Create(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, glm::vec3(0.0f, 2.0f, -7.0f), GameObject::ShaderType::Default));
+	gameObjects.push_back(GameObject(Core::Model::Create(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, glm::vec3(3.0f, 2.0f, -7.0f), GameObject::ShaderType::Default));
+
+	// create the Vyse helmet
+    gameObjects.push_back(GameObject(Core::Model::Create(RESOURCES_PATH "models/vyse-helmet/vyse-helmet.obj"), blinnPhongShader, glm::vec3(0.0f, 1.0f, -7.0f)));
 
 	// setup the camera
     camera = std::make_shared<Core::Camera>(0.0f, 1.0f, 2.0f, 0.0f, 1.0f, 0.0f, -90.0f, 0.0f);
