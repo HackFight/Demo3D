@@ -19,6 +19,16 @@ namespace Core
     {
         return std::make_shared<Model>(filename);
     }
+    std::shared_ptr<Model> Model::Create(std::vector<Mesh> meshes)
+    {
+        return std::make_shared<Model>(meshes);
+    }
+    std::shared_ptr<Model> Model::Create(Mesh mesh)
+    {
+        std::vector<Mesh> meshes;
+		meshes.push_back(mesh);
+        return std::make_shared<Model>(meshes);
+    }
 
     void Model::loadModel(std::string path)
     {

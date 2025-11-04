@@ -1,11 +1,10 @@
 #pragma once
 
 #include "Core/Layer.h"
-#include "Core/Model.h"
 #include "Renderer/Camera.h"
 #include "RendererAPI/RendererAPI.h"
 #include "GameObject.h"
-#include "RendererAPI/Shader.h"
+
 #include <memory>
 
 class MainLayer : public Core::Layer
@@ -25,8 +24,6 @@ private:
 	std::shared_ptr<Core::Camera> camera;
 
 	std::vector<GameObject> gameObjects;
-	std::shared_ptr<Core::Shader> texturedShader;
-	std::shared_ptr<Core::Model> backpack;
 
 	double timeAcc = 0.0;
 	int frameCounter = 0;

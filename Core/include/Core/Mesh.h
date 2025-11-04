@@ -24,4 +24,4 @@ public:
     
     Mesh(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures);
     void Draw(std::shared_ptr<Core::Shader> shader);
-};  
+};

@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <vector>
+#include <Core/Model.h>
 
 class GameObject
 {
@@ -16,26 +17,19 @@ public:
 	enum ShaderType
 	{
 		Default,
-		BlinnPhong,
-		Textured
+		BlinnPhong
 	};
 
-	GameObject(std::shared_ptr<Core::VertexArray> vertexArray, std::shared_ptr<Core::Shader> shader, glm::vec3 position = glm::vec3(0.0f), ShaderType shaderType = BlinnPhong, BlinnPhongMaterial material = WhitePlastic);
+	GameObject(std::shared_ptr<Core::Model> model, std::shared_ptr<Core::Shader> shader, glm::vec3 position = glm::vec3(0.0f), ShaderType shaderType = BlinnPhong, BlinnPhongMaterial material = WhitePlastic);
 	~GameObject();
-
-	void AddTexture(std::shared_ptr<Core::Texture> texture)
-	{
-		textures.push_back(texture);
-	}
 
 	void Render(std::shared_ptr<Core::Camera> camera);
 
 private:
-	std::shared_ptr<Core::VertexArray> vertexArray;
+	std::shared_ptr<Core::Model> model;
 	std::shared_ptr<Core::Shader> shader;
 	ShaderType shaderType;
 	BlinnPhongMaterial material;
-	std::vector<std::shared_ptr<Core::Texture>> textures;
 
 	glm::vec3 position;
 };

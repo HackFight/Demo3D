@@ -2,11 +2,10 @@
 
 #include "Core/Application.h"
 #include "Core/Model.h"
-#include "MeshGen.h"
+#include "ModelGen.h"
 
 // libs
 #include <GLFW/glfw3.h>
-#include <GL/gl.h>
 
 // std
 #include <iostream>
@@ -52,16 +51,6 @@ void MainLayer::OnRender()
     {
         object.Render(camera);
     }
-
-	texturedShader->Bind();
-    texturedShader->set3f("viewPos", camera->getPos());
-    texturedShader->setmat4("viewMat", camera->getViewMatrix());
-    texturedShader->setmat4("projMat", camera->getProjectionMatrix());
-    texturedShader->setmat4("modelMat", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 2.0f, -7.0f)));
-	texturedShader->setFloat("material.shininess", 32.0f);
-
-	renderer->UnbindAllTextures();
-    backpack->Draw(texturedShader);
 }
 
 void MainLayer::ProcessInput(double ts)
@@ -94,6 +83,7 @@ void MainLayer::ProcessInput(double ts)
 
 void MainLayer::LoadAssets()
 {
+	// load and setup the blinn-phong shader
     std::shared_ptr<Core::Shader> blinnPhongShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
     blinnPhongShader->Bind();
     blinnPhongShader->set3f("light.position", 0.0f, 3.0f, 0.0f);
@@ -101,44 +91,53 @@ void MainLayer::LoadAssets()
     blinnPhongShader->set3f("light.diffuse", 1.0f, 1.0f, 1.0f);
     blinnPhongShader->set3f("light.specular", 1.0f, 1.0f, 1.0f);
 
-    texturedShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured.frag");
+	// load and setup the textured shader
+    std::shared_ptr<Core::Shader> texturedShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured.frag");
     texturedShader->Bind();
     texturedShader->set3f("light.position", 0.0f, 3.0f, 0.0f);
     texturedShader->set3f("light.ambient", 0.0f, 0.0f, 0.0f);
     texturedShader->set3f("light.diffuse", 1.0f, 1.0f, 1.0f);
     texturedShader->set3f("light.specular", 1.0f, 1.0f, 1.0f);
 
-    std::shared_ptr<Core::Texture> defaultTexture = std::make_shared<Core::Texture>(RESOURCES_PATH "textures/default.png", GL_LINEAR, GL_RGBA);
-	
-    std::shared_ptr<Core::Texture> boxAlbedo = std::make_shared<Core::Texture>(RESOURCES_PATH "textures/box.png", GL_LINEAR, GL_RGBA);
-    std::shared_ptr<Core::Texture> boxSpecular = std::make_shared<Core::Texture>(RESOURCES_PATH "textures/box-specular.png", GL_LINEAR, GL_RGBA);
-    
-    std::shared_ptr<Core::Texture> redstoneOreAlbedo = std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore.png", GL_NEAREST, GL_RGB);
-    std::shared_ptr<Core::Texture> redstoneOreSpecular = std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore-specular.png", GL_NEAREST, GL_RGB);
-    std::shared_ptr<Core::Texture> redstoneOreEmission = std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore-emission.png", GL_NEAREST, GL_RGB);
+    // load the default texture
+    std::vector<std::shared_ptr<Core::Texture>> defaultTextures
+    {
+        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/default.png", GL_LINEAR, GL_RGBA)
+    };
 
-    GameObject ground = GameObject(MeshGen::GetPlane(1000), texturedShader, glm::vec3(0.0f), GameObject::ShaderType::Textured);
-    ground.AddTexture(defaultTexture);
-    gameObjects.push_back(ground);
+	// load the box textures
+    std::vector<std::shared_ptr<Core::Texture>> boxTextures
+    {
+    std::make_shared<Core::Texture>(RESOURCES_PATH "textures/box.png", GL_LINEAR, GL_RGBA),
+    std::make_shared<Core::Texture>(RESOURCES_PATH "textures/box-specular.png", GL_LINEAR, GL_RGBA)
+    };
 
-	std::shared_ptr<Core::VertexArray> cubeMesh = MeshGen::GetCube();
+	// load the redstone ore textures
+    std::vector<std::shared_ptr<Core::Texture>> redstoneOreTextures
+    {
+        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore.png", GL_NEAREST, GL_RGB),
+        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore-specular.png", GL_NEAREST, GL_RGB),
+        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore-emission.png", GL_NEAREST, GL_RGB)
+    };
+
+	// create the ground plane
+    gameObjects.push_back(GameObject(ModelGen::GetPlane(1000, defaultTextures), texturedShader, glm::vec3(0.0f), GameObject::ShaderType::Default));
+
+	// create cubes with different materials
     for (int i = 0; i < 24; i++)
     {
-		gameObjects.push_back(GameObject(cubeMesh, blinnPhongShader, glm::vec3((i % 6) * 2.0f - 5.0f, 0.5f, (i / 6) * 2.0f - 3.0f), GameObject::ShaderType::BlinnPhong, static_cast<BlinnPhongMaterial>(i)));
+		gameObjects.push_back(GameObject(ModelGen::GetCube(), blinnPhongShader, glm::vec3((i % 6) * 2.0f - 5.0f, 0.5f, (i / 6) * 2.0f - 3.0f), GameObject::ShaderType::BlinnPhong, static_cast<BlinnPhongMaterial>(i)));
     }
 
-    GameObject box = GameObject(cubeMesh, texturedShader, glm::vec3(-1.0f, 0.5f, -5.0f), GameObject::ShaderType::Textured);
-	box.AddTexture(boxAlbedo);
-	box.AddTexture(boxSpecular);
-	gameObjects.push_back(box);
+    // create the textured box
+	gameObjects.push_back(GameObject(ModelGen::GetCube(boxTextures), texturedShader, glm::vec3(-1.0f, 0.5f, -5.0f), GameObject::ShaderType::Default));
 
-    GameObject redstoneOre = GameObject(cubeMesh, texturedShader, glm::vec3(1.0f, 0.5f, -5.0f), GameObject::ShaderType::Textured);
-	redstoneOre.AddTexture(redstoneOreAlbedo);
-    redstoneOre.AddTexture(redstoneOreSpecular);
-    redstoneOre.AddTexture(redstoneOreEmission);
-	gameObjects.push_back(redstoneOre);
+	// create the redstone ore
+	gameObjects.push_back(GameObject(ModelGen::GetCube(redstoneOreTextures), texturedShader, glm::vec3(1.0f, 0.5f, -5.0f), GameObject::ShaderType::Default));
 
-    backpack = Core::Model::Create(RESOURCES_PATH "models/backpack/backpack.obj");
+	// create the backpack
+	gameObjects.push_back(GameObject(Core::Model::Create(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, glm::vec3(0.0f, 2.0f, -7.0f), GameObject::ShaderType::Default));
 
+	// setup the camera
     camera = std::make_shared<Core::Camera>(0.0f, 1.0f, 2.0f, 0.0f, 1.0f, 0.0f, -90.0f, 0.0f);
 }
