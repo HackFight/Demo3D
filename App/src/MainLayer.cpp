@@ -2,6 +2,7 @@
 
 #include "Core/Application.h"
 #include "Core/Model.h"
+#include "MeshGen.h"
 #include "ModelGen.h"
 
 // libs
@@ -10,6 +11,7 @@
 // std
 #include <iostream>
 #include <memory>
+#include <vector>
 
 MainLayer::MainLayer()
 {
@@ -47,9 +49,10 @@ void MainLayer::OnRender()
     glm::vec2 viewportSize = Core::Application::Get().GetFramebufferSize();
     renderer->SetViewport(0, 0, viewportSize.x, viewportSize.y);
 
+    camera->RenderSkybox();
     for (GameObject object : gameObjects)
     {
-        object.Render(camera);
+        object.Render(camera->coreCamera);
     }
 }
 
@@ -64,13 +67,13 @@ void MainLayer::ProcessInput(double ts)
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_ESCAPE) == GLFW_RELEASE)
         canPress = true;
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_W) == GLFW_PRESS)
-        camera->ProcessKeyboard(Core::FORWARD, ts);
+        camera->coreCamera->ProcessKeyboard(Core::FORWARD, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_S) == GLFW_PRESS)
-        camera->ProcessKeyboard(Core::BACKWARD, ts);
+        camera->coreCamera->ProcessKeyboard(Core::BACKWARD, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_A) == GLFW_PRESS)
-        camera->ProcessKeyboard(Core::LEFT, ts);
+        camera->coreCamera->ProcessKeyboard(Core::LEFT, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_D) == GLFW_PRESS)
-        camera->ProcessKeyboard(Core::RIGHT, ts);
+        camera->coreCamera->ProcessKeyboard(Core::RIGHT, ts);
 
     double xpos, ypos;
     glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
@@ -78,7 +81,7 @@ void MainLayer::ProcessInput(double ts)
     double yoffset = lastY - ypos;
     lastX = xpos;
     lastY = ypos;
-    camera->ProcessMouseMovement(xoffset, yoffset);
+    camera->coreCamera->ProcessMouseMovement(xoffset, yoffset);
 }
 
 void MainLayer::LoadAssets()
@@ -86,18 +89,30 @@ void MainLayer::LoadAssets()
 	// load and setup the blinn-phong shader
     std::shared_ptr<Core::Shader> blinnPhongShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
     blinnPhongShader->Bind();
-    blinnPhongShader->set3f("light.position", 0.0f, 3.0f, 0.0f);
-    blinnPhongShader->set3f("light.ambient", 0.0f, 0.0f, 0.0f);
+    blinnPhongShader->set3f("light.direction", 1.0f, -3.0f, 1.0f);
+    blinnPhongShader->set3f("light.ambient", 0.5f, 0.5f, 0.5f);
     blinnPhongShader->set3f("light.diffuse", 1.0f, 1.0f, 1.0f);
     blinnPhongShader->set3f("light.specular", 1.0f, 1.0f, 1.0f);
 
 	// load and setup the textured shader
     std::shared_ptr<Core::Shader> texturedShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured.frag");
     texturedShader->Bind();
-    texturedShader->set3f("light.position", 0.0f, 3.0f, 0.0f);
-    texturedShader->set3f("light.ambient", 0.0f, 0.0f, 0.0f);
+    texturedShader->set3f("light.direction", 1.0f, -3.0f, 1.0f);
+    texturedShader->set3f("light.ambient", 0.5f, 0.5f, 0.5f);
     texturedShader->set3f("light.diffuse", 1.0f, 1.0f, 1.0f);
     texturedShader->set3f("light.specular", 1.0f, 1.0f, 1.0f);
+
+    std::shared_ptr<Core::Shader> skyboxShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag");
+    
+    std::vector<const char*> faces
+    {
+        RESOURCES_PATH "textures/skybox/right.jpg",
+        RESOURCES_PATH "textures/skybox/left.jpg",
+        RESOURCES_PATH "textures/skybox/top.jpg",
+        RESOURCES_PATH "textures/skybox/bottom.jpg",
+        RESOURCES_PATH "textures/skybox/front.jpg",
+        RESOURCES_PATH "textures/skybox/back.jpg"
+    };
 
     // load the default texture
     std::vector<std::shared_ptr<Core::Texture>> defaultTextures
@@ -142,5 +157,6 @@ void MainLayer::LoadAssets()
     gameObjects.push_back(GameObject(Core::Model::Create(RESOURCES_PATH "models/vyse-helmet/vyse-helmet.obj"), blinnPhongShader, glm::vec3(0.0f, 1.0f, -7.0f)));
 
 	// setup the camera
-    camera = std::make_shared<Core::Camera>(0.0f, 1.0f, 2.0f, 0.0f, 1.0f, 0.0f, -90.0f, 0.0f);
+    camera = std::make_shared<Camera>(glm::vec3(0.0f, 1.0f, 2.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
+    camera->SetSkybox(MeshGen::GetCube(), std::make_shared<Core::Texture>(faces), skyboxShader);
 }

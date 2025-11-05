@@ -1,14 +1,10 @@
 #pragma once
 
-#include "RendererAPI/RendererAPI.h"
 #include <Renderer/Camera.h>
 #include "RendererAPI/Shader.h"
-#include "RendererAPI/Texture.h"
-#include "RendererAPI/VertexArray.h"
 #include "MaterialGen.h"
 
 #include <memory>
-#include <vector>
 #include <Core/Model.h>
 
 class GameObject

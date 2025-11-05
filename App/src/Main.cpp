@@ -9,6 +9,7 @@ int main()
 	appSpec.WindowSpec.Width = 800;
 	appSpec.WindowSpec.Height = 800;
 	appSpec.WindowSpec.VSync = true;
+	appSpec.WindowSpec.Multisampling = true;
 
 	Core::Application app(appSpec);
 	app.PushLayer<MainLayer>();

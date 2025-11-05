@@ -5,6 +5,7 @@
 #include "glm/geometric.hpp"
 
 #include <glad/glad.h>
+#include <iostream>
 
 namespace Core {
 

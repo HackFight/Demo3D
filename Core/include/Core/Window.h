@@ -19,6 +19,8 @@ namespace Core {
 		bool Borderless = false;
 		bool Resizable = true;
 		bool Maximized = false;
+		bool Multisampling = false;
+		unsigned int Samples = 4;
 	};
 
 	class Window

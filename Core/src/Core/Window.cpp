@@ -40,6 +40,10 @@ namespace Core {
 		}
 
 		glfwSwapInterval(m_Specification.VSync ? 1 : 0);
+
+		glfwWindowHint(GLFW_SAMPLES, m_Specification.Samples);
+		if(m_Specification.Multisampling)
+			glEnable(GL_MULTISAMPLE);
 	}
 
 	void Window::Destroy()

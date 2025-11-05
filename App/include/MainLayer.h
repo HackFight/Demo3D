@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Layer.h"
-#include "Renderer/Camera.h"
+#include "Camera.h"
 #include "RendererAPI/RendererAPI.h"
 #include "GameObject.h"
 
@@ -21,7 +21,7 @@ private:
 	void LoadAssets();
 
 	std::shared_ptr<Core::RendererAPI> renderer;
-	std::shared_ptr<Core::Camera> camera;
+	std::shared_ptr<Camera> camera;
 
 	std::vector<GameObject> gameObjects;
 
