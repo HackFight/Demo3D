@@ -49,11 +49,12 @@ void MainLayer::OnRender()
     glm::vec2 viewportSize = Core::Application::Get().GetFramebufferSize();
     renderer->SetViewport(0, 0, viewportSize.x, viewportSize.y);
 
-    camera->RenderSkybox();
     for (GameObject object : gameObjects)
     {
         object.Render(camera->coreCamera);
     }
+
+    camera->RenderSkybox();
 }
 
 void MainLayer::ProcessInput(double ts)

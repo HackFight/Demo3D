@@ -12,7 +12,7 @@ namespace Core {
 	public:
     	Texture();
 		Texture(int width, int height, uint32_t param, uint32_t format, const void* data);
-		Texture(const char* filename, uint32_t param, uint32_t format);
+		Texture(const char* filename, uint32_t param, uint32_t format, bool flip = false);
 		Texture(std::vector<const char*> faces);
 		~Texture();
 

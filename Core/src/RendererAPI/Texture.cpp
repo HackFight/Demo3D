@@ -18,12 +18,12 @@ namespace Core {
         glGenTextures(1, &m_RendererID);
         SetData(width, height, param, format, data);
     }
-    Texture::Texture(const char* filename, uint32_t param, uint32_t format)
+    Texture::Texture(const char* filename, uint32_t param, uint32_t format, bool flip)
     {
         glGenTextures(1, &m_RendererID);
 
         int width, height, nrChannels;
-        stbi_set_flip_vertically_on_load(true);
+        stbi_set_flip_vertically_on_load(flip);
         unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
         if (data == nullptr)
         {

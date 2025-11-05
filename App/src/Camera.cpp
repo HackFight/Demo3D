@@ -21,11 +21,11 @@ void Camera::SetSkybox(std::shared_ptr<Core::VertexArray> vertexArray, std::shar
 
 void Camera::RenderSkybox()
 {
-    glDepthMask(GL_FALSE);
-    
+    glDepthFunc(GL_LEQUAL);
+
     skyboxShader->Bind();
     skyboxShader->setmat4("projMat", coreCamera->getProjectionMatrix());
-    skyboxShader->setmat4("viewMat", glm::translate(coreCamera->getViewMatrix(), coreCamera->getPos()));
+    skyboxShader->setmat4("viewMat", glm::mat4(glm::mat3(coreCamera->getViewMatrix())));
     skyboxShader->setInt("skybox", 0);
 
     glActiveTexture(GL_TEXTURE0);
@@ -34,5 +34,5 @@ void Camera::RenderSkybox()
     skyboxVertexArray->Bind();
     glDrawElements(GL_TRIANGLES, skyboxVertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 
-    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
 }
