@@ -25,6 +25,7 @@ void GameObject::Render(std::shared_ptr<Core::Camera> camera)
 		shader->setFloat("material.shininess", 32.0f);
 
 		shader->set3f("viewPos", camera->getPos());
+		shader->setBool("gamma", true);
 
 		for (int i = 0; i < 16; i++)
 		{
@@ -43,7 +44,8 @@ void GameObject::Render(std::shared_ptr<Core::Camera> camera)
 		shader->setmat4("modelMat", glm::translate(glm::mat4(1.0f), position));
 
 		shader->set3f("viewPos", camera->getPos());
-
+		shader->setBool("gamma", true);
+		
 		MaterialGen::setBlinnPhongMaterial(shader, material);
 		model->Draw(shader);
 		break;

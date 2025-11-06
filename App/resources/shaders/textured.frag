@@ -26,6 +26,7 @@ uniform Light light;
 uniform Material material;
 
 uniform vec3 viewPos;
+uniform bool gamma;
 
 void main()
 {
@@ -48,5 +49,9 @@ void main()
     // emission
     vec3 emission = texture(material.texture_emission1, texCoord).rgb;
 
-    FragColor = vec4(ambient + diffuse + specular + emission, 1.0);
+    // simple attenuation
+    float distance = 1.5;
+    float attenuation = 1.0 / (gamma ? distance * distance : distance);
+
+    FragColor = vec4(ambient + (diffuse + specular) * attenuation + emission, 1.0);
 }

@@ -76,7 +76,7 @@ namespace Core {
         switch (type)
         {
         case Color:
-            texture = Texture::Create(width, height, GL_LINEAR, GL_RGB, NULL);
+            texture = Texture::Create(GL_RGB, width, height, GL_LINEAR, GL_RGB, NULL);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->GetRendererID(), 0);
             break;
 

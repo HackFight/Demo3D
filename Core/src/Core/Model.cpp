@@ -140,7 +140,7 @@ namespace Core
             if (!skip)
             {
                 Mesh::Texture texture;
-                texture.ptr = std::make_shared<Core::Texture>(filename.c_str(), GL_LINEAR, GL_RGB, true);
+                texture.ptr = std::make_shared<Core::Texture>(filename.c_str(), GL_RGB, GL_LINEAR, GL_RGB, true);
                 texture.type = typeName;
                 texture.path = filename;
                 textures.push_back(texture);

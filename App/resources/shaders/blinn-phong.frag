@@ -25,6 +25,7 @@ uniform Light light;
 uniform Material material;
 
 uniform vec3 viewPos;
+uniform bool gamma;
 
 void main()
 {
@@ -44,6 +45,10 @@ void main()
     float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
     vec3 specular = light.specular * (spec * material.specular);
 
-    vec3 result = ambient + diffuse + specular;
+    // simple attenuation
+    float distance = 1.5;
+    float attenuation = 1.0 / (gamma ? distance * distance : distance);
+
+    vec3 result = ambient + (diffuse + specular) * attenuation;
     FragColor = vec4(result, 1.0);
 }

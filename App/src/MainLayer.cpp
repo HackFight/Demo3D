@@ -9,6 +9,7 @@
 #include "RendererAPI/Texture.h"
 
 // libs
+#include <GL/glext.h>
 #include <GLFW/glfw3.h>
 
 // std
@@ -50,7 +51,7 @@ void MainLayer::OnRender()
 {
     glm::vec2 viewportSize = Core::Application::Get().GetFramebufferSize();
     renderer->SetViewport(0, 0, viewportSize.x, viewportSize.y);
-    textureColorBuffer->SetData(viewportSize.x, viewportSize.y, GL_LINEAR, GL_RGB, NULL);
+    textureColorBuffer->SetData(GL_RGB, viewportSize.x, viewportSize.y, GL_LINEAR, GL_RGB, NULL);
     renderbuffer->SetData(viewportSize.x, viewportSize.y);
 
     // Render scene in framebuffer
@@ -138,22 +139,22 @@ void MainLayer::LoadAssets()
     // load the default texture
     std::vector<std::shared_ptr<Core::Texture>> defaultTextures
     {
-        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/default.png", GL_LINEAR, GL_RGBA)
+        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/default.png", GL_SRGB, GL_LINEAR, GL_RGBA)
     };
 
 	// load the box textures
     std::vector<std::shared_ptr<Core::Texture>> boxTextures
     {
-    std::make_shared<Core::Texture>(RESOURCES_PATH "textures/box.png", GL_LINEAR, GL_RGBA),
-    std::make_shared<Core::Texture>(RESOURCES_PATH "textures/box-specular.png", GL_LINEAR, GL_RGBA)
+    std::make_shared<Core::Texture>(RESOURCES_PATH "textures/box.png", GL_SRGB, GL_LINEAR, GL_RGBA),
+    std::make_shared<Core::Texture>(RESOURCES_PATH "textures/box-specular.png", GL_RGB, GL_LINEAR, GL_RGBA)
     };
 
 	// load the redstone ore textures
     std::vector<std::shared_ptr<Core::Texture>> redstoneOreTextures
     {
-        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore.png", GL_NEAREST, GL_RGB),
-        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore-specular.png", GL_NEAREST, GL_RGB),
-        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore-emission.png", GL_NEAREST, GL_RGB)
+        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore.png", GL_SRGB, GL_NEAREST, GL_RGB),
+        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore-specular.png", GL_RGB, GL_NEAREST, GL_RGB),
+        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore-emission.png", GL_SRGB, GL_NEAREST, GL_RGB)
     };
 
 	// create the ground plane
@@ -182,7 +183,7 @@ void MainLayer::LoadAssets()
     camera->SetSkybox(MeshGen::GetReversedCube(), std::make_shared<Core::Texture>(faces), skyboxShader);
 
     // setup post processing
-    textureColorBuffer = Core::Texture::Create(1920, 1200, GL_LINEAR, GL_RGB, NULL);
+    textureColorBuffer = Core::Texture::Create(GL_RGB, 1920, 1200, GL_LINEAR, GL_RGB, NULL);
 
     std::vector<std::shared_ptr<Core::Texture>> temp;
     temp.push_back(textureColorBuffer);

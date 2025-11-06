@@ -8,6 +8,7 @@ struct Material {
 };
 
 uniform Material material;
+uniform bool gamma;
 
 void main()
 { 
