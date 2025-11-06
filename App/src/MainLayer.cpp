@@ -1,16 +1,8 @@
 #include "MainLayer.h"
 
 #include "Core/Application.h"
-#include "RendererAPI/Framebuffer.h"
-#include "RendererAPI/Texture.h"
-#include "Core/Model.h"
-#include "MeshGen.h"
-#include "ModelGen.h"
-#include "GameObject.h"
-
-// libs
-#include <GL/glext.h>
-#include <GLFW/glfw3.h>
+#include <ModelGen.h>
+#include <MeshGen.h>
 
 // std
 #include <iostream>
@@ -180,22 +172,22 @@ void MainLayer::LoadAssets()
     // load the default texture
     std::vector<std::shared_ptr<Core::Texture>> defaultTextures
     {
-        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/default.png", GL_SRGB, GL_LINEAR, GL_RGBA)
+        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/default.png", 0x8C40, GL_LINEAR, GL_RGBA)
     };
 
 	// load the box textures
     std::vector<std::shared_ptr<Core::Texture>> boxTextures
     {
-    std::make_shared<Core::Texture>(RESOURCES_PATH "textures/box.png", GL_SRGB, GL_LINEAR, GL_RGBA),
-    std::make_shared<Core::Texture>(RESOURCES_PATH "textures/box-specular.png", GL_RGB, GL_LINEAR, GL_RGBA)
+        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/box.png", 0x8C40, GL_LINEAR, GL_RGBA),
+        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/box-specular.png", GL_RGB, GL_LINEAR, GL_RGBA)
     };
 
 	// load the redstone ore textures
     std::vector<std::shared_ptr<Core::Texture>> redstoneOreTextures
     {
-        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore.png", GL_SRGB, GL_NEAREST, GL_RGB),
+        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore.png", 0x8C40, GL_NEAREST, GL_RGB),
         std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore-specular.png", GL_RGB, GL_NEAREST, GL_RGB),
-        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore-emission.png", GL_SRGB, GL_NEAREST, GL_RGB)
+        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore-emission.png", 0x8C40, GL_NEAREST, GL_RGB)
     };
 
 	// create the ground plane
