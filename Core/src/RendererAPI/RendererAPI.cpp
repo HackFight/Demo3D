@@ -37,6 +37,10 @@ namespace Core {
 	{
 		b ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
 	}
+	void RendererAPI::SRGBColorSpace(bool b)
+	{
+		b ? glEnable(GL_FRAMEBUFFER_SRGB) : glDisable(GL_FRAMEBUFFER_SRGB);
+	}
 	void RendererAPI::UnbindAllTextures()
 	{
 		for (int i = 0; i < 16; i++)

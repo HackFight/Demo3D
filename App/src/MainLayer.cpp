@@ -54,6 +54,7 @@ void MainLayer::OnRender()
     renderbuffer->SetData(viewportSize.x, viewportSize.y);
 
     // Render scene in framebuffer
+    renderer->SRGBColorSpace(false); // disble gamma correction for intermediate steps
     framebuffer->Bind();
     renderer->ClearColor();
     renderer->ClearDepth();
@@ -67,6 +68,7 @@ void MainLayer::OnRender()
     camera->RenderSkybox();
 
     // Render quad with framebuffer texture
+    renderer->SRGBColorSpace(true); // enable gamma correction for final render
     framebuffer->Unbind();
     renderer->ClearColor();
     renderer->DepthTest(false);

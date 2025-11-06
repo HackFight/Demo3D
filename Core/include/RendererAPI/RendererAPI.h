@@ -21,6 +21,7 @@ namespace Core {
 		void ClearColor();
 		void ClearDepth();
 		void DepthTest(bool b);
+		void SRGBColorSpace(bool b);
 		void UnbindAllTextures();
 
 		void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0);
