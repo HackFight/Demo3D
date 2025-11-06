@@ -10,5 +10,6 @@ class MeshGen {
 public:
     static std::shared_ptr<Core::VertexArray> GetQuad();
     static std::shared_ptr<Core::VertexArray> GetCube();
+    static std::shared_ptr<Core::VertexArray> GetReversedCube();
     static std::shared_ptr<Core::VertexArray> GetPlane(const int size);
 };

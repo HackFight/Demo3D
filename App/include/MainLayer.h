@@ -2,6 +2,7 @@
 
 #include "Core/Layer.h"
 #include "Camera.h"
+#include "RendererAPI/Framebuffer.h"
 #include "RendererAPI/RendererAPI.h"
 #include "GameObject.h"
 
@@ -22,6 +23,11 @@ private:
 
 	std::shared_ptr<Core::RendererAPI> renderer;
 	std::unique_ptr<Camera> camera;
+
+	std::shared_ptr<Core::Texture> textureColorBuffer;
+	std::shared_ptr<Core::Renderbuffer> renderbuffer;
+	std::shared_ptr<Core::Framebuffer> framebuffer;
+	std::shared_ptr<GameObject> screenQuad;
 
 	std::vector<GameObject> gameObjects;
 

@@ -25,7 +25,7 @@ namespace Core {
 		~VertexBuffer();
 
 		void Bind() const;
-		void Unbind() const;
+		static void Unbind();
 
 		void SetData(const void* data, uint32_t size);
 
@@ -44,7 +44,7 @@ namespace Core {
 		~IndexBuffer();
 
 		void Bind() const;
-		void Unbind() const;
+		static void Unbind();
 
 		uint32_t GetCount() const { return m_Count; }
 

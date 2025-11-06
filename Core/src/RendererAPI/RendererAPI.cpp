@@ -25,11 +25,18 @@ namespace Core {
 		glClearColor(color.r, color.g, color.b, color.a);
 	}
 
-	void RendererAPI::Clear()
+	void RendererAPI::ClearColor()
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
 	}
-
+	void RendererAPI::ClearDepth()
+	{
+		glClear(GL_DEPTH_BUFFER_BIT);
+	}
+	void RendererAPI::DepthTest(bool b)
+	{
+		b ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
+	}
 	void RendererAPI::UnbindAllTextures()
 	{
 		for (int i = 0; i < 16; i++)

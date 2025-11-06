@@ -19,7 +19,7 @@ namespace Core {
     {
         glBindVertexArray(m_RendererID);
     }
-    void VertexArray::Unbind() const
+    void VertexArray::Unbind()
     {
         glBindVertexArray(0);
     }

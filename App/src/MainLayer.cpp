@@ -2,8 +2,11 @@
 
 #include "Core/Application.h"
 #include "Core/Model.h"
+#include "GameObject.h"
 #include "MeshGen.h"
 #include "ModelGen.h"
+#include "RendererAPI/Framebuffer.h"
+#include "RendererAPI/Texture.h"
 
 // libs
 #include <GLFW/glfw3.h>
@@ -45,9 +48,16 @@ void MainLayer::OnUpdate(double ts)
 }
 void MainLayer::OnRender()
 {
-    renderer->Clear();
     glm::vec2 viewportSize = Core::Application::Get().GetFramebufferSize();
     renderer->SetViewport(0, 0, viewportSize.x, viewportSize.y);
+    textureColorBuffer->SetData(viewportSize.x, viewportSize.y, GL_LINEAR, GL_RGB, NULL);
+    renderbuffer->SetData(viewportSize.x, viewportSize.y);
+
+    // Render scene in framebuffer
+    framebuffer->Bind();
+    renderer->ClearColor();
+    renderer->ClearDepth();
+    renderer->DepthTest(true);
 
     for (GameObject object : gameObjects)
     {
@@ -55,6 +65,12 @@ void MainLayer::OnRender()
     }
 
     camera->RenderSkybox();
+
+    // Render quad with framebuffer texture
+    framebuffer->Unbind();
+    renderer->ClearColor();
+    renderer->DepthTest(false);
+    screenQuad->Render(camera->coreCamera);
 }
 
 void MainLayer::ProcessInput(double ts)
@@ -104,6 +120,8 @@ void MainLayer::LoadAssets()
     texturedShader->set3f("light.specular", 1.0f, 1.0f, 1.0f);
 
     std::shared_ptr<Core::Shader> skyboxShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag");
+
+    std::shared_ptr<Core::Shader> postProcessingShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/post.vert", RESOURCES_PATH "shaders/post.frag");
     
     std::vector<const char*> faces
     {
@@ -159,5 +177,19 @@ void MainLayer::LoadAssets()
 
 	// setup the camera
     camera = std::make_unique<Camera>(glm::vec3(0.0f, 1.0f, 2.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
-    camera->SetSkybox(MeshGen::GetCube(), std::make_shared<Core::Texture>(faces), skyboxShader);
+    camera->SetSkybox(MeshGen::GetReversedCube(), std::make_shared<Core::Texture>(faces), skyboxShader);
+
+    // setup post processing
+    textureColorBuffer = Core::Texture::Create(1920, 1200, GL_LINEAR, GL_RGB, NULL);
+
+    std::vector<std::shared_ptr<Core::Texture>> temp;
+    temp.push_back(textureColorBuffer);
+
+    renderbuffer = Core::Renderbuffer::Create(Core::Depth_Stencil, 1920, 1200);
+    
+    framebuffer = Core::Framebuffer::Create();
+    framebuffer->AttachTexture(textureColorBuffer);
+    framebuffer->AttachRenderBuffer(renderbuffer);
+
+    screenQuad = std::make_shared<GameObject>(ModelGen::GetQuad(temp), postProcessingShader);
 }

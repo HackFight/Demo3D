@@ -21,6 +21,7 @@ namespace Core {
 		bool Maximized = false;
 		bool Multisampling = false;
 		unsigned int Samples = 4;
+		bool Culling = true;
 	};
 
 	class Window

@@ -18,7 +18,9 @@ namespace Core {
 		void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
 		void SetClearColor(const glm::vec4& color);
-		void Clear();
+		void ClearColor();
+		void ClearDepth();
+		void DepthTest(bool b);
 		void UnbindAllTextures();
 
 		void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0);

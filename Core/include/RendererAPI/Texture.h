@@ -17,7 +17,7 @@ namespace Core {
 		~Texture();
 
 		void Bind() const;
-		void Unbind() const;
+		static void Unbind();
 
 		void SetData(int width, int height, uint32_t param, uint32_t format, const void* data);
 		uint32_t GetRendererID() {return  m_RendererID;}

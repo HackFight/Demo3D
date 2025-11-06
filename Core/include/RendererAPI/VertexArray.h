@@ -15,7 +15,7 @@ namespace Core {
         ~VertexArray();
 
         void Bind() const;
-        void Unbind() const;
+        static void Unbind();
 
         void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer);
         void SetIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer);

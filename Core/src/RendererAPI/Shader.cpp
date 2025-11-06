@@ -95,7 +95,7 @@ namespace Core {
         glDeleteProgram(ID);
 	}
 
-	void Shader::Bind()
+	void Shader::Bind() const
 	{
         glUseProgram(ID);
 	}

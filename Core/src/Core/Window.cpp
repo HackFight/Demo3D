@@ -42,8 +42,8 @@ namespace Core {
 		glfwSwapInterval(m_Specification.VSync ? 1 : 0);
 
 		glfwWindowHint(GLFW_SAMPLES, m_Specification.Samples);
-		if(m_Specification.Multisampling)
-			glEnable(GL_MULTISAMPLE);
+		if(m_Specification.Multisampling) glEnable(GL_MULTISAMPLE);
+		if(m_Specification.Culling) glEnable(GL_CULL_FACE);
 	}
 
 	void Window::Destroy()

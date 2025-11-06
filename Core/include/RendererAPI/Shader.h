@@ -17,8 +17,8 @@ namespace Core {
 		Shader(const char* vertexPath, const char* fragmentPath);
 		~Shader();
 
-		void Bind();
-        void Unbind();
+		void Bind() const;
+        static void Unbind();
 
 		void setBool(const std::string& name, bool value) const;
 		void setInt(const std::string& name, int value) const;
