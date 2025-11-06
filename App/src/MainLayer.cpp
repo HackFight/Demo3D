@@ -1,12 +1,12 @@
 #include "MainLayer.h"
 
 #include "Core/Application.h"
-#include "Core/Model.h"
-#include "GameObject.h"
-#include "MeshGen.h"
-#include "ModelGen.h"
 #include "RendererAPI/Framebuffer.h"
 #include "RendererAPI/Texture.h"
+#include "Core/Model.h"
+#include "MeshGen.h"
+#include "ModelGen.h"
+#include "GameObject.h"
 
 // libs
 #include <GL/glext.h>
@@ -17,24 +17,51 @@
 #include <memory>
 #include <vector>
 
+// imgui
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 MainLayer::MainLayer()
 {
     // Setup
     renderer = std::make_shared<Core::RendererAPI>();
     renderer->Init();
     renderer->SetClearColor(glm::vec4(0.0f));
-
+    
     glfwSetInputMode(Core::Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     double xpos, ypos;
     glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
     lastX = xpos; lastY = ypos;
 
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(Core::Application::Get().GetWindow()->GetHandle(), true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplOpenGL3_Init();
+
     LoadAssets();
 }
-MainLayer::~MainLayer() {}
+MainLayer::~MainLayer()
+{
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
 
 void MainLayer::OnUpdate(double ts)
 {
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+    ImGui::ShowDemoWindow(); // Show demo window! :)
+
     timeAcc += ts;
     frameCounter++;
 
@@ -74,6 +101,9 @@ void MainLayer::OnRender()
     renderer->ClearColor();
     renderer->DepthTest(false);
     screenQuad->Render(camera->coreCamera);
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void MainLayer::ProcessInput(double ts)
