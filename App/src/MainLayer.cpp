@@ -158,6 +158,6 @@ void MainLayer::LoadAssets()
     gameObjects.push_back(GameObject(Core::Model::Create(RESOURCES_PATH "models/vyse-helmet/vyse-helmet.obj"), blinnPhongShader, glm::vec3(0.0f, 1.0f, -7.0f)));
 
 	// setup the camera
-    camera = std::make_shared<Camera>(glm::vec3(0.0f, 1.0f, 2.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
+    camera = std::make_unique<Camera>(glm::vec3(0.0f, 1.0f, 2.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
     camera->SetSkybox(MeshGen::GetCube(), std::make_shared<Core::Texture>(faces), skyboxShader);
 }

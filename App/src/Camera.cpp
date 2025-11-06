@@ -2,15 +2,10 @@
 
 #include <glad/glad.h>
 
-Camera::Camera()
-{
-    coreCamera = std::make_shared<Core::Camera>();
-}
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
 {
-    coreCamera = std::make_shared<Core::Camera>(position, up, yaw, pitch);
+    coreCamera = std::make_shared<Core::Camera>(position.x, position.y, position.z, up.x, up.y, up.z, yaw, pitch);
 }
-Camera::~Camera() {}
 
 void Camera::SetSkybox(std::shared_ptr<Core::VertexArray> vertexArray, std::shared_ptr<Core::Texture> texture, std::shared_ptr<Core::Shader> shader)
 {

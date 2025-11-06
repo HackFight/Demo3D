@@ -1,3 +1,6 @@
+##### Visual Studio
+.vs/
+
 ##### CMake
 CMakeLists.txt.user
 CMakeCache.txt

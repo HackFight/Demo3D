@@ -21,7 +21,7 @@ private:
 	void LoadAssets();
 
 	std::shared_ptr<Core::RendererAPI> renderer;
-	std::shared_ptr<Camera> camera;
+	std::unique_ptr<Camera> camera;
 
 	std::vector<GameObject> gameObjects;
 

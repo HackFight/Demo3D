@@ -8,9 +8,7 @@
 class Camera
 {
 public:
-    Camera();
     Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch);
-    ~Camera();
 
     void SetSkybox(std::shared_ptr<Core::VertexArray> skyboxVertexArray, std::shared_ptr<Core::Texture> skyboxTexture, std::shared_ptr<Core::Shader> skyboxShader);
     void RenderSkybox();
