@@ -60,7 +60,6 @@ void MainLayer::OnUpdate(double ts)
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow(); // Show demo window! :)
 
     timeAcc += ts;
     frameCounter++;
@@ -96,14 +95,14 @@ void MainLayer::OnRender()
     camera->RenderSkybox();
 
     // Render quad with framebuffer texture
-    renderer->SRGBColorSpace(true); // enable gamma correction for final render
+    if(gammaCorrection)
+        renderer->SRGBColorSpace(true); // enable gamma correction for final render
     framebuffer->Unbind();
     renderer->ClearColor();
     renderer->DepthTest(false);
     screenQuad->Render(camera->coreCamera);
 
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    GUI();
 }
 
 void MainLayer::ProcessInput(double ts)
@@ -131,7 +130,19 @@ void MainLayer::ProcessInput(double ts)
     double yoffset = lastY - ypos;
     lastX = xpos;
     lastY = ypos;
-    camera->coreCamera->ProcessMouseMovement(xoffset, yoffset);
+    if(mouseDisabled)
+        camera->coreCamera->ProcessMouseMovement(xoffset, yoffset);
+}
+
+void MainLayer::GUI()
+{
+    ImGui::Begin("ImGui test");
+    ImGui::Text("Hemlo :3");
+    ImGui::Checkbox("Gamma Correction", &gammaCorrection);
+    ImGui::End();
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void MainLayer::LoadAssets()

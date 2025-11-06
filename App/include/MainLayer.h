@@ -18,6 +18,7 @@ public:
 	virtual void OnRender() override;
 
 private:
+	void GUI();
 	void ProcessInput(double ts);
 	void LoadAssets();
 
@@ -37,4 +38,6 @@ private:
 	bool canPress = true;
 
 	double lastX, lastY;
+
+	bool gammaCorrection = true;
 };
