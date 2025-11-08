@@ -8,6 +8,16 @@
 
 #include <memory>
 
+const int SHADOW_SIZE = 2048;
+
+struct DirectionalLight
+{
+	glm::vec3 direction;
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+};
+
 class MainLayer : public Core::Layer
 {
 public:
@@ -18,12 +28,16 @@ public:
 	virtual void OnRender() override;
 
 private:
+	void RenderShadowMap();
 	void RenderScene();
-	void GUI();
+	void RenderPostProcessing();
+	void RenderGUI();
+
 	void ProcessInput(double ts);
 	void LoadAssets();
 
 	std::shared_ptr<Core::RendererAPI> renderer;
+	std::unique_ptr<Camera> lightCam;
 	std::unique_ptr<Camera> camera;
 
 	std::shared_ptr<Core::Texture> textureColorBuffer;
@@ -40,6 +54,14 @@ private:
 	std::shared_ptr<Core::Shader> texturedShader;
 
 	std::vector<GameObject> gameObjects;
+
+	DirectionalLight sunLight
+	{
+		glm::vec3(1.0f, -2.0f, 2.0f),
+		glm::vec3(0.1f, 0.1f, 0.1f),
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		glm::vec3(2.0f, 2.0f, 2.0f)
+	};
 
 	double timeAcc = 0.0;
 	int frameCounter = 0;

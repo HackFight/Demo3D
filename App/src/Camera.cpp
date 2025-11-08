@@ -31,24 +31,3 @@ void Camera::RenderSkybox()
 
     glDepthFunc(GL_LESS);
 }
-
-void Camera::SetCameraForLighting(glm::vec3 lightPos)
-{
-	// Save current position and orientation
-	position = coreCamera->getPos();
-	pitch = coreCamera->getPitch();
-	yaw = coreCamera->getYaw();
-
-	coreCamera->orthographic = true;
-	coreCamera->setPos(lightPos + position);
-    coreCamera->lookAt(position);
-}
-
-void Camera::SetCameraForScene()
-{
-	// Restore position and orientation
-    coreCamera->orthographic = false;
-	coreCamera->setPos(position);
-    coreCamera->setPitch(pitch);
-    coreCamera->setYaw(yaw);
-}
