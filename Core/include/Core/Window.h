@@ -20,7 +20,6 @@ namespace Core {
 		bool Resizable = true;
 		bool Maximized = false;
 		bool Multisampling = false;
-		unsigned int Samples = 4;
 		bool Culling = true;
 	};
 
