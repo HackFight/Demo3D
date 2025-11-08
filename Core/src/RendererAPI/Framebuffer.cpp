@@ -64,10 +64,23 @@ namespace Core {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void Framebuffer::AttachTexture(std::shared_ptr<Texture> texture)
+    void Framebuffer::AttachTexture(AttachementType type, std::shared_ptr<Texture> texture)
     {
         Bind();
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->GetRendererID(), 0);
+        switch (type)
+        {
+        case Color:
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->GetRendererID(), 0);
+            break;
+
+		case Depth_Stencil:
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture->GetRendererID(), 0);
+			break;
+
+        case Depth:
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texture->GetRendererID(), 0);
+            break;
+        }
     }
     void Framebuffer::AttachTexture(AttachementType type, int width, int height)
     {
@@ -76,7 +89,8 @@ namespace Core {
         switch (type)
         {
         case Color:
-            texture = Texture::Create(GL_RGB, width, height, GL_LINEAR, GL_RGB, NULL);
+            texture = Texture::Create(GL_RGB, width, height, GL_RGB, NULL);
+			texture->SetParameters(GL_REPEAT, GL_LINEAR, GL_LINEAR);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->GetRendererID(), 0);
             break;
 
@@ -87,6 +101,12 @@ namespace Core {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, textureD, 0);
             break;
+
+        case Depth:
+            texture = Texture::Create(GL_DEPTH_COMPONENT, width, height, GL_DEPTH_COMPONENT, NULL);
+			texture->SetParameters(GL_CLAMP_TO_BORDER, GL_NEAREST, GL_NEAREST);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texture->GetRendererID(), 0);
+			break;
         }
     }
 
@@ -102,6 +122,10 @@ namespace Core {
         case Depth_Stencil:
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderbuffer->GetRendererID());
             break;
+
+        case Depth:
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer->GetRendererID());
+			break;
         }  
     }
 

@@ -140,7 +140,10 @@ namespace Core
             if (!skip)
             {
                 Mesh::Texture texture;
-                texture.ptr = std::make_shared<Core::Texture>(filename.c_str(), GL_RGB, GL_LINEAR, GL_RGB, true);
+                texture.ptr = Texture::Create(filename.c_str(), GL_RGB, GL_RGB, true);
+                if(textures_loaded.size() < 1)
+                    texture.ptr->SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+                    texture.ptr->GenerateMipmaps();
                 texture.type = typeName;
                 texture.path = filename;
                 textures.push_back(texture);

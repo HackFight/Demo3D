@@ -25,14 +25,26 @@ namespace Core {
     }
     glm::mat4 Camera::getProjectionMatrix()
     {
-        glm::vec2 viewportSize = Application::Get().GetFramebufferSize();
-        return glm::perspective(glm::radians(45.0f), viewportSize.x / viewportSize.y, 0.1f, 100.0f);
+        if (orthographic)
+        {
+            glm::vec2 viewportSize = Application::Get().GetFramebufferSize();
+            return glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
+        }
+        else
+        {
+            glm::vec2 viewportSize = Application::Get().GetFramebufferSize();
+            return glm::perspective(glm::radians(45.0f), viewportSize.x / viewportSize.y, 0.1f, 100.0f);
+        }
     }
 
-    glm::vec3 Camera::getPos()
+    void Camera::lookAt(glm::vec3 point)
     {
-        return position;
-    }
+        forward = glm::normalize(point - position);
+        // Recalculate yaw and pitch based on the new forward vector
+        Pitch = glm::degrees(asin(forward.y));
+        Yaw = glm::degrees(atan2(forward.z, forward.x));
+        updateCameraVectors();
+	}
 
     void Camera::ProcessKeyboard(CameraMovement direction, double deltaTime)
     {

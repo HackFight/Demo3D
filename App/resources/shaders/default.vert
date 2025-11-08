@@ -9,17 +9,20 @@ out vec2 texCoord;
 out vec3 normal;
 out vec3 vertexColor;
 out vec3 fragPos;
+out vec4 fragPosLightSpace;
 
 uniform mat4 modelMat;
 uniform mat4 viewMat;
 uniform mat4 projMat;
+uniform mat4 lightSpaceMat;
 
 void main()
 {
-    gl_Position = projMat * viewMat * modelMat * vec4(aPos, 1.0);
-
     texCoord = aTexCoord;
     normal = mat3(transpose(inverse(modelMat))) * aNormal;
     vertexColor = aColor;
     fragPos = vec3(modelMat * vec4(aPos, 1.0));
+    fragPosLightSpace = lightSpaceMat * vec4(fragPos, 1.0);
+
+    gl_Position = projMat * viewMat * modelMat * vec4(aPos, 1.0);
 }

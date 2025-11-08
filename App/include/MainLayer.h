@@ -18,6 +18,7 @@ public:
 	virtual void OnRender() override;
 
 private:
+	void RenderScene();
 	void GUI();
 	void ProcessInput(double ts);
 	void LoadAssets();
@@ -29,6 +30,14 @@ private:
 	std::shared_ptr<Core::Renderbuffer> renderbuffer;
 	std::shared_ptr<Core::Framebuffer> framebuffer;
 	std::shared_ptr<GameObject> screenQuad;
+
+	std::shared_ptr<Core::Texture> shadowTexture;;
+	std::shared_ptr<Core::Framebuffer> shadowDepthMapFramebuffer;
+	std::shared_ptr<Core::Shader> shadowShader;
+	glm::mat4 lightSpaceMat;
+
+	std::shared_ptr<Core::Shader> blinnPhongShader;
+	std::shared_ptr<Core::Shader> texturedShader;
 
 	std::vector<GameObject> gameObjects;
 

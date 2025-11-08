@@ -13,12 +13,12 @@ namespace Core {
     {
         glGenTextures(1, &m_RendererID);
     }
-    Texture::Texture( uint32_t internalFormat, int width, int height, uint32_t param, uint32_t format, const void* data)
+    Texture::Texture( uint32_t internalFormat, int width, int height, uint32_t format, const void* data)
     {
         glGenTextures(1, &m_RendererID);
-        SetData(internalFormat, width, height, param, format, data);
+        SetData(internalFormat, width, height, format, data);
     }
-    Texture::Texture(const char* filename, uint32_t internalFormat, uint32_t param, uint32_t format, bool flip)
+    Texture::Texture(const char* filename, uint32_t internalFormat, uint32_t format, bool flip)
     {
         glGenTextures(1, &m_RendererID);
 
@@ -29,7 +29,7 @@ namespace Core {
         {
             std::cout << "Failed to load texture\n";
         }
-        SetData(internalFormat, width, height, param, format, data);
+        SetData(internalFormat, width, height, format, data);
 	}
     Texture::Texture(std::vector<const char*> faces)
     {
@@ -63,8 +63,9 @@ namespace Core {
         glDeleteTextures(1, &m_RendererID);
     }
 
-    void Texture::Bind() const
+    void Texture::Bind(int i) const
     {
+		glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, m_RendererID);
     }
     void Texture::Unbind()
@@ -72,29 +73,53 @@ namespace Core {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    void Texture::SetData(uint32_t internalFormat, int width, int height, uint32_t param, uint32_t format, const void* data)
+    void Texture::SetData(uint32_t internalFormat, int width, int height, uint32_t format, const void* data)
     {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_RendererID);
 		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, param);
+    }
+
+    void Texture::GenerateMipmaps()
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_RendererID);
         glGenerateMipmap(GL_TEXTURE_2D);
+	}
+
+    void Texture::SetParameters(uint32_t wrapping, uint32_t minFilter, uint32_t maxFilter)
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_RendererID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, maxFilter);
+    }
+
+    void Texture::SetBorderColor(float r, float g, float b, float a)
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_RendererID);
+        float color[] = { r, g, b, a };
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
     }
 
     std::shared_ptr<Texture> Texture::Create()
     {
         return std::make_shared<Texture>();
     }
-    std::shared_ptr<Texture> Texture::Create( uint32_t internalFormat, int width, int height, uint32_t param, uint32_t format, const void* data)
+    std::shared_ptr<Texture> Texture::Create(uint32_t internalFormat, int width, int height, uint32_t format, const void* data)
     {
-        return std::make_shared<Texture>(internalFormat, width, height, param, format, data);
+        std::shared_ptr<Texture> temp = std::make_shared<Texture>(internalFormat, width, height, format, data);
+		temp->SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		return temp;
     }
-    std::shared_ptr<Texture> Texture::Create(const char* filename, uint32_t internalFormat, uint32_t param, uint32_t format)
+    std::shared_ptr<Texture> Texture::Create(const char* filename, uint32_t internalFormat, uint32_t format, bool flip)
     {
-        return std::make_shared<Texture>(filename, internalFormat, param, format);
+        std::shared_ptr<Texture> temp = std::make_shared<Texture>(filename, internalFormat, format, flip);
+        temp->SetParameters(GL_REPEAT, GL_LINEAR, GL_LINEAR);
+        return temp;
     }
     std::shared_ptr<Texture> Texture::CreateCubeMap(std::vector<const char*> faces)
     {

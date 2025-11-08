@@ -21,7 +21,6 @@ void Mesh::Draw(std::shared_ptr<Core::Shader> shader)
     unsigned int emissionNr = 1;
     for(unsigned int i = 0; i < textures.size(); i++)
     {
-        glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
         // retrieve texture number (the N in diffuse_textureN)
         std::string number;
         std::string name = textures[i].type;
@@ -33,9 +32,8 @@ void Mesh::Draw(std::shared_ptr<Core::Shader> shader)
 			number = std::to_string(emissionNr++);
 
         shader->setInt(("material." + name + number).c_str(), i);
-        textures[i].ptr->Bind();
+        textures[i].ptr->Bind(i);
     }
-    glActiveTexture(GL_TEXTURE0);
 
     // draw mesh
     vertexArray->Bind();

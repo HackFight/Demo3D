@@ -50,6 +50,28 @@ namespace Core {
 		}
 	}
 
+	void RendererAPI::SetCullMode(CullSide cull)
+	{
+		switch (cull)
+		{
+		case None:
+			glCullFace(GL_NONE);
+			break;
+		case Front:
+			glCullFace(GL_FRONT);
+			break;
+		case Back:
+			glCullFace(GL_BACK);
+			break;
+		case Both:
+			glCullFace(GL_FRONT_AND_BACK);
+			break;
+		default:
+			glCullFace(GL_BACK);
+			break;
+		}
+	}
+
 	void RendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount)
 	{
 		vertexArray->Bind();

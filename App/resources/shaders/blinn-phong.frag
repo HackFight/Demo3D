@@ -1,15 +1,17 @@
 #version 330 core
 
-out vec4 FragColor;
+out vec4 fragColor;
   
 in vec3 vertexColor;
 in vec3 fragPos;
 in vec3 normal;
+in vec4 fragPosLightSpace;
 
 struct Material {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+    vec3 emission;
     float shininess;
 };
 
@@ -23,9 +25,24 @@ struct Light {
 
 uniform Light light;
 uniform Material material;
+uniform sampler2D shadowMap;
 
 uniform vec3 viewPos;
-uniform bool gamma;
+
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    float bias = 0.0005;
+    float shadow = step(texture(shadowMap, projCoords.xy).r, projCoords.z - bias);
+
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+
+    return shadow;
+}
 
 void main()
 {
@@ -45,10 +62,8 @@ void main()
     float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
     vec3 specular = light.specular * (spec * material.specular);
 
-    // simple attenuation
-    float distance = 1.5;
-    float attenuation = 1.0 / (gamma ? distance * distance : distance);
+    // calculate shadow
+    float shadow = ShadowCalculation(fragPosLightSpace);
 
-    vec3 result = ambient + (diffuse + specular) * attenuation;
-    FragColor = vec4(result, 1.0);
+    fragColor = vec4((ambient + (1.0 - shadow) * (diffuse + specular)) + material.emission, 1.0);
 }

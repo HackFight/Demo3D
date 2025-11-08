@@ -12,6 +12,8 @@ public:
 
     void SetSkybox(std::shared_ptr<Core::VertexArray> skyboxVertexArray, std::shared_ptr<Core::Texture> skyboxTexture, std::shared_ptr<Core::Shader> skyboxShader);
     void RenderSkybox();
+	void SetCameraForLighting(glm::vec3 lightPos);
+	void SetCameraForScene();
 
     std::shared_ptr<Core::Camera> coreCamera;
 
@@ -19,4 +21,7 @@ private:
     std::shared_ptr<Core::Shader> skyboxShader;
     std::shared_ptr<Core::VertexArray> skyboxVertexArray;
     std::shared_ptr<Core::Texture> skyboxTexture;
+
+    glm::vec3 position;
+	float pitch; float yaw;
 };

@@ -36,15 +36,22 @@ namespace Core {
         glm::mat4 getViewMatrix();
         glm::mat4 getProjectionMatrix();
 
-        glm::vec3 getPos();
+		glm::vec3 getPos() { return position; }
+		float getPitch() { return Pitch; }
+		float getYaw() { return Yaw; }
+
+		void setPos(glm::vec3 pos) { position = pos; updateCameraVectors(); }
+		void setPitch(float pitch) { Pitch = pitch; updateCameraVectors(); }
+		void setYaw(float yaw) { Yaw = yaw; updateCameraVectors(); }
+
+        void lookAt(glm::vec3 point);
 
         void ProcessKeyboard(CameraMovement direction, double deltaTime);
         void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
 
         float MovementSpeed;
         float MouseSensitivity;
-        float Yaw;
-        float Pitch;
+        bool orthographic = false;
 
     private:
         void updateCameraVectors();
@@ -55,5 +62,8 @@ namespace Core {
         glm::vec3 forward;
         glm::vec3 up;
         glm::vec3 right;
+
+        float Yaw;
+        float Pitch;
     };
 }

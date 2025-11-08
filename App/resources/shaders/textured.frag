@@ -1,11 +1,12 @@
 #version 330 core
 
-out vec4 FragColor;
+out vec4 fragColor;
 
 in vec2 texCoord;
 in vec3 normal;
 in vec3 vertexColor;
 in vec3 fragPos;
+in vec4 fragPosLightSpace;
 
 struct Material {
     sampler2D   texture_diffuse1;
@@ -24,9 +25,24 @@ struct Light {
 
 uniform Light light;
 uniform Material material;
+uniform sampler2D shadowMap;
 
 uniform vec3 viewPos;
-uniform bool gamma;
+
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    float bias = 0.0005;
+    float shadow = step(texture(shadowMap, projCoords.xy).r, projCoords.z - bias);
+
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+
+    return shadow;
+}
 
 void main()
 {
@@ -49,9 +65,8 @@ void main()
     // emission
     vec3 emission = texture(material.texture_emission1, texCoord).rgb;
 
-    // simple attenuation
-    float distance = 1.5;
-    float attenuation = 1.0 / (gamma ? distance * distance : distance);
+    // calculate shadow
+    float shadow = ShadowCalculation(fragPosLightSpace);
 
-    FragColor = vec4(ambient + (diffuse + specular) * attenuation + emission, 1.0);
+    fragColor = vec4((ambient + (1.0 - shadow) * (diffuse + specular)) + emission, 1.0);
 }

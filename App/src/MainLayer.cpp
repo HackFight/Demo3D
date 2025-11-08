@@ -67,18 +67,42 @@ void MainLayer::OnUpdate(double ts)
 }
 void MainLayer::OnRender()
 {
+	// Render to depth map for shadow mapping
+    renderer->SetViewport(0, 0, 2048, 2048);
+	shadowDepthMapFramebuffer->Bind();
+	renderer->ClearDepth();
+	camera->SetCameraForLighting(glm::vec3(-1.0f, 3.0f, -1.0f) * 10.0f);
+	lightSpaceMat = camera->coreCamera->getProjectionMatrix() * camera->coreCamera->getViewMatrix();
+	
+    shadowShader->Bind();
+	shadowShader->setmat4("lightSpaceMat", lightSpaceMat);
+    for (GameObject object : gameObjects)
+    {
+        object.Render(camera->coreCamera, shadowShader);
+    }
+
+    // Resize framebuffer attachments if needed
     glm::vec2 viewportSize = Core::Application::Get().GetFramebufferSize();
     renderer->SetViewport(0, 0, viewportSize.x, viewportSize.y);
-    textureColorBuffer->SetData(GL_RGB, viewportSize.x, viewportSize.y, GL_LINEAR, GL_RGB, NULL);
+    textureColorBuffer->SetData(GL_RGB, viewportSize.x, viewportSize.y, GL_RGB, NULL);
     renderbuffer->SetData(viewportSize.x, viewportSize.y);
 
     // Render scene in framebuffer
-    renderer->SRGBColorSpace(false); // disble gamma correction for intermediate steps
     framebuffer->Bind();
+    renderer->SRGBColorSpace(false); // disble gamma correction for intermediate steps
     renderer->ClearColor();
     renderer->ClearDepth();
-    renderer->DepthTest(true);
+    camera->SetCameraForScene();
 
+    shadowTexture->SetBorderColor(1.0f, 1.0f, 1.0f, 1.0f);
+	blinnPhongShader->Bind();
+	blinnPhongShader->setmat4("lightSpaceMat", lightSpaceMat);
+	blinnPhongShader->setInt("shadowMap", 5);
+	texturedShader->Bind();
+    texturedShader->setmat4("lightSpaceMat", lightSpaceMat);
+    texturedShader->setInt("shadowMap", 5);
+	texturedShader->Unbind();
+	shadowTexture->Bind(5);
     for (GameObject object : gameObjects)
     {
         object.Render(camera->coreCamera);
@@ -93,6 +117,7 @@ void MainLayer::OnRender()
     renderer->ClearColor();
     renderer->DepthTest(false);
     screenQuad->Render(camera->coreCamera);
+    renderer->DepthTest(true);
 
     GUI();
 }
@@ -140,18 +165,18 @@ void MainLayer::GUI()
 void MainLayer::LoadAssets()
 {
 	// load and setup the blinn-phong shader
-    std::shared_ptr<Core::Shader> blinnPhongShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
+    blinnPhongShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
     blinnPhongShader->Bind();
     blinnPhongShader->set3f("light.direction", 1.0f, -3.0f, 1.0f);
-    blinnPhongShader->set3f("light.ambient", 0.5f, 0.5f, 0.5f);
+    blinnPhongShader->set3f("light.ambient", 0.1f, 0.1f, 0.1f);
     blinnPhongShader->set3f("light.diffuse", 1.0f, 1.0f, 1.0f);
     blinnPhongShader->set3f("light.specular", 1.0f, 1.0f, 1.0f);
 
 	// load and setup the textured shader
-    std::shared_ptr<Core::Shader> texturedShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured.frag");
+    texturedShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured.frag");
     texturedShader->Bind();
     texturedShader->set3f("light.direction", 1.0f, -3.0f, 1.0f);
-    texturedShader->set3f("light.ambient", 0.5f, 0.5f, 0.5f);
+    texturedShader->set3f("light.ambient", 0.1f, 0.1f, 0.1f);
     texturedShader->set3f("light.diffuse", 1.0f, 1.0f, 1.0f);
     texturedShader->set3f("light.specular", 1.0f, 1.0f, 1.0f);
 
@@ -172,23 +197,31 @@ void MainLayer::LoadAssets()
     // load the default texture
     std::vector<std::shared_ptr<Core::Texture>> defaultTextures
     {
-        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/default.png", 0x8C40, GL_LINEAR, GL_RGBA)
+        Core::Texture::Create(RESOURCES_PATH "textures/default.png", 0x8C40, GL_RGBA)
     };
+	defaultTextures[0]->SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+	defaultTextures[0]->GenerateMipmaps();
 
 	// load the box textures
     std::vector<std::shared_ptr<Core::Texture>> boxTextures
     {
-        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/box.png", 0x8C40, GL_LINEAR, GL_RGBA),
-        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/box-specular.png", GL_RGB, GL_LINEAR, GL_RGBA)
+        Core::Texture::Create(RESOURCES_PATH "textures/box.png", 0x8C40, GL_RGBA),
+        Core::Texture::Create(RESOURCES_PATH "textures/box-specular.png", GL_RGB, GL_RGBA)
     };
+	boxTextures[0]->SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+	boxTextures[0]->GenerateMipmaps();
 
 	// load the redstone ore textures
     std::vector<std::shared_ptr<Core::Texture>> redstoneOreTextures
     {
-        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore.png", 0x8C40, GL_NEAREST, GL_RGB),
-        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore-specular.png", GL_RGB, GL_NEAREST, GL_RGB),
-        std::make_shared<Core::Texture>(RESOURCES_PATH "textures/redstone-ore-emission.png", 0x8C40, GL_NEAREST, GL_RGB)
+        Core::Texture::Create(RESOURCES_PATH "textures/redstone-ore.png", 0x8C40, GL_RGB),
+        Core::Texture::Create(RESOURCES_PATH "textures/redstone-ore-specular.png", GL_RGB, GL_RGB),
+        Core::Texture::Create(RESOURCES_PATH "textures/redstone-ore-emission.png", 0x8C40, GL_RGB)
     };
+	redstoneOreTextures[0]->SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
+	redstoneOreTextures[0]->GenerateMipmaps();
+    redstoneOreTextures[1]->SetParameters(GL_REPEAT, GL_NEAREST, GL_NEAREST);
+    redstoneOreTextures[2]->SetParameters(GL_REPEAT, GL_NEAREST, GL_NEAREST);
 
 	// create the ground plane
     gameObjects.push_back(GameObject(ModelGen::GetPlane(1000, defaultTextures), texturedShader, glm::vec3(0.0f), GameObject::ShaderType::Default));
@@ -216,16 +249,24 @@ void MainLayer::LoadAssets()
     camera->SetSkybox(MeshGen::GetReversedCube(), std::make_shared<Core::Texture>(faces), skyboxShader);
 
     // setup post processing
-    textureColorBuffer = Core::Texture::Create(GL_RGB, 1920, 1200, GL_LINEAR, GL_RGB, NULL);
+    textureColorBuffer = Core::Texture::Create(GL_RGB, 1920, 1200, GL_RGB, NULL);
+	textureColorBuffer->SetParameters(GL_REPEAT, GL_LINEAR, GL_LINEAR);
 
-    std::vector<std::shared_ptr<Core::Texture>> temp;
-    temp.push_back(textureColorBuffer);
+    std::vector<std::shared_ptr<Core::Texture>> tempVec;
+    tempVec.push_back(textureColorBuffer);
 
     renderbuffer = Core::Renderbuffer::Create(Core::Depth_Stencil, 1920, 1200);
     
     framebuffer = Core::Framebuffer::Create();
-    framebuffer->AttachTexture(textureColorBuffer);
+    framebuffer->AttachTexture(Core::AttachementType::Color, textureColorBuffer);
     framebuffer->AttachRenderBuffer(renderbuffer);
 
-    screenQuad = std::make_shared<GameObject>(ModelGen::GetQuad(temp), postProcessingShader);
+    screenQuad = std::make_shared<GameObject>(ModelGen::GetQuad(tempVec), postProcessingShader);
+
+	// setup shadow mapping framebuffer
+    shadowTexture = Core::Texture::Create(GL_DEPTH_COMPONENT, 2048, 2048, GL_DEPTH_COMPONENT, NULL);
+    shadowTexture->SetParameters(0x812D, GL_NEAREST, GL_NEAREST);
+    shadowDepthMapFramebuffer = Core::Framebuffer::Create();
+    shadowDepthMapFramebuffer->AttachTexture(Core::AttachementType::Depth, shadowTexture);
+    shadowShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/empty.frag");
 }

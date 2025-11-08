@@ -19,7 +19,7 @@ public:
 	GameObject(std::shared_ptr<Core::Model> model, std::shared_ptr<Core::Shader> shader, glm::vec3 position = glm::vec3(0.0f), ShaderType shaderType = BlinnPhong, BlinnPhongMaterial material = WhitePlastic);
 	~GameObject();
 
-	void Render(std::shared_ptr<Core::Camera> camera);
+	void Render(std::shared_ptr<Core::Camera> camera, std::shared_ptr<Core::Shader> forcedShader = nullptr);
 
 private:
 	std::shared_ptr<Core::Model> model;

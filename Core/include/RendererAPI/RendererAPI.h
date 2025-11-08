@@ -11,6 +11,14 @@
 
 namespace Core {
 
+	enum CullSide
+	{
+		None,
+		Front,
+		Back,
+		Both
+	};
+
 	class RendererAPI
 	{
 	public:
@@ -23,6 +31,7 @@ namespace Core {
 		void DepthTest(bool b);
 		void SRGBColorSpace(bool b);
 		void UnbindAllTextures();
+		void SetCullMode(CullSide cull);
 
 		void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0);
 		void DrawLines(const std::shared_ptr<VertexArray>& vertexArray, uint32_t vertexCount);
