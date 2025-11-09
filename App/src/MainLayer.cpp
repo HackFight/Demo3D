@@ -101,8 +101,8 @@ void MainLayer::RenderScene()
 {
     // Resize framebuffer attachments if needed
     glm::vec2 viewportSize = Core::Application::Get().GetFramebufferSize();
-    renderer->SetViewport(0, 0, viewportSize.x, viewportSize.y);
-    textureColorBuffer->SetData(GL_RGB, viewportSize.x, viewportSize.y, GL_RGB, NULL);
+    renderer->SetViewport(0, 0, viewportSize.x, viewportSize.y );
+    textureColorBuffer->SetData(0x881A, viewportSize.x, viewportSize.y, GL_RGB, NULL);
     renderbuffer->SetData(viewportSize.x, viewportSize.y);
 
     // Render scene in framebuffer
@@ -130,7 +130,12 @@ void MainLayer::RenderPostProcessing()
     framebuffer->Unbind();
     renderer->ClearColor();
     renderer->DepthTest(false);
+
+	postProcessingShader->Bind();
+	postProcessingShader->setBool("toneMapping", toneMapping);
+	postProcessingShader->setFloat("exposure", exposure);
     screenQuad->Render(camera->coreCamera);
+
     renderer->DepthTest(true);
 }
 
@@ -139,6 +144,8 @@ void MainLayer::RenderGUI()
     ImGui::Begin("ImGui test");
     ImGui::Text("Hemlo :3");
     ImGui::Checkbox("Gamma Correction", &gammaCorrection);
+    ImGui::Checkbox("Tone Mapping", &toneMapping);
+	ImGui::SliderFloat("Exposure", &exposure, 0.1f, 5.0f);
     ImGui::End();
 
     ImGui::Render();
@@ -196,7 +203,7 @@ void MainLayer::LoadAssets()
 
     std::shared_ptr<Core::Shader> skyboxShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag");
 
-    std::shared_ptr<Core::Shader> postProcessingShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/post.vert", RESOURCES_PATH "shaders/post.frag");
+    postProcessingShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/post.vert", RESOURCES_PATH "shaders/post.frag");
     
     std::vector<const char*> faces
     {
@@ -256,7 +263,7 @@ void MainLayer::LoadAssets()
 	gameObjects.push_back(GameObject(Core::Model::Create(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, glm::vec3(3.0f, 2.0f, -7.0f), GameObject::ShaderType::Default));
 
 	// create the Vyse helmet
-    gameObjects.push_back(GameObject(Core::Model::Create(RESOURCES_PATH "models/vyse-helmet/vyse-helmet.obj"), blinnPhongShader, glm::vec3(0.0f, 1.0f, -7.0f)));
+    gameObjects.push_back(GameObject(Core::Model::Create(RESOURCES_PATH "models/vyse-helmet/vyse-helmet.obj"), blinnPhongShader, glm::vec3(0.0f, 1.0f, -7.0f), GameObject::ShaderType::BlinnPhong, FLASHBANG));
 
 	// setup the camera
     camera = std::make_unique<Camera>(glm::vec3(0.0f, 1.0f, 2.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
@@ -268,7 +275,7 @@ void MainLayer::LoadAssets()
     lightCam->coreCamera->lookAt(camera->coreCamera->getPos());
 
     // setup post processing
-    textureColorBuffer = Core::Texture::Create(GL_RGB, 1920, 1200, GL_RGB, NULL);
+    textureColorBuffer = Core::Texture::Create(0x881A, 1920, 1200, GL_RGBA, NULL);
 	textureColorBuffer->SetParameters(GL_REPEAT, GL_LINEAR, GL_LINEAR);
 
     std::vector<std::shared_ptr<Core::Texture>> tempVec;
@@ -284,7 +291,7 @@ void MainLayer::LoadAssets()
 
 	// setup shadow mapping framebuffer
     shadowTexture = Core::Texture::Create(GL_DEPTH_COMPONENT, SHADOW_SIZE, SHADOW_SIZE, GL_DEPTH_COMPONENT, NULL);
-    shadowTexture->SetParameters(0x812D, GL_NEAREST, GL_NEAREST);
+    shadowTexture->SetParameters(0x812D, GL_LINEAR, GL_LINEAR);
     shadowTexture->SetBorderColor(1.0f, 1.0f, 1.0f, 1.0f);
 	shadowTexture->Bind(5); // No texture should interfere with the shadow map texture unit
 

@@ -8,7 +8,7 @@
 
 #include <memory>
 
-const int SHADOW_SIZE = 2048;
+const int SHADOW_SIZE = 2048*8;
 
 struct DirectionalLight
 {
@@ -52,6 +52,7 @@ private:
 
 	std::shared_ptr<Core::Shader> blinnPhongShader;
 	std::shared_ptr<Core::Shader> texturedShader;
+	std::shared_ptr<Core::Shader> postProcessingShader;
 
 	std::vector<GameObject> gameObjects;
 
@@ -71,4 +72,6 @@ private:
 	double lastX, lastY;
 
 	bool gammaCorrection = true;
+	bool toneMapping = true;
+	float exposure = 1.0f;
 };

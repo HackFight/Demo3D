@@ -29,7 +29,13 @@ enum BlinnPhongMaterial
 	GreenRubber,
 	RedRubber,
 	WhiteRubber,
-	YellowRubber
+	YellowRubber,
+	CyanLight,
+	GreenLight,
+	RedLight,
+	WhiteLight,
+	YellowLight,
+	FLASHBANG
 };
 
 class MaterialGen
