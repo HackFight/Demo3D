@@ -33,12 +33,18 @@ private:
 	void RenderPostProcessing();
 	void RenderGUI();
 
+	void ResizeBuffers();
+
 	void ProcessInput(double ts);
 	void LoadAssets();
 
 	std::shared_ptr<Core::RendererAPI> renderer;
 	std::unique_ptr<Camera> lightCam;
 	std::unique_ptr<Camera> camera;
+
+	std::shared_ptr<Core::Texture> multiSampledtextureColorBuffer;
+	std::shared_ptr<Core::Texture> multiSampledtextureDepthStencilBuffer;
+	std::shared_ptr<Core::Framebuffer> multiSampledframebuffer;
 
 	std::shared_ptr<Core::Texture> textureColorBuffer;
 	std::shared_ptr<Core::Renderbuffer> renderbuffer;

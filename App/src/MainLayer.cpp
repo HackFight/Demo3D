@@ -14,6 +14,13 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
+#define GL_UNSIGNED_INT_24_8 0x84FA
+#define GL_DEPTH24_STENCIL8 0x88F0
+#define GL_DEPTH_STENCIL 0x84F9
+#define GL_RGBA16F 0x881A
+#define GL_CLAMP_TO_BORDER 0x812D
+#define GL_DEPTH_COMPONENT32F 0x8CAC
+
 MainLayer::MainLayer()
 {
     // Setup
@@ -68,10 +75,17 @@ void MainLayer::OnUpdate(double ts)
 void MainLayer::OnRender()
 {
     renderer->SRGBColorSpace(false); // disble gamma correction for intermediate steps
+    shadowDepthMapFramebuffer->Bind();
 	RenderShadowMap();
 
+    ResizeBuffers();
+    multiSampledframebuffer->Bind();
 	RenderScene();
 
+    glm::vec2 viewportSize = Core::Application::Get().GetFramebufferSize();
+	multiSampledframebuffer->Blit(framebuffer, viewportSize.x, viewportSize.y);
+
+    framebuffer->Unbind();
     if (gammaCorrection)
         renderer->SRGBColorSpace(true); // enable gamma correction for final render
     RenderPostProcessing();
@@ -83,7 +97,6 @@ void MainLayer::RenderShadowMap()
 {
 	renderer->SetViewport(0, 0, SHADOW_SIZE, SHADOW_SIZE);
 
-    shadowDepthMapFramebuffer->Bind();
     renderer->ClearDepth();
 
     lightCam->coreCamera->setPos(-sunLight.direction * 10.0f + camera->coreCamera->getPos());
@@ -99,14 +112,6 @@ void MainLayer::RenderShadowMap()
 
 void MainLayer::RenderScene()
 {
-    // Resize framebuffer attachments if needed
-    glm::vec2 viewportSize = Core::Application::Get().GetFramebufferSize();
-    renderer->SetViewport(0, 0, viewportSize.x, viewportSize.y );
-    textureColorBuffer->SetData(0x881A, viewportSize.x, viewportSize.y, GL_RGB, NULL);
-    renderbuffer->SetData(viewportSize.x, viewportSize.y);
-
-    // Render scene in framebuffer
-    framebuffer->Bind();
     renderer->ClearColor();
     renderer->ClearDepth();
 
@@ -127,7 +132,6 @@ void MainLayer::RenderScene()
 
 void MainLayer::RenderPostProcessing()
 {
-    framebuffer->Unbind();
     renderer->ClearColor();
     renderer->DepthTest(false);
 
@@ -150,6 +154,19 @@ void MainLayer::RenderGUI()
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void MainLayer::ResizeBuffers()
+{
+    glm::vec2 viewportSize = Core::Application::Get().GetFramebufferSize();
+
+    renderer->SetViewport(0, 0, viewportSize.x, viewportSize.y);
+
+    multiSampledtextureColorBuffer->SetData(GL_RGBA16F, viewportSize.x, viewportSize.y, GL_RGBA, GL_FLOAT, NULL, true);
+    multiSampledtextureDepthStencilBuffer->SetData(GL_DEPTH24_STENCIL8, 1920, 1200, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, true);
+
+    textureColorBuffer->SetData(GL_RGBA16F, viewportSize.x, viewportSize.y, GL_RGBA, GL_FLOAT, NULL);
+    renderbuffer->SetData(viewportSize.x, viewportSize.y);
 }
 
 void MainLayer::ProcessInput(double ts)
@@ -267,19 +284,28 @@ void MainLayer::LoadAssets()
 
 	// setup the camera
     camera = std::make_unique<Camera>(glm::vec3(0.0f, 1.0f, 2.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
-    camera->SetSkybox(MeshGen::GetReversedCube(), std::make_shared<Core::Texture>(faces), skyboxShader);
+    camera->SetSkybox(MeshGen::GetReversedCube(), Core::Texture::CreateCubemap(faces), skyboxShader);
 
     lightCam = std::make_unique<Camera>(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f);
     lightCam->coreCamera->orthographic = true;
     lightCam->coreCamera->setPos(-sunLight.direction * 10.0f + camera->coreCamera->getPos());
     lightCam->coreCamera->lookAt(camera->coreCamera->getPos());
 
-    // setup post processing
-    textureColorBuffer = Core::Texture::Create(0x881A, 1920, 1200, GL_RGBA, NULL);
-	textureColorBuffer->SetParameters(GL_REPEAT, GL_LINEAR, GL_LINEAR);
+	// setup multisampled framebuffer
+    multiSampledtextureColorBuffer = Core::Texture::Create(GL_RGBA16F, 1920, 1200, GL_RGBA, GL_FLOAT, NULL, true);
+    multiSampledtextureDepthStencilBuffer = Core::Texture::Create(GL_DEPTH24_STENCIL8, 1920, 1200, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, true);
 
+    multiSampledframebuffer = Core::Framebuffer::Create();
+    multiSampledframebuffer->AttachTexture(Core::AttachementType::Color, multiSampledtextureColorBuffer, true);
+	multiSampledframebuffer->AttachTexture(Core::AttachementType::Depth_Stencil, multiSampledtextureDepthStencilBuffer, true);
+
+    // setup post processing
+    textureColorBuffer = Core::Texture::Create(GL_RGBA16F, 1920, 1200, GL_RGBA, GL_FLOAT, NULL);
+    
     std::vector<std::shared_ptr<Core::Texture>> tempVec;
     tempVec.push_back(textureColorBuffer);
+    
+    screenQuad = std::make_shared<GameObject>(ModelGen::GetQuad(tempVec), postProcessingShader);
 
     renderbuffer = Core::Renderbuffer::Create(Core::Depth_Stencil, 1920, 1200);
     
@@ -287,11 +313,10 @@ void MainLayer::LoadAssets()
     framebuffer->AttachTexture(Core::AttachementType::Color, textureColorBuffer);
     framebuffer->AttachRenderBuffer(renderbuffer);
 
-    screenQuad = std::make_shared<GameObject>(ModelGen::GetQuad(tempVec), postProcessingShader);
 
 	// setup shadow mapping framebuffer
-    shadowTexture = Core::Texture::Create(GL_DEPTH_COMPONENT, SHADOW_SIZE, SHADOW_SIZE, GL_DEPTH_COMPONENT, NULL);
-    shadowTexture->SetParameters(0x812D, GL_LINEAR, GL_LINEAR);
+    shadowTexture = Core::Texture::Create(GL_DEPTH_COMPONENT32F, SHADOW_SIZE, SHADOW_SIZE, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    shadowTexture->SetParameters(GL_CLAMP_TO_BORDER, GL_LINEAR, GL_LINEAR);
     shadowTexture->SetBorderColor(1.0f, 1.0f, 1.0f, 1.0f);
 	shadowTexture->Bind(5); // No texture should interfere with the shadow map texture unit
 

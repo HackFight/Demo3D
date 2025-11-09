@@ -14,6 +14,6 @@ int main()
 	Core::Application app(appSpec);
 	app.PushLayer<MainLayer>();
 	app.Run();
-
-    return 0;
+	
+	return 0;
 }

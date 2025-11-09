@@ -10,15 +10,19 @@
 namespace Core {
 
     Texture::Texture()
+		: textureType(GL_TEXTURE_2D), multisampled(false), samples(4)
     {
         glGenTextures(1, &m_RendererID);
     }
-    Texture::Texture( uint32_t internalFormat, int width, int height, uint32_t format, const void* data)
+    Texture::Texture( uint32_t internalFormat, int width, int height, uint32_t format, uint32_t dataType, const void* data, bool multisampled, int samples)
+		: multisampled(multisampled), samples(samples)
     {
+		multisampled ? textureType = GL_TEXTURE_2D_MULTISAMPLE : textureType = GL_TEXTURE_2D;
         glGenTextures(1, &m_RendererID);
-        SetData(internalFormat, width, height, format, data);
+        SetData(internalFormat, width, height, format, dataType, data, multisampled, samples);
     }
     Texture::Texture(const char* filename, uint32_t internalFormat, uint32_t format, bool flip)
+		: textureType(GL_TEXTURE_2D), multisampled(false), samples(4)
     {
         glGenTextures(1, &m_RendererID);
 
@@ -29,9 +33,10 @@ namespace Core {
         {
             std::cout << "Failed to load texture\n";
         }
-        SetData(internalFormat, width, height, format, data);
+        SetData(internalFormat, width, height, format, GL_UNSIGNED_BYTE, data);
 	}
     Texture::Texture(std::vector<const char*> faces)
+		: textureType(GL_TEXTURE_CUBE_MAP), multisampled(false), samples(4)
     {
         glGenTextures(1, &m_RendererID);
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
@@ -66,18 +71,26 @@ namespace Core {
     void Texture::Bind(int i) const
     {
 		glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_2D, m_RendererID);
+        glBindTexture(textureType, m_RendererID);
     }
     void Texture::Unbind()
     {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    void Texture::SetData(uint32_t internalFormat, int width, int height, uint32_t format, const void* data)
+    void Texture::SetData(uint32_t internalFormat, int width, int height, uint32_t format, uint32_t dataType,  const void* data, bool multisampled, int samples)
     {
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_RendererID);
-		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        if (multisampled)
+        {
+            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID);
+            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, width, height, GL_TRUE);
+        }
+        else
+        {
+            glBindTexture(GL_TEXTURE_2D, m_RendererID);
+            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, dataType, data);
+        }
     }
 
     void Texture::GenerateMipmaps()
@@ -109,10 +122,11 @@ namespace Core {
     {
         return std::make_shared<Texture>();
     }
-    std::shared_ptr<Texture> Texture::Create(uint32_t internalFormat, int width, int height, uint32_t format, const void* data)
+    std::shared_ptr<Texture> Texture::Create(uint32_t internalFormat, int width, int height, uint32_t format, uint32_t dataType, const void* data, bool multisampled, int samples)
     {
-        std::shared_ptr<Texture> temp = std::make_shared<Texture>(internalFormat, width, height, format, data);
-		temp->SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+        std::shared_ptr<Texture> temp = std::make_shared<Texture>(internalFormat, width, height, format, dataType, data, multisampled, samples);
+		if (!multisampled)
+            temp->SetParameters(GL_REPEAT, GL_LINEAR, GL_LINEAR);
 		return temp;
     }
     std::shared_ptr<Texture> Texture::Create(const char* filename, uint32_t internalFormat, uint32_t format, bool flip)
@@ -121,7 +135,7 @@ namespace Core {
         temp->SetParameters(GL_REPEAT, GL_LINEAR, GL_LINEAR);
         return temp;
     }
-    std::shared_ptr<Texture> Texture::CreateCubeMap(std::vector<const char*> faces)
+    std::shared_ptr<Texture> Texture::CreateCubemap(std::vector<const char*> faces)
     {
         return std::make_shared<Texture>(faces);
     }
