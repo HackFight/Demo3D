@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RendererAPI/Buffer.h"
+#include <GL/gl.h>
 
 namespace Core {
 

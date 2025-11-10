@@ -1,6 +1,5 @@
 #include "Core/Model.h"
 #include <iostream>
-#include <gl/GL.h>
 
 namespace Core
 {
@@ -130,8 +129,10 @@ namespace Core
                 Mesh::Texture texture;
                 texture.ptr = Texture(filename.c_str(), true);
                 if(textures_loaded.size() < 1)
+                {
                     texture.ptr.SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
                     texture.ptr.GenerateMipmaps();
+                }
                 texture.type = typeName;
                 texture.path = filename;
                 textures.push_back(texture);
