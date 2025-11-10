@@ -1,8 +1,8 @@
 #include "Renderer/Camera.h"
 #include "Core/Application.h"
 
-namespace Core {
-
+namespace Core
+{
     Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) :
         forward(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY)
     {

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RendererAPI/Buffer.h"
-#include <GL/gl.h>
 
 namespace Core {
 
@@ -14,13 +13,13 @@ namespace Core {
         void Bind() const;
         static void Unbind();
 
-		GLsizei GetIndexCount() const { return m_IndexCount; }
+		uint32_t GetIndexCount() const { return m_IndexCount; }
 
         void AddVertexBuffer(const VertexBuffer vertexBuffer);
         void SetIndexBuffer(const IndexBuffer indexBuffer);
 
     private:
         uint32_t m_RendererID;
-        GLsizei m_IndexCount;
+        uint32_t m_IndexCount;
     };
 }

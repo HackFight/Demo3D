@@ -1,6 +1,7 @@
 #pragma once
 
 // std
+#include <stdint.h>
 #include <vector>
 
 namespace Core {
@@ -22,7 +23,7 @@ namespace Core {
 	public:
 		Texture();
 		Texture(uint32_t target, uint32_t internalFormat, int width, int height, uint32_t format, uint32_t dataType, const void* data, bool multisampled, int samples);
-		Texture(const char* filename, bool flip);
+		Texture(const char* filename, bool flip = false);
 		Texture(std::vector<const char*> faces);
 		~Texture();
 

@@ -1,62 +1,33 @@
 #include "GameObject.h"
+#include "Renderer/Camera.h"
+#include "MaterialGen.h"
 
-#include <glad/glad.h>
-#include <glm/gtc/matrix_transform.hpp>
-#include <memory>
-
-GameObject::GameObject(std::shared_ptr<Core::Model> model, std::shared_ptr<Core::Shader> shader, glm::vec3 position, ShaderType shaderType, BlinnPhongMaterial material)
-	: model(model), shader(shader), position(position), shaderType(shaderType), material(material) {}
-
-GameObject::~GameObject() {}
-
-void GameObject::Render(std::shared_ptr<Core::Camera> camera, std::shared_ptr<Core::Shader> forcedShader)
+namespace App
 {
-	if (forcedShader == nullptr)
+	GameObject::GameObject() {}
+	GameObject::GameObject(Core::Model model, Core::Shader shader, glm::vec3 position, BlinnPhongMaterial material)
+		: m_Model(model), m_Shader(shader), m_Position(position), m_Material(material) {}
+
+	GameObject::~GameObject() {}
+
+	void GameObject::Render(Core::Camera camera, Core::Shader shader)
 	{
-		switch (shaderType)
-		{
-		case Default:
-			shader->Bind();
-			shader->setmat4("viewMat", camera->getViewMatrix());
-			shader->setmat4("projMat", camera->getProjectionMatrix());
-			shader->setmat4("modelMat", glm::translate(glm::mat4(1.0f), position));
+		shader.Bind();
+		shader.setmat4("viewMat", camera.getViewMatrix());
+		shader.setmat4("projMat", camera.getProjectionMatrix());
+		shader.setmat4("modelMat", glm::translate(glm::mat4(1.0f), m_Position));
 
-			shader->setInt("material.texture_diffuse1", 0);
-			shader->setInt("material.texture_specular1", 1);
-			shader->setInt("material.texture_emission1", 2);
-			shader->setFloat("material.shininess", 32.0f);
+		shader.setInt("material.texture_diffuse1", 0);
+		shader.setInt("material.texture_specular1", 1);
+		shader.setInt("material.texture_emission1", 2);
+		MaterialGen::setBlinnPhongMaterial(shader, m_Material);
 
-			shader->set3f("viewPos", camera->getPos());
-
-			for (int i = 0; i < 4; i++)
-			{
-				glActiveTexture(GL_TEXTURE0 + i);
-				glBindTexture(GL_TEXTURE_2D, 0);
-			}
-
-			model->Draw(shader);
-			break;
-
-		case BlinnPhong:
-			shader->Bind();
-
-			shader->setmat4("viewMat", camera->getViewMatrix());
-			shader->setmat4("projMat", camera->getProjectionMatrix());
-			shader->setmat4("modelMat", glm::translate(glm::mat4(1.0f), position));
-
-			shader->set3f("viewPos", camera->getPos());
-
-			MaterialGen::setBlinnPhongMaterial(shader, material);
-			model->Draw(shader);
-			break;
-		}
+		shader.set3f("viewPos", camera.getPos());
+		m_Model.Draw(shader);
 	}
-	else
+
+	void GameObject::Render(Core::Camera camera)
 	{
-		forcedShader->Bind();
-		forcedShader->setmat4("viewMat", camera->getViewMatrix());
-		forcedShader->setmat4("projMat", camera->getProjectionMatrix());
-		forcedShader->setmat4("modelMat", glm::translate(glm::mat4(1.0f), position));
-		model->Draw(forcedShader);
+		Render(camera, m_Shader);
 	}
 }

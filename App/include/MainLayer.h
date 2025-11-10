@@ -1,11 +1,9 @@
 #pragma once
 
 #include "Core/Layer.h"
-#include "Camera.h"
 #include "RendererAPI/Framebuffer.h"
-#include "RendererAPI/RendererAPI.h"
+#include "Camera.h"
 #include "GameObject.h"
-
 #include <memory>
 
 const int SHADOW_SIZE = 2048*8;
@@ -38,28 +36,23 @@ private:
 	void ProcessInput(double ts);
 	void LoadAssets();
 
-	std::unique_ptr<Camera> lightCam;
-	std::unique_ptr<Camera> camera;
+	App::Camera camera, lightCam;
 
-	std::shared_ptr<Core::Texture> multiSampledtextureColorBuffer;
-	std::shared_ptr<Core::Texture> multiSampledtextureDepthStencilBuffer;
-	std::shared_ptr<Core::Framebuffer> multiSampledframebuffer;
+	Core::Texture multiSampledtextureColorBuffer, multiSampledtextureDepthStencilBuffer;
+	Core::Framebuffer multiSampledframebuffer;
 
-	std::shared_ptr<Core::Texture> textureColorBuffer;
-	std::shared_ptr<Core::Renderbuffer> renderbuffer;
-	std::shared_ptr<Core::Framebuffer> framebuffer;
-	std::shared_ptr<GameObject> screenQuad;
+	Core::Texture textureColorBuffer;
+	Core::Renderbuffer renderbuffer;
+	Core::Framebuffer framebuffer;
+	App::GameObject screenQuad;
 
-	std::shared_ptr<Core::Texture> shadowTexture;;
-	std::shared_ptr<Core::Framebuffer> shadowDepthMapFramebuffer;
-	std::shared_ptr<Core::Shader> shadowShader;
+	Core::Texture shadowTexture;
+	Core::Framebuffer shadowDepthMapFramebuffer;
 	glm::mat4 lightSpaceMat;
 
-	std::shared_ptr<Core::Shader> blinnPhongShader;
-	std::shared_ptr<Core::Shader> texturedShader;
-	std::shared_ptr<Core::Shader> postProcessingShader;
+	Core::Shader shadowShader, blinnPhongShader, texturedShader, postProcessingShader;
 
-	std::vector<GameObject> gameObjects;
+	std::vector<App::GameObject> gameObjects;
 
 	DirectionalLight sunLight
 	{

@@ -12,8 +12,10 @@ namespace Core
 class Model
 {
 public:
+    Model();
     Model(const char* filename);
     Model(std::vector<Mesh> meshes);
+    Model(Mesh mesh);
 
     void Draw(Core::Shader shader);
 

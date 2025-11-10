@@ -3,13 +3,10 @@
 // libs
 #include "RendererAPI/VertexArray.h"
 
-// std
-#include <memory>
-
 class MeshGen {
 public:
-    static std::shared_ptr<Core::VertexArray> GetQuad();
-    static std::shared_ptr<Core::VertexArray> GetCube();
-    static std::shared_ptr<Core::VertexArray> GetReversedCube();
-    static std::shared_ptr<Core::VertexArray> GetPlane(const int size);
+    static Core::VertexArray GetQuad();
+    static Core::VertexArray GetCube();
+    static Core::VertexArray GetReversedCube();
+    static Core::VertexArray GetPlane(const int size);
 };

@@ -1,14 +1,18 @@
 #include "Core/Model.h"
+#include <GL/gl.h>
 #include <iostream>
 
 namespace Core
 {
+    Model::Model() {}
     Model::Model(const char* path)
     {
         loadModel(path);
 	}
 	Model::Model(std::vector<Mesh> meshes)
         : meshes(meshes) {}
+    Model::Model(Mesh mesh)
+        : meshes(std::vector<Mesh>{mesh}) {}
 
 
     void Model::Draw(Core::Shader shader)

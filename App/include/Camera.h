@@ -1,22 +1,25 @@
 #pragma once
 
+#include "RendererAPI/Shader.h"
 #include "RendererAPI/Texture.h"
 #include "RendererAPI/VertexArray.h"
 #include <Renderer/Camera.h>
-#include <memory>
 
-class Camera
+namespace App
 {
-public:
-    Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch);
+    class Camera
+    {
+    public:
+        Camera(glm::vec3 position = glm::vec3(0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = -90.0f, float pitch = 0.0f);
 
-    void SetSkybox(std::shared_ptr<Core::VertexArray> skyboxVertexArray, std::shared_ptr<Core::Texture> skyboxTexture, std::shared_ptr<Core::Shader> skyboxShader);
-    void RenderSkybox();
+        void SetSkybox(Core::VertexArray skyboxVertexArray, Core::Texture skyboxTexture, Core::Shader skyboxShader);
+        void RenderSkybox();
 
-    std::shared_ptr<Core::Camera> coreCamera;
+        Core::Camera coreCamera;
 
-private:
-    std::shared_ptr<Core::Shader> skyboxShader;
-    std::shared_ptr<Core::VertexArray> skyboxVertexArray;
-    std::shared_ptr<Core::Texture> skyboxTexture;
-};
+    private:
+        Core::Shader skyboxShader;
+        Core::VertexArray skyboxVertexArray;
+        Core::Texture skyboxTexture;
+    };
+}

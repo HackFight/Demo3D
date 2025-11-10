@@ -1,8 +1,6 @@
 #include "RendererAPI/VertexArray.h"
 #include "RendererAPI/Buffer.h"
-
 #include <glad/glad.h>
-#include <memory>
 
 namespace Core {
 

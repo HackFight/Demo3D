@@ -1,6 +1,6 @@
 #include "ModelGen.h"
 
-std::shared_ptr<Core::Model> ModelGen::GetQuad(std::vector<std::shared_ptr<Core::Texture>> textures)
+Core::Model ModelGen::GetQuad(std::vector<Core::Texture> textures)
 {
     std::vector<Core::Vertex> vertices
     {
@@ -15,10 +15,10 @@ std::shared_ptr<Core::Model> ModelGen::GetQuad(std::vector<std::shared_ptr<Core:
         0, 2, 3
     };
 
-	return Core::Model::Create(Mesh(vertices, indices, toMeshTextures(textures)));
+	return Core::Model(Core::Mesh(vertices, indices, toMeshTextures(textures)));
 }
 
-std::shared_ptr<Core::Model> ModelGen::GetCube(std::vector<std::shared_ptr<Core::Texture>> textures)
+Core::Model ModelGen::GetCube(std::vector<Core::Texture> textures)
 {
     std::vector<Core::Vertex> vertices
     {
@@ -73,10 +73,10 @@ std::shared_ptr<Core::Model> ModelGen::GetCube(std::vector<std::shared_ptr<Core:
         20, 22, 23
     };
     
-    return Core::Model::Create(Mesh(vertices, indices, toMeshTextures(textures)));
+    return Core::Model(Core::Mesh(vertices, indices, toMeshTextures(textures)));
 }
 
-std::shared_ptr<Core::Model> ModelGen::GetPlane(const int size, std::vector<std::shared_ptr<Core::Texture>> textures)
+Core::Model ModelGen::GetPlane(const int size, std::vector<Core::Texture> textures)
 {
     std::vector<Core::Vertex> vertices;
     for (int x = 0; x <= size; x++)
@@ -104,15 +104,15 @@ std::shared_ptr<Core::Model> ModelGen::GetPlane(const int size, std::vector<std:
         }
     }
     
-    return Core::Model::Create(Mesh(vertices, indices, toMeshTextures(textures)));
+    return Core::Model(Core::Mesh(vertices, indices, toMeshTextures(textures)));
 }
 
-std::vector<Mesh::Texture> ModelGen::toMeshTextures(std::vector<std::shared_ptr<Core::Texture>> textures)
+std::vector<Core::Mesh::Texture> ModelGen::toMeshTextures(std::vector<Core::Texture> textures)
 {
-    std::vector<Mesh::Texture> meshTextures;
+    std::vector<Core::Mesh::Texture> meshTextures;
     for (size_t i = 0; i < textures.size(); i++)
     {
-        Mesh::Texture texture;
+        Core::Mesh::Texture texture;
         texture.ptr = textures[i];
         switch (i)
         {

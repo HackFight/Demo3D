@@ -29,7 +29,7 @@ namespace Core {
     class Camera
     {
     public:
-        Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
+        Camera(float posX = 0.0f, float posY = 0.0f, float posZ = 0.0f, float upX = 0.0f, float upY = 1.0f, float upZ = 0.0f, float yaw = -90.0f, float pitch = 0.0f);
 
         glm::mat4 getViewMatrix();
         glm::mat4 getProjectionMatrix();

@@ -1,12 +1,13 @@
 #include "MainLayer.h"
 
 #include "Core/Application.h"
+#include "RendererAPI/RendererAPI.h"
+#include <GL/glext.h>
 #include <ModelGen.h>
 #include <MeshGen.h>
 
 // std
 #include <iostream>
-#include <memory>
 #include <vector>
 
 // imgui
@@ -14,23 +15,17 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-#define GL_UNSIGNED_INT_24_8 0x84FA
-#define GL_DEPTH24_STENCIL8 0x88F0
-#define GL_DEPTH_STENCIL 0x84F9
-#define GL_RGBA16F 0x881A
-#define GL_CLAMP_TO_BORDER 0x812D
-#define GL_DEPTH_COMPONENT32F 0x8CAC
+using namespace Core;
 
 MainLayer::MainLayer()
 {
     // Setup
-    renderer = std::make_shared<Core::RendererAPI>();
-    renderer->Init();
-    renderer->SetClearColor(glm::vec4(0.0f));
+    RendererAPI::Init();
+    RendererAPI::SetClearColor(glm::vec4(0.0f));
     
-    glfwSetInputMode(Core::Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     double xpos, ypos;
-    glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
+    glfwGetCursorPos(Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
     lastX = xpos; lastY = ypos;
 
     // Setup Dear ImGui context
@@ -74,20 +69,20 @@ void MainLayer::OnUpdate(double ts)
 }
 void MainLayer::OnRender()
 {
-    renderer->SRGBColorSpace(false); // disble gamma correction for intermediate steps
-    shadowDepthMapFramebuffer->Bind();
+    RendererAPI::SRGBColorSpace(false); // disble gamma correction for intermediate steps
+    shadowDepthMapFramebuffer.Bind();
 	RenderShadowMap();
 
     ResizeBuffers();
-    multiSampledframebuffer->Bind();
+    multiSampledframebuffer.Bind();
 	RenderScene();
 
-    glm::vec2 viewportSize = Core::Application::Get().GetFramebufferSize();
-	multiSampledframebuffer->Blit(framebuffer, viewportSize.x, viewportSize.y);
+    glm::vec2 viewportSize = Application::Get().GetFramebufferSize();
+	multiSampledframebuffer.Blit(framebuffer);
 
-    framebuffer->Unbind();
+    Framebuffer::Unbind();
     if (gammaCorrection)
-        renderer->SRGBColorSpace(true); // enable gamma correction for final render
+        RendererAPI::SRGBColorSpace(true); // enable gamma correction for final render
     RenderPostProcessing();
 
     RenderGUI();
@@ -95,52 +90,51 @@ void MainLayer::OnRender()
 
 void MainLayer::RenderShadowMap()
 {
-	renderer->SetViewport(0, 0, SHADOW_SIZE, SHADOW_SIZE);
+	RendererAPI::SetViewport(0, 0, SHADOW_SIZE, SHADOW_SIZE);
+    RendererAPI::ClearDepth();
 
-    renderer->ClearDepth();
+    lightCam.coreCamera.setPos(-sunLight.direction * 10.0f + camera.coreCamera.getPos());
+    lightSpaceMat = lightCam.coreCamera.getProjectionMatrix() * lightCam.coreCamera.getViewMatrix();
 
-    lightCam->coreCamera->setPos(-sunLight.direction * 10.0f + camera->coreCamera->getPos());
-    lightSpaceMat = lightCam->coreCamera->getProjectionMatrix() * lightCam->coreCamera->getViewMatrix();
-
-    shadowShader->Bind();
-    shadowShader->setmat4("lightSpaceMat", lightSpaceMat);
-    for (GameObject object : gameObjects)
+    shadowShader.Bind();
+    shadowShader.setmat4("lightSpaceMat", lightSpaceMat);
+    for ( App::GameObject object : gameObjects)
     {
-        object.Render(lightCam->coreCamera, shadowShader);
+        object.Render(lightCam.coreCamera, shadowShader);
     }
 }
 
 void MainLayer::RenderScene()
 {
-    renderer->ClearColor();
-    renderer->ClearDepth();
+    RendererAPI::ClearColor();
+    RendererAPI::ClearDepth();
 
-    blinnPhongShader->Bind();
-    blinnPhongShader->setmat4("lightSpaceMat", lightSpaceMat);
+    blinnPhongShader.Bind();
+    blinnPhongShader.setmat4("lightSpaceMat", lightSpaceMat);
 
-    texturedShader->Bind();
-    texturedShader->setmat4("lightSpaceMat", lightSpaceMat);
-    texturedShader->Unbind();
+    texturedShader.Bind();
+    texturedShader.setmat4("lightSpaceMat", lightSpaceMat);
+    texturedShader.Unbind();
 
-    for (GameObject object : gameObjects)
+    for ( App::GameObject object : gameObjects)
     {
-        object.Render(camera->coreCamera);
+        object.Render(camera.coreCamera);
     }
 
-    camera->RenderSkybox();
+    camera.RenderSkybox();
 }
 
 void MainLayer::RenderPostProcessing()
 {
-    renderer->ClearColor();
-    renderer->DepthTest(false);
+    RendererAPI::ClearColor();
+    RendererAPI::DepthTest(false);
 
-	postProcessingShader->Bind();
-	postProcessingShader->setBool("toneMapping", toneMapping);
-	postProcessingShader->setFloat("exposure", exposure);
-    screenQuad->Render(camera->coreCamera);
+	postProcessingShader.Bind();
+	postProcessingShader.setBool("toneMapping", toneMapping);
+	postProcessingShader.setFloat("exposure", exposure);
+    screenQuad.Render(camera.coreCamera);
 
-    renderer->DepthTest(true);
+    RendererAPI::DepthTest(true);
 }
 
 void MainLayer::RenderGUI()
@@ -158,15 +152,15 @@ void MainLayer::RenderGUI()
 
 void MainLayer::ResizeBuffers()
 {
-    glm::vec2 viewportSize = Core::Application::Get().GetFramebufferSize();
+    glm::vec2 viewportSize = Application::Get().GetFramebufferSize();
 
-    renderer->SetViewport(0, 0, viewportSize.x, viewportSize.y);
+    RendererAPI::SetViewport(0, 0, viewportSize.x, viewportSize.y);
 
-    multiSampledtextureColorBuffer->SetData(GL_RGBA16F, viewportSize.x, viewportSize.y, GL_RGBA, GL_FLOAT, NULL, true);
-    multiSampledtextureDepthStencilBuffer->SetData(GL_DEPTH24_STENCIL8, 1920, 1200, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, true);
+    multiSampledtextureColorBuffer.Resize(viewportSize.x, viewportSize.y);
+    multiSampledtextureDepthStencilBuffer.Resize(viewportSize.x, viewportSize.y);
 
-    textureColorBuffer->SetData(GL_RGBA16F, viewportSize.x, viewportSize.y, GL_RGBA, GL_FLOAT, NULL);
-    renderbuffer->SetData(viewportSize.x, viewportSize.y);
+    textureColorBuffer.Resize(viewportSize.x, viewportSize.y);
+    renderbuffer.Resize(viewportSize.x, viewportSize.y);
 }
 
 void MainLayer::ProcessInput(double ts)
@@ -180,13 +174,13 @@ void MainLayer::ProcessInput(double ts)
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_ESCAPE) == GLFW_RELEASE)
         canPress = true;
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_W) == GLFW_PRESS)
-        camera->coreCamera->ProcessKeyboard(Core::FORWARD, ts);
+        camera.coreCamera.ProcessKeyboard(Core::FORWARD, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_S) == GLFW_PRESS)
-        camera->coreCamera->ProcessKeyboard(Core::BACKWARD, ts);
+        camera.coreCamera.ProcessKeyboard(Core::BACKWARD, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_A) == GLFW_PRESS)
-        camera->coreCamera->ProcessKeyboard(Core::LEFT, ts);
+        camera.coreCamera.ProcessKeyboard(Core::LEFT, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_D) == GLFW_PRESS)
-        camera->coreCamera->ProcessKeyboard(Core::RIGHT, ts);
+        camera.coreCamera.ProcessKeyboard(Core::RIGHT, ts);
 
     double xpos, ypos;
     glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
@@ -195,32 +189,32 @@ void MainLayer::ProcessInput(double ts)
     lastX = xpos;
     lastY = ypos;
     if(mouseDisabled)
-        camera->coreCamera->ProcessMouseMovement(xoffset, yoffset);
+        camera.coreCamera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 void MainLayer::LoadAssets()
 {
 	// load and setup the blinn-phong shader
-    blinnPhongShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
-    blinnPhongShader->Bind();
-    blinnPhongShader->set3f("light.direction", sunLight.direction);
-    blinnPhongShader->set3f("light.ambient", sunLight.ambient);
-    blinnPhongShader->set3f("light.diffuse", sunLight.diffuse);
-    blinnPhongShader->set3f("light.specular", sunLight.specular);
-    blinnPhongShader->setInt("shadowMap", 5);
+    blinnPhongShader = Shader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
+    blinnPhongShader.Bind();
+    blinnPhongShader.set3f("light.direction", sunLight.direction);
+    blinnPhongShader.set3f("light.ambient", sunLight.ambient);
+    blinnPhongShader.set3f("light.diffuse", sunLight.diffuse);
+    blinnPhongShader.set3f("light.specular", sunLight.specular);
+    blinnPhongShader.setInt("shadowMap", 5);
 
 	// load and setup the textured shader
-    texturedShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured.frag");
-    texturedShader->Bind();
-    texturedShader->set3f("light.direction", sunLight.direction);
-    texturedShader->set3f("light.ambient", sunLight.ambient);
-    texturedShader->set3f("light.diffuse", sunLight.diffuse);
-    texturedShader->set3f("light.specular", sunLight.specular);
-    texturedShader->setInt("shadowMap", 5);
+    texturedShader = Core::Shader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured.frag");
+    texturedShader.Bind();
+    texturedShader.set3f("light.direction", sunLight.direction);
+    texturedShader.set3f("light.ambient", sunLight.ambient);
+    texturedShader.set3f("light.diffuse", sunLight.diffuse);
+    texturedShader.set3f("light.specular", sunLight.specular);
+    texturedShader.setInt("shadowMap", 5);
 
-    std::shared_ptr<Core::Shader> skyboxShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag");
+    Shader skyboxShader(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag");
 
-    postProcessingShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/post.vert", RESOURCES_PATH "shaders/post.frag");
+    postProcessingShader = Core::Shader(RESOURCES_PATH "shaders/post.vert", RESOURCES_PATH "shaders/post.frag");
     
     std::vector<const char*> faces
     {
@@ -233,95 +227,89 @@ void MainLayer::LoadAssets()
     };
 
     // load the default texture
-    std::vector<std::shared_ptr<Core::Texture>> defaultTextures
+    std::vector<Texture> defaultTextures
     {
-        Core::Texture::Create(RESOURCES_PATH "textures/default.png", 0x8C40, GL_RGBA)
+        Texture(RESOURCES_PATH "textures/default.png")
     };
-	defaultTextures[0]->SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	defaultTextures[0]->GenerateMipmaps();
+	defaultTextures[0].SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+	defaultTextures[0].GenerateMipmaps();
 
 	// load the box textures
-    std::vector<std::shared_ptr<Core::Texture>> boxTextures
+    std::vector<Texture> boxTextures
     {
-        Core::Texture::Create(RESOURCES_PATH "textures/box.png", 0x8C40, GL_RGBA),
-        Core::Texture::Create(RESOURCES_PATH "textures/box-specular.png", GL_RGB, GL_RGBA)
+        Texture(RESOURCES_PATH "textures/box.png"),
+        Texture(RESOURCES_PATH "textures/box-specular.png")
     };
-	boxTextures[0]->SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	boxTextures[0]->GenerateMipmaps();
+	boxTextures[0].SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+	boxTextures[0].GenerateMipmaps();
 
 	// load the redstone ore textures
-    std::vector<std::shared_ptr<Core::Texture>> redstoneOreTextures
+    std::vector<Texture> redstoneOreTextures
     {
-        Core::Texture::Create(RESOURCES_PATH "textures/redstone-ore.png", 0x8C40, GL_RGB),
-        Core::Texture::Create(RESOURCES_PATH "textures/redstone-ore-specular.png", GL_RGB, GL_RGB),
-        Core::Texture::Create(RESOURCES_PATH "textures/redstone-ore-emission.png", 0x8C40, GL_RGB)
+        Texture(RESOURCES_PATH "textures/redstone-ore.png"),
+        Texture(RESOURCES_PATH "textures/redstone-ore-specular.png"),
+        Texture(RESOURCES_PATH "textures/redstone-ore-emission.png")
     };
-	redstoneOreTextures[0]->SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
-	redstoneOreTextures[0]->GenerateMipmaps();
-    redstoneOreTextures[1]->SetParameters(GL_REPEAT, GL_NEAREST, GL_NEAREST);
-    redstoneOreTextures[2]->SetParameters(GL_REPEAT, GL_NEAREST, GL_NEAREST);
+	redstoneOreTextures[0].SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
+	redstoneOreTextures[0].GenerateMipmaps();
 
 	// create the ground plane
-    gameObjects.push_back(GameObject(ModelGen::GetPlane(1000, defaultTextures), texturedShader, glm::vec3(0.0f), GameObject::ShaderType::Default));
+    gameObjects.push_back( App::GameObject(ModelGen::GetPlane(1000, defaultTextures), texturedShader, glm::vec3(0.0f)));
 
 	// create cubes with different materials
     for (int i = 0; i < 24; i++)
     {
-		gameObjects.push_back(GameObject(ModelGen::GetCube(), blinnPhongShader, glm::vec3((i % 6) * 2.0f - 5.0f, 0.5f, (i / 6) * 2.0f - 3.0f), GameObject::ShaderType::BlinnPhong, static_cast<BlinnPhongMaterial>(i)));
+		gameObjects.push_back( App::GameObject(ModelGen::GetCube(), blinnPhongShader, glm::vec3((i % 6) * 2.0f - 5.0f, 0.5f, (i / 6) * 2.0f - 3.0f), static_cast<BlinnPhongMaterial>(i)));
     }
 
     // create the textured box
-	gameObjects.push_back(GameObject(ModelGen::GetCube(boxTextures), texturedShader, glm::vec3(-1.0f, 0.5f, -5.0f), GameObject::ShaderType::Default));
+	gameObjects.push_back( App::GameObject(ModelGen::GetCube(boxTextures), texturedShader, glm::vec3(-1.0f, 0.5f, -5.0f)));
 
 	// create the redstone ore
-	gameObjects.push_back(GameObject(ModelGen::GetCube(redstoneOreTextures), texturedShader, glm::vec3(1.0f, 0.5f, -5.0f), GameObject::ShaderType::Default));
+	gameObjects.push_back( App::GameObject(ModelGen::GetCube(redstoneOreTextures), texturedShader, glm::vec3(1.0f, 0.5f, -5.0f)));
 
 	// create the backpack
-	gameObjects.push_back(GameObject(Core::Model::Create(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, glm::vec3(3.0f, 2.0f, -7.0f), GameObject::ShaderType::Default));
+	gameObjects.push_back(App::GameObject(Model(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, glm::vec3(3.0f, 2.0f, -7.0f)));
 
 	// create the Vyse helmet
-    gameObjects.push_back(GameObject(Core::Model::Create(RESOURCES_PATH "models/vyse-helmet/vyse-helmet.obj"), blinnPhongShader, glm::vec3(0.0f, 1.0f, -7.0f), GameObject::ShaderType::BlinnPhong, FLASHBANG));
+    gameObjects.push_back(App::GameObject(Model(RESOURCES_PATH "models/vyse-helmet/vyse-helmet.obj"), blinnPhongShader, glm::vec3(0.0f, 1.0f, -7.0f), FLASHBANG));
 
 	// setup the camera
-    camera = std::make_unique<Camera>(glm::vec3(0.0f, 1.0f, 2.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
-    camera->SetSkybox(MeshGen::GetReversedCube(), Core::Texture::CreateCubemap(faces), skyboxShader);
+    camera = App::Camera(glm::vec3(0.0f, 1.0f, 2.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
+    camera.SetSkybox(MeshGen::GetReversedCube(), Texture(faces), skyboxShader);
 
-    lightCam = std::make_unique<Camera>(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f);
-    lightCam->coreCamera->orthographic = true;
-    lightCam->coreCamera->setPos(-sunLight.direction * 10.0f + camera->coreCamera->getPos());
-    lightCam->coreCamera->lookAt(camera->coreCamera->getPos());
+    lightCam = App::Camera(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f);
+    lightCam.coreCamera.orthographic = true;
+    lightCam.coreCamera.setPos(-sunLight.direction * 10.0f + camera.coreCamera.getPos());
+    lightCam.coreCamera.lookAt(camera.coreCamera.getPos());
 
 	// setup multisampled framebuffer
-    multiSampledtextureColorBuffer = Core::Texture::Create(GL_RGBA16F, 1920, 1200, GL_RGBA, GL_FLOAT, NULL, true);
-    multiSampledtextureDepthStencilBuffer = Core::Texture::Create(GL_DEPTH24_STENCIL8, 1920, 1200, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, true);
+    multiSampledtextureColorBuffer = Texture(GL_TEXTURE_2D_MULTISAMPLE, GL_RGBA16F, 1920, 1200, GL_RGBA, GL_FLOAT, NULL, true, 4);
+    multiSampledtextureDepthStencilBuffer = Texture(GL_TEXTURE_2D_MULTISAMPLE, GL_DEPTH24_STENCIL8, 1920, 1200, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, true, 4);
 
-    multiSampledframebuffer = Core::Framebuffer::Create();
-    multiSampledframebuffer->AttachTexture(Core::AttachementType::Color, multiSampledtextureColorBuffer, true);
-	multiSampledframebuffer->AttachTexture(Core::AttachementType::Depth_Stencil, multiSampledtextureDepthStencilBuffer, true);
+    multiSampledframebuffer.AttachTexture(multiSampledtextureColorBuffer);
+	multiSampledframebuffer.AttachTexture(multiSampledtextureDepthStencilBuffer);
 
     // setup post processing
-    textureColorBuffer = Core::Texture::Create(GL_RGBA16F, 1920, 1200, GL_RGBA, GL_FLOAT, NULL);
+    textureColorBuffer = Texture(GL_TEXTURE_2D, GL_RGBA16F, 1920, 1200, GL_RGBA, GL_FLOAT, NULL, false, 0);
     
-    std::vector<std::shared_ptr<Core::Texture>> tempVec;
+    std::vector<Texture> tempVec;
     tempVec.push_back(textureColorBuffer);
     
-    screenQuad = std::make_shared<GameObject>(ModelGen::GetQuad(tempVec), postProcessingShader);
+    screenQuad = App::GameObject(ModelGen::GetQuad(tempVec), postProcessingShader);
 
-    renderbuffer = Core::Renderbuffer::Create(Core::Depth_Stencil, 1920, 1200);
+    renderbuffer = Renderbuffer(GL_DEPTH24_STENCIL8, 1920, 1200, false, 0);
     
-    framebuffer = Core::Framebuffer::Create();
-    framebuffer->AttachTexture(Core::AttachementType::Color, textureColorBuffer);
-    framebuffer->AttachRenderBuffer(renderbuffer);
+    framebuffer.AttachTexture(textureColorBuffer);
+    framebuffer.AttachRenderBuffer(renderbuffer);
 
 
 	// setup shadow mapping framebuffer
-    shadowTexture = Core::Texture::Create(GL_DEPTH_COMPONENT32F, SHADOW_SIZE, SHADOW_SIZE, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    shadowTexture->SetParameters(GL_CLAMP_TO_BORDER, GL_LINEAR, GL_LINEAR);
-    shadowTexture->SetBorderColor(1.0f, 1.0f, 1.0f, 1.0f);
-	shadowTexture->Bind(5); // No texture should interfere with the shadow map texture unit
+    shadowTexture = Texture(GL_TEXTURE_2D, GL_DEPTH_COMPONENT32F, SHADOW_SIZE, SHADOW_SIZE, GL_DEPTH_COMPONENT, GL_FLOAT, NULL, false, 0);
+    shadowTexture.SetParameters(GL_CLAMP_TO_BORDER, GL_LINEAR, GL_LINEAR);
+    shadowTexture.SetBorderColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-    shadowDepthMapFramebuffer = Core::Framebuffer::Create();
-    shadowDepthMapFramebuffer->AttachTexture(Core::AttachementType::Depth, shadowTexture);
+    shadowDepthMapFramebuffer.AttachTexture(shadowTexture);
     
-    shadowShader = std::make_shared<Core::Shader>(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/empty.frag");
+    shadowShader = Shader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/empty.frag");
 }

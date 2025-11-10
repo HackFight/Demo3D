@@ -99,7 +99,8 @@ namespace Core {
         m_TextureInfo.samples = samples;
 
         glBindTexture(m_TextureInfo.target, m_RendererID);
-		if(m_TextureInfo.multisampled)
+        
+        if(m_TextureInfo.multisampled)
             glTexImage2DMultisample(m_TextureInfo.target, m_TextureInfo.samples, m_TextureInfo.internalFormat, m_TextureInfo.width, m_TextureInfo.height, GL_TRUE);
         else
             glTexImage2D(m_TextureInfo.target, 0, m_TextureInfo.internalFormat, m_TextureInfo.width, m_TextureInfo.height, 0, m_TextureInfo.format, m_TextureInfo.dataType, data);

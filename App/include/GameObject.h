@@ -1,31 +1,27 @@
 #pragma once
 
-#include <Renderer/Camera.h>
+#include "Renderer/Camera.h"
 #include "RendererAPI/Shader.h"
+#include "Core/Model.h"
 #include "MaterialGen.h"
 
-#include <memory>
-#include <Core/Model.h>
-
-class GameObject
+namespace App
 {
-public:
-	enum ShaderType
+	class GameObject
 	{
-		Default,
-		BlinnPhong,
+	public:
+		GameObject();
+		GameObject(Core::Model model, Core::Shader shader, glm::vec3 position = glm::vec3(0.0f), BlinnPhongMaterial material = WhitePlastic);
+		~GameObject();
+
+		void Render(Core::Camera camera, Core::Shader forcedShader);
+		void Render(Core::Camera camera);
+
+	private:
+		Core::Model m_Model;
+		Core::Shader m_Shader;
+		BlinnPhongMaterial m_Material;
+
+		glm::vec3 m_Position;
 	};
-
-	GameObject(std::shared_ptr<Core::Model> model, std::shared_ptr<Core::Shader> shader, glm::vec3 position = glm::vec3(0.0f), ShaderType shaderType = BlinnPhong, BlinnPhongMaterial material = WhitePlastic);
-	~GameObject();
-
-	void Render(std::shared_ptr<Core::Camera> camera, std::shared_ptr<Core::Shader> forcedShader = nullptr);
-
-private:
-	std::shared_ptr<Core::Model> model;
-	std::shared_ptr<Core::Shader> shader;
-	ShaderType shaderType;
-	BlinnPhongMaterial material;
-
-	glm::vec3 position;
-};
+}

@@ -3,15 +3,12 @@
 // libs
 #include "Core/Model.h"
 
-// std
-#include <memory>
-
 class ModelGen {
 public:
-    static std::shared_ptr<Core::Model> GetQuad(std::vector<std::shared_ptr<Core::Texture>> textures = std::vector<std::shared_ptr<Core::Texture>>{Core::Texture::Create()});
-    static std::shared_ptr<Core::Model> GetCube(std::vector<std::shared_ptr<Core::Texture>> textures = std::vector<std::shared_ptr<Core::Texture>>{ Core::Texture::Create() });
-    static std::shared_ptr<Core::Model> GetPlane(const int size, std::vector<std::shared_ptr<Core::Texture>> textures = std::vector<std::shared_ptr<Core::Texture>>{ Core::Texture::Create() });
+    static Core::Model GetQuad(std::vector<Core::Texture> textures = std::vector<Core::Texture>{ Core::Texture() });
+    static Core::Model GetCube(std::vector<Core::Texture> textures = std::vector<Core::Texture>{ Core::Texture() });
+    static Core::Model GetPlane(const int size, std::vector<Core::Texture> textures = std::vector<Core::Texture>{ Core::Texture() });
 
 private:
-    static std::vector<Mesh::Texture> toMeshTextures(std::vector<std::shared_ptr<Core::Texture>> textures);
+    static std::vector<Core::Mesh::Texture> toMeshTextures(std::vector<Core::Texture> textures);
 };

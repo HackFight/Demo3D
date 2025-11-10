@@ -1,33 +1,34 @@
 #include "Camera.h"
+#include "RendererAPI/RendererAPI.h"
+#include <GL/gl.h>
 
-#include <glad/glad.h>
-
-Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
+namespace App
 {
-    coreCamera = std::make_shared<Core::Camera>(position.x, position.y, position.z, up.x, up.y, up.z, yaw, pitch);
-}
+    Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
+    {
+        coreCamera = Core::Camera(position.x, position.y, position.z, up.x, up.y, up.z, yaw, pitch);
+    }
 
-void Camera::SetSkybox(std::shared_ptr<Core::VertexArray> vertexArray, std::shared_ptr<Core::Texture> texture, std::shared_ptr<Core::Shader> shader)
-{
-    skyboxVertexArray = vertexArray;
-    skyboxTexture = texture;
-    skyboxShader = shader;
-}
+    void Camera::SetSkybox(Core::VertexArray vertexArray, Core::Texture texture, Core::Shader shader)
+    {
+        skyboxVertexArray = vertexArray;
+        skyboxTexture = texture;
+        skyboxShader = shader;
+    }
 
-void Camera::RenderSkybox()
-{
-    glDepthFunc(GL_LEQUAL);
+    void Camera::RenderSkybox()
+    {
+        Core::RendererAPI::SetDepthFunc(GL_EQUAL);
 
-    skyboxShader->Bind();
-    skyboxShader->setmat4("projMat", coreCamera->getProjectionMatrix());
-    skyboxShader->setmat4("viewMat", glm::mat4(glm::mat3(coreCamera->getViewMatrix())));
-    skyboxShader->setInt("skybox", 0);
+        skyboxShader.Bind();
+        skyboxShader.setmat4("projMat", coreCamera.getProjectionMatrix());
+        skyboxShader.setmat4("viewMat", glm::mat4(glm::mat3(coreCamera.getViewMatrix())));
+        skyboxShader.setInt("skybox", 0);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture->GetRendererID());
+        skyboxTexture.Bind(0);
 
-    skyboxVertexArray->Bind();
-    glDrawElements(GL_TRIANGLES, skyboxVertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+        Core::RendererAPI::DrawIndexed(skyboxVertexArray);
 
-    glDepthFunc(GL_LESS);
+        Core::RendererAPI::SetDepthFunc(GL_LESS);
+    }
 }

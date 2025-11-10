@@ -34,6 +34,10 @@ namespace Core {
 	{
 		b ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
 	}
+	void RendererAPI::SetDepthFunc(uint32_t func)
+	{
+		glDepthFunc(func);
+	}
 	void RendererAPI::SRGBColorSpace(bool b)
 	{
 		b ? glEnable(GL_FRAMEBUFFER_SRGB) : glDisable(GL_FRAMEBUFFER_SRGB);

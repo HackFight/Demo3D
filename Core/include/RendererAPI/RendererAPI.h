@@ -24,6 +24,7 @@ namespace Core {
 		static void ClearColor();
 		static void ClearDepth();
 		static void DepthTest(bool b);
+		static void SetDepthFunc(uint32_t func);
 		static void SRGBColorSpace(bool b);
 		static void UnbindAllTextures();
 		static void SetCullMode(CullSide cull);
