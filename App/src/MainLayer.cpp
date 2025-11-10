@@ -103,7 +103,7 @@ void MainLayer::RenderShadowMap()
 
     shadowShader.Bind();
     shadowShader.setmat4("lightSpaceMat", lightSpaceMat);
-    for ( App::GameObject object : gameObjects)
+    for (App::GameObject object : gameObjects)
     {
         object.Render(lightCam.coreCamera, shadowShader);
     }
@@ -200,7 +200,7 @@ void MainLayer::ProcessInput(double ts)
 void MainLayer::LoadAssets()
 {
 	// load and setup the blinn-phong shader
-    blinnPhongShader = Shader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
+    blinnPhongShader.LoadShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
     blinnPhongShader.Bind();
     blinnPhongShader.set3f("light.direction", sunLight.direction);
     blinnPhongShader.set3f("light.ambient", sunLight.ambient);
@@ -209,7 +209,7 @@ void MainLayer::LoadAssets()
     blinnPhongShader.setInt("shadowMap", 5);
 
 	// load and setup the textured shader
-    texturedShader = Core::Shader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured.frag");
+    texturedShader.LoadShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured.frag");
     texturedShader.Bind();
     texturedShader.set3f("light.direction", sunLight.direction);
     texturedShader.set3f("light.ambient", sunLight.ambient);
@@ -219,7 +219,7 @@ void MainLayer::LoadAssets()
 
     Shader skyboxShader(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag");
 
-    postProcessingShader = Core::Shader(RESOURCES_PATH "shaders/post.vert", RESOURCES_PATH "shaders/post.frag");
+    postProcessingShader.LoadShader(RESOURCES_PATH "shaders/post.vert", RESOURCES_PATH "shaders/post.frag");
     
     std::vector<const char*> faces
     {

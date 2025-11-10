@@ -8,9 +8,8 @@
 
 namespace App
 {
-	GameObject::GameObject() {}
 	GameObject::GameObject(Core::Model model, Core::Shader shader, glm::vec3 position, BlinnPhongMaterial material)
-		: m_Model(model), m_Shader(shader), m_Position(position), m_Material(material) {}
+		: m_Model(model), m_Shader(std::move(shader)), m_Position(position), m_Material(material) {}
 
 	GameObject::~GameObject() {}
 
@@ -24,14 +23,14 @@ namespace App
 		shader.setInt("material.texture_diffuse1", 0);
 		shader.setInt("material.texture_specular1", 1);
 		shader.setInt("material.texture_emission1", 2);
-		MaterialGen::setBlinnPhongMaterial(shader, m_Material);
+		MaterialGen::setBlinnPhongMaterial(std::move(shader), m_Material);
 
 		shader.set3f("viewPos", camera.getPos());
-		m_Model.Draw(shader);
+		m_Model.Draw(std::move(shader));
 	}
 
 	void GameObject::Render(Core::Camera camera)
 	{
-		Render(camera, m_Shader);
+		Render(camera, std::move(m_Shader));
 	}
 }

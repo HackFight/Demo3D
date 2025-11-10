@@ -13,7 +13,6 @@ namespace App
 	class GameObject
 	{
 	public:
-		GameObject();
 		GameObject(Core::Model model, Core::Shader shader, glm::vec3 position = glm::vec3(0.0f), BlinnPhongMaterial material = WhitePlastic);
 		~GameObject();
 

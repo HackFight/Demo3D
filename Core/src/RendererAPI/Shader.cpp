@@ -11,12 +11,49 @@
 
 namespace Core
 {
-    Shader::Shader()
+    void Shader::release()
     {
-        m_RendererID = 0;
+        if (m_RendererID != 0)
+        {
+            glDeleteProgram(m_RendererID);
+            m_RendererID = 0;
+        }
     }
+
+    Shader::Shader() : m_RendererID(0) {}
     Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	{
+		LoadShader(vertexPath, fragmentPath);
+	}
+    Shader::~Shader()
+	{
+        release();
+	}
+
+    Shader::Shader(Shader&& other) noexcept : m_RendererID(std::exchange(other.m_RendererID, 0)) {}
+
+
+    Shader& Shader::operator=(Shader&& other) noexcept
+    {
+        if (this != &other)
+        {
+            release();
+            m_RendererID = std::exchange(other.m_RendererID, 0);
+        }
+        return *this;
+    }
+
+	void Shader::Bind() const
+	{
+        glUseProgram(m_RendererID);
+	}
+    void Shader::Unbind()
+	{
+        glUseProgram(0);
+	}
+
+    void Shader::LoadShader(const char* vertexPath, const char* fragmentPath)
+    {
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
         std::string fragmentCode;
@@ -73,10 +110,10 @@ namespace Core
         glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
         if (!success)
         {
-            glGetShaderInfoLog(vertex, 512, NULL, infoLog);
+            glGetShaderInfoLog(fragment, 512, NULL, infoLog);
             std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
         };
-        
+
         // shader Program
         m_RendererID = glCreateProgram();
         glAttachShader(m_RendererID, vertex);
@@ -88,25 +125,15 @@ namespace Core
         {
             glGetProgramInfoLog(m_RendererID, 512, NULL, infoLog);
             std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+
+            glDeleteProgram(m_RendererID);
+            m_RendererID = 0;
         }
 
         // delete the shaders as they're linked into our program now and no longer necessary
         glDeleteShader(vertex);
         glDeleteShader(fragment);
-	}
-    Shader::~Shader()
-	{
-        glDeleteProgram(m_RendererID);
-	}
-
-	void Shader::Bind() const
-	{
-        glUseProgram(m_RendererID);
-	}
-    void Shader::Unbind()
-	{
-        glUseProgram(0);
-	}
+    }
 
     void Shader::setBool(const std::string& name, bool value) const
     {
@@ -141,5 +168,4 @@ namespace Core
     {
         glUniformMatrix4fv(glGetUniformLocation(m_RendererID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
     }
-
 }

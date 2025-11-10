@@ -16,8 +16,16 @@ namespace Core {
 		Shader(const char* vertexPath, const char* fragmentPath);
 		~Shader();
 
+		Shader(const Shader& other) = delete;
+		Shader& operator=(const Shader& other) = delete;
+
+		Shader(Shader&& other) noexcept;
+		Shader& operator=(Shader&& other) noexcept;
+
 		void Bind() const;
         static void Unbind();
+
+		void LoadShader(const char* vertexPath, const char* fragmentPath);
 
 		void setBool(const std::string& name, bool value) const;
 		void setInt(const std::string& name, int value) const;
@@ -29,6 +37,8 @@ namespace Core {
 		void setmat4(const std::string& name, glm::mat4 mat) const;
 	
 	private:
+		void release();
+
 		uint32_t m_RendererID;
     };
 }

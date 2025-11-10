@@ -17,7 +17,7 @@ namespace App
     {
         skyboxVertexArray = vertexArray;
         skyboxTexture = texture;
-        skyboxShader = shader;
+        skyboxShader = std::move(shader);
     }
 
     void Camera::RenderSkybox()
