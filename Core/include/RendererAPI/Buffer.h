@@ -1,11 +1,6 @@
 #pragma once
 
-// libs
 #include <glm/glm.hpp>
-
-// std
-#include <memory>
-#include <stdint.h>
 
 namespace Core {
 
@@ -28,15 +23,11 @@ namespace Core {
 		static void Unbind();
 
 		void SetData(const void* data, uint32_t size);
-
-		static std::shared_ptr<VertexBuffer> Create(uint32_t size);
-		static std::shared_ptr<VertexBuffer> Create(float* vertices, uint32_t size);
 	
 	private:
 		uint32_t m_RendererID;
 	};
 
-	// Currently Hazel only supports 32-bit index buffers
 	class IndexBuffer
 	{
 	public:
@@ -47,8 +38,6 @@ namespace Core {
 		static void Unbind();
 
 		uint32_t GetCount() const { return m_Count; }
-
-		static std::shared_ptr<IndexBuffer> Create(uint32_t* indices, uint32_t count);
 
   private:
     uint32_t m_RendererID;

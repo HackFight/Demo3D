@@ -2,10 +2,6 @@
 
 #include "RendererAPI/Buffer.h"
 
-// std
-#include <memory>
-#include <vector>
-
 namespace Core {
 
     class VertexArray
@@ -17,16 +13,13 @@ namespace Core {
         void Bind() const;
         static void Unbind();
 
-        void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer);
-        void SetIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer);
+		GLsizei GetIndexCount() const { return m_IndexCount; }
 
-        const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffer() const {return m_VertexBuffers; }
-        const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const {return m_IndexBuffer; }
+        void AddVertexBuffer(const VertexBuffer vertexBuffer);
+        void SetIndexBuffer(const IndexBuffer indexBuffer);
 
     private:
         uint32_t m_RendererID;
-		uint32_t m_VertexBufferIndex = 0;
-		std::vector<std::shared_ptr<VertexBuffer>> m_VertexBuffers;
-		std::shared_ptr<IndexBuffer> m_IndexBuffer;
+        GLsizei m_IndexCount;
     };
 }

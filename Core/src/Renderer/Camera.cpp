@@ -1,12 +1,6 @@
 #include "Renderer/Camera.h"
 #include "Core/Application.h"
 
-#include "glm/ext/matrix_transform.hpp"
-#include "glm/geometric.hpp"
-
-#include <glad/glad.h>
-#include <iostream>
-
 namespace Core {
 
     Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) :
@@ -27,7 +21,6 @@ namespace Core {
     {
         if (orthographic)
         {
-            glm::vec2 viewportSize = Application::Get().GetFramebufferSize();
             return glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
         }
         else

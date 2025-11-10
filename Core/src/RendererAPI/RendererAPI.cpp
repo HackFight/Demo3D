@@ -1,8 +1,5 @@
 #include "RendererAPI/RendererAPI.h"
-
-// libs
 #include <glad/glad.h>
-#include <memory>
 
 namespace Core {
 
@@ -20,7 +17,7 @@ namespace Core {
 		glViewport(x, y, width, height);
 	}
 
-	void RendererAPI::SetClearColor(const glm::vec4& color)
+	void RendererAPI::SetClearColor(const glm::vec4 color)
 	{
 		glClearColor(color.r, color.g, color.b, color.a);
 	}
@@ -72,16 +69,16 @@ namespace Core {
 		}
 	}
 
-	void RendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount)
+	void RendererAPI::DrawIndexed(const VertexArray vertexArray, uint32_t indexCount)
 	{
-		vertexArray->Bind();
-		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
+		vertexArray.Bind();
+		uint32_t count = indexCount ? indexCount : vertexArray.GetIndexCount();
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
-	void RendererAPI::DrawLines(const std::shared_ptr<VertexArray>& vertexArray, uint32_t vertexCount)
+	void RendererAPI::DrawLines(const VertexArray vertexArray, uint32_t vertexCount)
 	{
-		vertexArray->Bind();
+		vertexArray.Bind();
 		glDrawArrays(GL_LINES, 0, vertexCount);
 	}
 
@@ -89,5 +86,4 @@ namespace Core {
 	{
 		glLineWidth(width);
 	}
-
 }

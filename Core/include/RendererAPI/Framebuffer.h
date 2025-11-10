@@ -1,38 +1,37 @@
 #pragma once
 
-// std
 #include "RendererAPI/Texture.h"
-#include <memory>
-#include <stdint.h>
 
 namespace Core {
 
-    enum AttachementType
+    struct RenderbufferInfo
     {
-        Color,
-        Depth_Stencil,
-        Depth
-    };
+		uint32_t internalFormat;
+        int width;
+        int height;
+        bool multisampled;
+        int samples;
+	};
 
     class Renderbuffer
     {
     public:
-        Renderbuffer(AttachementType type, int width, int height, bool multisampled = false, int samples = 4);
+        Renderbuffer();
+        Renderbuffer(uint32_t internalFormat, int width, int height, bool multisampled, int samples);
         ~Renderbuffer();
 
         void Bind() const;
 		static void Unbind();
 
-        uint32_t GetRendererID() {return m_RendererID;}
-        AttachementType GetType() {return type;}
+		uint32_t GetRendererID() { return m_RendererID; }
+        RenderbufferInfo GetRenderbufferInfo() { return m_RenderbufferInfo; }
 
-        void SetData(int width, int height, bool multisampled = false, int samples = 4);
-
-        static std::shared_ptr<Renderbuffer> Create(AttachementType type, int width, int height, bool multisampled = false, int samples = 4);
+        void SetData(uint32_t internalFormat, int width, int height, bool multisampled, int samples);
+		void Resize(int width, int height);
     
     private:
         uint32_t m_RendererID;
-        AttachementType type;
+		RenderbufferInfo m_RenderbufferInfo;
     };
 
     class Framebuffer
@@ -44,16 +43,13 @@ namespace Core {
 		void Bind() const;
 		static void Unbind();
 
-		uint16_t GetRendererID() { return m_RendererID; }
-
-        void AttachTexture(AttachementType type, std::shared_ptr<Texture> texture, bool multisampled = false);
-		void AttachTexture(AttachementType type, int width, int height, bool multisampled = false, int samples = 4);
-        void AttachRenderBuffer(std::shared_ptr<Renderbuffer> renderbuffer);
-        void Blit(std::shared_ptr<Framebuffer> destination, int width, int height);
-
-		static std::shared_ptr<Framebuffer> Create();
+        void AttachTexture(Texture texture);
+        void AttachRenderBuffer(Renderbuffer renderbuffer);
+        void Blit();
+        void Blit(Framebuffer destination);
         
     private:
         uint32_t m_RendererID;
+		int m_Width, m_Height;
     };
 }

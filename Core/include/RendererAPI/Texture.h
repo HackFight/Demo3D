@@ -1,39 +1,46 @@
 #pragma once
 
 // std
-#include <memory>
-#include <stdint.h>
 #include <vector>
 
 namespace Core {
+
+	struct TextureInfo
+	{
+		uint32_t target;
+		uint32_t internalFormat;
+		int width;
+		int height;
+		uint32_t format;
+		uint32_t dataType;
+		bool multisampled;
+		int samples;
+	};
 
     class Texture
 	{
 	public:
 		Texture();
-		Texture(uint32_t internalFormat, int width, int height, uint32_t format, uint32_t dataType, const void* data, bool multisampled, int samples);
-		Texture(const char* filename, uint32_t internalFormat, uint32_t format, bool flip);
+		Texture(uint32_t target, uint32_t internalFormat, int width, int height, uint32_t format, uint32_t dataType, const void* data, bool multisampled, int samples);
+		Texture(const char* filename, bool flip);
 		Texture(std::vector<const char*> faces);
 		~Texture();
 
 		void Bind(int i) const;
-		static void Unbind();
+		static void Unbind(uint32_t target);
 
-		void SetData(uint32_t internalFormat, int width, int height, uint32_t format, uint32_t dataType, const void* data, bool multisampled = false, int samples = 4);
+		void SetData(uint32_t target, uint32_t internalFormat, int width, int height, uint32_t format, uint32_t dataType, const void* data, bool multisampled, int samples);
+		void Resize(int width, int height);
 		void GenerateMipmaps();
+
 		void SetParameters(uint32_t wrapping, uint32_t minFilter, uint32_t maxFilter);
 		void SetBorderColor(float r, float g, float b, float a);
 		
-		uint32_t GetRendererID() {return  m_RendererID;}
+		uint32_t GetRendererID() { return  m_RendererID; }
+		TextureInfo GetTextureInfo() { return m_TextureInfo; }
 
-		static std::shared_ptr<Texture> Create();
-		static std::shared_ptr<Texture> Create(uint32_t internalFormat, int width, int height, uint32_t format, uint32_t dataType, const void* data, bool multisampled = false, int samples = 4);
-		static std::shared_ptr<Texture> Create(const char* filename, uint32_t internalFormat, uint32_t format, bool flip = false);
-		static std::shared_ptr<Texture> CreateCubemap(std::vector<const char*> faces);
 	private:
 		uint32_t m_RendererID;
-		uint32_t textureType;
-		bool multisampled;
-		int samples;
+		TextureInfo m_TextureInfo;
 	};
 }

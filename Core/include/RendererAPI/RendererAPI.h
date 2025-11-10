@@ -2,12 +2,7 @@
 
 #include "RendererAPI/VertexArray.h"
 
-// libs
 #include <glm/glm.hpp>
-
-// std
-#include <memory>
-#include <stdint.h>
 
 namespace Core {
 
@@ -22,21 +17,21 @@ namespace Core {
 	class RendererAPI
 	{
 	public:
-		void Init();
-		void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+		static void Init();
+		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
-		void SetClearColor(const glm::vec4& color);
-		void ClearColor();
-		void ClearDepth();
-		void DepthTest(bool b);
-		void SRGBColorSpace(bool b);
-		void UnbindAllTextures();
-		void SetCullMode(CullSide cull);
+		static void SetClearColor(const glm::vec4 color);
+		static void ClearColor();
+		static void ClearDepth();
+		static void DepthTest(bool b);
+		static void SRGBColorSpace(bool b);
+		static void UnbindAllTextures();
+		static void SetCullMode(CullSide cull);
 
-		void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0);
-		void DrawLines(const std::shared_ptr<VertexArray>& vertexArray, uint32_t vertexCount);
+		static void DrawIndexed(const VertexArray vertexArray, uint32_t indexCount = 0);
+		static void DrawLines(const VertexArray vertexArray, uint32_t vertexCount);
 		
-		void SetLineWidth(float width);
+		static void SetLineWidth(float width);
 	};
 
 

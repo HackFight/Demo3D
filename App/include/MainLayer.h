@@ -38,7 +38,6 @@ private:
 	void ProcessInput(double ts);
 	void LoadAssets();
 
-	std::shared_ptr<Core::RendererAPI> renderer;
 	std::unique_ptr<Camera> lightCam;
 	std::unique_ptr<Camera> camera;
 

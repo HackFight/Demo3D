@@ -1,16 +1,19 @@
 #include "RendererAPI/Framebuffer.h"
-#include "RendererAPI/Texture.h"
-
+#include "Core/Application.h"
 #include <glad/glad.h>
-#include <memory>
+#include <glm/glm.hpp>
+#include <iostream>
 
 namespace Core
 {
-    Renderbuffer::Renderbuffer(AttachementType type, int width, int height, bool multisampled, int samples)
-        : type(type)
+    Renderbuffer::Renderbuffer()
     {
         glGenRenderbuffers(1, &m_RendererID);
-        SetData(width, height, multisampled, samples);
+	}
+    Renderbuffer::Renderbuffer(uint32_t internalFormat, int width, int height, bool multisampled, int samples)
+    {
+        glGenRenderbuffers(1, &m_RendererID);
+        SetData(internalFormat, width, height, multisampled, samples);
     }
     Renderbuffer::~Renderbuffer()
     {
@@ -26,49 +29,29 @@ namespace Core
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
     }
 
-    void Renderbuffer::SetData(int width, int height, bool multisampled, int samples)
+    void Renderbuffer::SetData(uint32_t internalFormat, int width, int height, bool multisampled, int samples)
     {
+		m_RenderbufferInfo.internalFormat = internalFormat;
+		m_RenderbufferInfo.width = width;
+		m_RenderbufferInfo.height = height;
+		m_RenderbufferInfo.multisampled = multisampled;
+		m_RenderbufferInfo.samples = samples;
+
         Bind();
-        if (multisampled)
+        if (m_RenderbufferInfo.multisampled)
         {
-            switch (type)
-            {
-            case Color:
-                glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_RGBA, width, height);
-                break;
-
-            case Depth_Stencil:
-                glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH24_STENCIL8, width, height);
-                break;
-
-            case Depth:
-                glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH_COMPONENT24, width, height);
-                break;
-            }
+            glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_RenderbufferInfo.samples, m_RenderbufferInfo.internalFormat, m_RenderbufferInfo.width, m_RenderbufferInfo.height);
         }
         else
         {
-            switch (type)
-            {
-            case Color:
-                glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, width, height);
-                break;
-
-            case Depth_Stencil:
-                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-                break;
-
-			case Depth:
-                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
-				break;
-            }
+            glRenderbufferStorage(GL_RENDERBUFFER, m_RenderbufferInfo.internalFormat, m_RenderbufferInfo.width, m_RenderbufferInfo.height);
         }
     }
 
-    std::shared_ptr<Renderbuffer> Renderbuffer::Create(AttachementType type, int width, int height, bool multisampled, int samples)
+    void Renderbuffer::Resize(int width, int height)
     {
-        return std::make_shared<Renderbuffer>(type, width, height);
-    }
+        SetData(m_RenderbufferInfo.internalFormat, width, height, m_RenderbufferInfo.multisampled, m_RenderbufferInfo.samples);
+	}
 
 
 
@@ -90,83 +73,97 @@ namespace Core
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void Framebuffer::AttachTexture(AttachementType type, std::shared_ptr<Texture> texture, bool multisampled)
+    void Framebuffer::AttachTexture(Texture texture)
     {
-        Bind();
-		uint32_t textureType = multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
-        switch (type)
+        if(m_Width == 0 && m_Height == 0)
+		{
+            m_Width = texture.GetTextureInfo().width;
+            m_Height = texture.GetTextureInfo().height;
+		}
+        else
         {
-        case Color:
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureType, texture->GetRendererID(), 0);
-            break;
-
-        case Depth_Stencil:
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, textureType, texture->GetRendererID(), 0);
-            break;
-
-        case Depth:
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textureType, texture->GetRendererID(), 0);
-            break;
+            if (m_Width != texture.GetTextureInfo().width || m_Height != texture.GetTextureInfo().height)
+            {
+				std::cout << "Warning: Attaching texture of different size to framebuffer!\n";
+            }
         }
-    }
-    void Framebuffer::AttachTexture(AttachementType type, int width, int height, bool multisampled, int samples)
-    {
-        Bind();
-        std::shared_ptr<Texture> texture;
-        switch (type)
+
+		uint32_t textureInternalFormat = texture.GetTextureInfo().internalFormat;
+		uint32_t attachement;
+
+        if(textureInternalFormat == GL_RGB8 || textureInternalFormat == GL_RGBA8)
+            attachement = GL_COLOR_ATTACHMENT0;
+        else if(textureInternalFormat == GL_DEPTH_COMPONENT32F || textureInternalFormat == GL_DEPTH_COMPONENT24)
+            attachement = GL_DEPTH_ATTACHMENT;
+        else if (textureInternalFormat == GL_DEPTH24_STENCIL8)
+            attachement = GL_DEPTH_STENCIL_ATTACHMENT;
+        else
         {
-        case Color:
-            texture = Texture::Create(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-			texture->SetParameters(GL_REPEAT, GL_LINEAR, GL_LINEAR);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->GetRendererID(), 0);
-            break;
+            std::cout << "Error: Unsupported texture format for framebuffer attachment!\n";
+            return;
+		}
 
-        case Depth_Stencil:
-            unsigned int textureD;
-            glGenTextures(1, &textureD);
-            glBindTexture(GL_TEXTURE_2D, textureD);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, textureD, 0);
-            break;
-
-        case Depth:
-            texture = Texture::Create(GL_DEPTH_COMPONENT, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-			texture->SetParameters(GL_CLAMP_TO_BORDER, GL_NEAREST, GL_NEAREST);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texture->GetRendererID(), 0);
-			break;
-        }
-    }
-
-    void Framebuffer::AttachRenderBuffer(std::shared_ptr<Renderbuffer> renderbuffer)
-    {
         Bind();
-        renderbuffer->Bind();
-        switch (renderbuffer->GetType()) {
-        case Color:
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderbuffer->GetRendererID());
-            break;
-
-        case Depth_Stencil:
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderbuffer->GetRendererID());
-            break;
-
-        case Depth:
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer->GetRendererID());
-			break;
-        }  
+        glFramebufferTexture2D(GL_FRAMEBUFFER, attachement, texture.GetTextureInfo().target, texture.GetRendererID(), 0);
     }
 
-    void Framebuffer::Blit(std::shared_ptr<Framebuffer> destination, int width, int height)
+    void Framebuffer::AttachRenderBuffer(Renderbuffer renderbuffer)
     {
-        uint32_t drawID = destination ? destination->GetRendererID() : 0;
+        if (m_Width == 0 && m_Height == 0)
+        {
+            m_Width = renderbuffer.GetRenderbufferInfo().width;
+            m_Height = renderbuffer.GetRenderbufferInfo().height;
+        }
+        else
+        {
+            if (m_Width != renderbuffer.GetRenderbufferInfo().width || m_Height != renderbuffer.GetRenderbufferInfo().height)
+			{
+                std::cout << "Warning: Attaching renderbuffer of different size to framebuffer!\n";
+            }
+		}
+
+		uint32_t renderBufferInternalFormat = renderbuffer.GetRenderbufferInfo().internalFormat;
+        uint32_t attachement;
+
+        if (renderBufferInternalFormat == GL_RGB8 || renderBufferInternalFormat == GL_RGBA8)
+            attachement = GL_COLOR_ATTACHMENT0;
+        else if (renderBufferInternalFormat == GL_DEPTH_COMPONENT32F || renderBufferInternalFormat == GL_DEPTH_COMPONENT24)
+            attachement = GL_DEPTH_ATTACHMENT;
+        else if (renderBufferInternalFormat == GL_DEPTH24_STENCIL8)
+            attachement = GL_DEPTH_STENCIL_ATTACHMENT;
+        else
+        {
+            std::cout << "Error: Unsupported renderbuffer format for framebuffer attachment!\n";
+			return;
+        }
+
+		Bind();
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachement, GL_RENDERBUFFER, renderbuffer.GetRendererID());
+    }
+
+    void Framebuffer::Blit()
+    {
+		glm::vec2 fbSize = Application::Get().GetFramebufferSize();
+        if (m_Width != fbSize.x || m_Height != fbSize.y)
+        {
+            std::cout << "Warning: Blitting framebuffer to window of different size!\n";
+		}
+
         glBindFramebuffer(GL_READ_FRAMEBUFFER, m_RendererID);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawID);
-
-        glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glBlitFramebuffer(0, 0, m_Width, m_Height, 0, 0, m_Width, m_Height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
 	}
 
-    std::shared_ptr<Framebuffer> Framebuffer::Create()
+    void Framebuffer::Blit(Framebuffer destination)
     {
-        return std::make_shared<Framebuffer>();
+        if (m_Width != destination.m_Width || m_Height != destination.m_Height)
+        {
+            std::cout << "Warning: Blitting between framebuffers of different sizes!\n";
+        }
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, m_RendererID);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destination.m_RendererID);
+
+        glBlitFramebuffer(0, 0, m_Width, m_Height, 0, 0, m_Width, m_Height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
     }
 }

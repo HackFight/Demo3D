@@ -1,28 +1,20 @@
 #include <RendererAPI/Texture.h>
-
 #include <glad/glad.h>
 #include <stb_image/stb_image.h>
-
-#include <cstdint>
-#include <memory>
 #include <iostream>
 
 namespace Core {
 
     Texture::Texture()
-		: textureType(GL_TEXTURE_2D), multisampled(false), samples(4)
     {
         glGenTextures(1, &m_RendererID);
     }
-    Texture::Texture( uint32_t internalFormat, int width, int height, uint32_t format, uint32_t dataType, const void* data, bool multisampled, int samples)
-		: multisampled(multisampled), samples(samples)
+    Texture::Texture(uint32_t target, uint32_t internalFormat, int width, int height, uint32_t format, uint32_t dataType, const void* data, bool multisampled, int samples)
     {
-		multisampled ? textureType = GL_TEXTURE_2D_MULTISAMPLE : textureType = GL_TEXTURE_2D;
         glGenTextures(1, &m_RendererID);
-        SetData(internalFormat, width, height, format, dataType, data, multisampled, samples);
+        SetData(target, internalFormat, width, height, format, dataType, data, multisampled, samples);
     }
-    Texture::Texture(const char* filename, uint32_t internalFormat, uint32_t format, bool flip)
-		: textureType(GL_TEXTURE_2D), multisampled(false), samples(4)
+    Texture::Texture(const char* filename, bool flip)
     {
         glGenTextures(1, &m_RendererID);
 
@@ -33,13 +25,20 @@ namespace Core {
         {
             std::cout << "Failed to load texture\n";
         }
-        SetData(internalFormat, width, height, format, GL_UNSIGNED_BYTE, data);
-	}
+
+        if (nrChannels == 4)
+            m_TextureInfo.internalFormat = m_TextureInfo.format = GL_RGBA;
+        else if (nrChannels == 3)
+            m_TextureInfo.internalFormat = m_TextureInfo.format = GL_RGB;
+        else if (nrChannels == 1)
+            m_TextureInfo.internalFormat = m_TextureInfo.format = GL_RED;
+
+		SetData(GL_TEXTURE_2D, m_TextureInfo.internalFormat, width, height, m_TextureInfo.format, GL_UNSIGNED_BYTE, data, false, 0);
+        stbi_image_free(data);
+    }
     Texture::Texture(std::vector<const char*> faces)
-		: textureType(GL_TEXTURE_CUBE_MAP), multisampled(false), samples(4)
     {
         glGenTextures(1, &m_RendererID);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
         
         int width, height, nrChannels;
         for (unsigned int i = 0; i < faces.size(); i++)
@@ -48,7 +47,7 @@ namespace Core {
             unsigned char *data = stbi_load(faces[i], &width, &height, &nrChannels, 0);
             if (data)
             {
-                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+				SetData(GL_TEXTURE_CUBE_MAP, GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, data, false, 0);
                 stbi_image_free(data);
             }
             else
@@ -57,11 +56,21 @@ namespace Core {
                 stbi_image_free(data);
             }
         }
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+        m_TextureInfo.target = GL_TEXTURE_CUBE_MAP;
+        m_TextureInfo.internalFormat = GL_RGB;
+        m_TextureInfo.width = width;
+		m_TextureInfo.height = height;
+        m_TextureInfo.format = GL_RGB;
+        m_TextureInfo.dataType = GL_UNSIGNED_BYTE;
+		m_TextureInfo.multisampled = false;
+		m_TextureInfo.samples = 0;
+
+        glTexParameteri(m_TextureInfo.target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(m_TextureInfo.target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(m_TextureInfo.target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(m_TextureInfo.target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(m_TextureInfo.target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     }
     Texture::~Texture()
     {
@@ -71,72 +80,56 @@ namespace Core {
     void Texture::Bind(int i) const
     {
 		glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(textureType, m_RendererID);
+        glBindTexture(m_TextureInfo.target, m_RendererID);
     }
-    void Texture::Unbind()
+    void Texture::Unbind(uint32_t target)
     {
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(target, 0);
     }
 
-    void Texture::SetData(uint32_t internalFormat, int width, int height, uint32_t format, uint32_t dataType,  const void* data, bool multisampled, int samples)
+    void Texture::SetData(uint32_t target, uint32_t internalFormat, int width, int height, uint32_t format, uint32_t dataType,  const void* data, bool multisampled, int samples)
     {
-        glActiveTexture(GL_TEXTURE0);
-        if (multisampled)
-        {
-            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID);
-            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, width, height, GL_TRUE);
-        }
+        m_TextureInfo.target = target;
+        m_TextureInfo.internalFormat = internalFormat;
+        m_TextureInfo.format = format;
+        m_TextureInfo.dataType = dataType;
+        m_TextureInfo.width = width;
+        m_TextureInfo.height = height;
+        m_TextureInfo.multisampled = multisampled;
+        m_TextureInfo.samples = samples;
+
+        glBindTexture(m_TextureInfo.target, m_RendererID);
+		if(m_TextureInfo.multisampled)
+            glTexImage2DMultisample(m_TextureInfo.target, m_TextureInfo.samples, m_TextureInfo.internalFormat, m_TextureInfo.width, m_TextureInfo.height, GL_TRUE);
         else
-        {
-            glBindTexture(GL_TEXTURE_2D, m_RendererID);
-            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, dataType, data);
-        }
+            glTexImage2D(m_TextureInfo.target, 0, m_TextureInfo.internalFormat, m_TextureInfo.width, m_TextureInfo.height, 0, m_TextureInfo.format, m_TextureInfo.dataType, data);
     }
+
+    void Texture::Resize(int width, int height)
+    {
+        glBindTexture(m_TextureInfo.target, m_RendererID);
+		SetData(m_TextureInfo.target, m_TextureInfo.internalFormat, width, height, m_TextureInfo.format, m_TextureInfo.dataType, nullptr, m_TextureInfo.multisampled, m_TextureInfo.samples);
+	}
 
     void Texture::GenerateMipmaps()
     {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_RendererID);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        glBindTexture(m_TextureInfo.target, m_RendererID);
+        glGenerateMipmap(m_TextureInfo.target);
 	}
 
     void Texture::SetParameters(uint32_t wrapping, uint32_t minFilter, uint32_t maxFilter)
     {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_RendererID);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, maxFilter);
+        glBindTexture(m_TextureInfo.target, m_RendererID);
+        glTexParameteri(m_TextureInfo.target, GL_TEXTURE_WRAP_S, wrapping);
+        glTexParameteri(m_TextureInfo.target, GL_TEXTURE_WRAP_T, wrapping);
+        glTexParameteri(m_TextureInfo.target, GL_TEXTURE_MIN_FILTER, minFilter);
+        glTexParameteri(m_TextureInfo.target, GL_TEXTURE_MAG_FILTER, maxFilter);
     }
 
     void Texture::SetBorderColor(float r, float g, float b, float a)
     {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_RendererID);
+        glBindTexture(m_TextureInfo.target, m_RendererID);
         float color[] = { r, g, b, a };
-		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
-    }
-
-    std::shared_ptr<Texture> Texture::Create()
-    {
-        return std::make_shared<Texture>();
-    }
-    std::shared_ptr<Texture> Texture::Create(uint32_t internalFormat, int width, int height, uint32_t format, uint32_t dataType, const void* data, bool multisampled, int samples)
-    {
-        std::shared_ptr<Texture> temp = std::make_shared<Texture>(internalFormat, width, height, format, dataType, data, multisampled, samples);
-		if (!multisampled)
-            temp->SetParameters(GL_REPEAT, GL_LINEAR, GL_LINEAR);
-		return temp;
-    }
-    std::shared_ptr<Texture> Texture::Create(const char* filename, uint32_t internalFormat, uint32_t format, bool flip)
-    {
-        std::shared_ptr<Texture> temp = std::make_shared<Texture>(filename, internalFormat, format, flip);
-        temp->SetParameters(GL_REPEAT, GL_LINEAR, GL_LINEAR);
-        return temp;
-    }
-    std::shared_ptr<Texture> Texture::CreateCubemap(std::vector<const char*> faces)
-    {
-        return std::make_shared<Texture>(faces);
+		glTexParameterfv(m_TextureInfo.target, GL_TEXTURE_BORDER_COLOR, color);
     }
 }

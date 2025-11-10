@@ -1,9 +1,7 @@
 #pragma once
 
-#include "RendererAPI/Shader.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <memory>
 
 // Default camera values
 const float YAW = -90.0f;

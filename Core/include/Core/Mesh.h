@@ -1,26 +1,27 @@
 #pragma once
 
-#include "RendererAPI/Shader.h"
-#include "RendererAPI/Texture.h"
 #include "RendererAPI/VertexArray.h"
-#include <cstdint>
-#include <memory>
+#include "RendererAPI/Texture.h"
+#include "RendererAPI/Shader.h"
 #include <vector>
 
-class Mesh
+namespace Core
 {
-public:
-    struct Texture
+    class Mesh
     {
-        std::shared_ptr<Core::Texture> ptr;
-        std::string type;
-        std::string path;
-    };
+    public:
+        struct Texture
+        {
+            Core::Texture ptr;
+            std::string type;
+            std::string path;
+        };
 
-    // mesh data
-    std::shared_ptr<Core::VertexArray> vertexArray;
-    std::vector<Texture> textures;
-    
-    Mesh(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures);
-    void Draw(std::shared_ptr<Core::Shader> shader);
-};
+        // mesh data
+        Core::VertexArray vertexArray;
+        std::vector<Texture> textures;
+
+        Mesh(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures);
+        void Draw(Core::Shader shader);
+    };
+}

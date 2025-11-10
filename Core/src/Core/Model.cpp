@@ -1,33 +1,21 @@
 #include "Core/Model.h"
-#include "RendererAPI/Buffer.h"
-#include "RendererAPI/Texture.h"
-#include <glad/glad.h>
-#include <cstdint>
 #include <iostream>
-#include <memory>
-#include <vector>
+#include <gl/GL.h>
 
 namespace Core
 {
-    void Model::Draw(std::shared_ptr<Core::Shader> shader)
+    Model::Model(const char* path)
+    {
+        loadModel(path);
+	}
+	Model::Model(std::vector<Mesh> meshes)
+        : meshes(meshes) {}
+
+
+    void Model::Draw(Core::Shader shader)
     {
         for (unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].Draw(shader);
-    }
-
-    std::shared_ptr<Model> Model::Create(const char* filename)
-    {
-        return std::make_shared<Model>(filename);
-    }
-    std::shared_ptr<Model> Model::Create(std::vector<Mesh> meshes)
-    {
-        return std::make_shared<Model>(meshes);
-    }
-    std::shared_ptr<Model> Model::Create(Mesh mesh)
-    {
-        std::vector<Mesh> meshes;
-		meshes.push_back(mesh);
-        return std::make_shared<Model>(meshes);
     }
 
     void Model::loadModel(std::string path)
@@ -140,10 +128,10 @@ namespace Core
             if (!skip)
             {
                 Mesh::Texture texture;
-                texture.ptr = Texture::Create(filename.c_str(), GL_RGB, GL_RGB, true);
+                texture.ptr = Texture(filename.c_str(), true);
                 if(textures_loaded.size() < 1)
-                    texture.ptr->SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-                    texture.ptr->GenerateMipmaps();
+                    texture.ptr.SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+                    texture.ptr.GenerateMipmaps();
                 texture.type = typeName;
                 texture.path = filename;
                 textures.push_back(texture);

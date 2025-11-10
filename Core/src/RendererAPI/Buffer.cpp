@@ -1,8 +1,5 @@
 #include "RendererAPI/Buffer.h"
-
-#include <cstdint>
 #include <glad/glad.h>
-#include <memory>
 
 namespace Core {
 
@@ -39,16 +36,6 @@ namespace Core {
 		glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 	}
 
-	std::shared_ptr<VertexBuffer> VertexBuffer::Create(uint32_t size)
-	{
-		return std::make_shared<VertexBuffer>(size);
-	}
-
-	std::shared_ptr<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
-	{
-		return std::make_shared<VertexBuffer>(vertices, size);
-	}
-
 	
 	IndexBuffer::IndexBuffer(uint32_t* indices, uint32_t count) :
 		m_Count(count)
@@ -71,10 +58,5 @@ namespace Core {
 	void IndexBuffer::Unbind()
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	}
-
-	std::shared_ptr<IndexBuffer> IndexBuffer::Create(uint32_t *indices, uint32_t count)
-	{
-		return std::make_shared<IndexBuffer>(indices, count);
 	}
 }
