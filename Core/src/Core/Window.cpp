@@ -1,7 +1,9 @@
 #include "Core/Window.h"
 
+// libs
 #include <glad/glad.h>
 
+// std
 #include <iostream>
 #include <assert.h>
 

@@ -1,8 +1,11 @@
 #pragma once
 
-#include "Renderer/Camera.h"
+// Engine
 #include "RendererAPI/Shader.h"
+#include "Renderer/Camera.h"
 #include "Core/Model.h"
+
+// App
 #include "MaterialGen.h"
 
 namespace App

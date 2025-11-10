@@ -1,10 +1,7 @@
 #include "MainLayer.h"
 
-#include "Core/Application.h"
-#include "RendererAPI/RendererAPI.h"
-#include <GL/glext.h>
-#include <ModelGen.h>
-#include <MeshGen.h>
+// libs
+#include <glad/glad.h>
 
 // std
 #include <iostream>
@@ -14,6 +11,14 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+
+// Engine
+#include "Core/Application.h"
+#include "RendererAPI/RendererAPI.h"
+
+// App
+#include "ModelGen.h"
+#include "MeshGen.h"
 
 using namespace Core;
 
@@ -278,7 +283,7 @@ void MainLayer::LoadAssets()
     camera = App::Camera(glm::vec3(0.0f, 1.0f, 2.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
     camera.SetSkybox(MeshGen::GetReversedCube(), Texture(faces), skyboxShader);
 
-    lightCam = App::Camera(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f);
+    lightCam = App::Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f);
     lightCam.coreCamera.orthographic = true;
     lightCam.coreCamera.setPos(-sunLight.direction * 10.0f + camera.coreCamera.getPos());
     lightCam.coreCamera.lookAt(camera.coreCamera.getPos());

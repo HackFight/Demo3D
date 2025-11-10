@@ -1,5 +1,6 @@
 #pragma once
 
+// libs
 #include <glm/glm.hpp>
 
 namespace Core {
@@ -15,14 +16,14 @@ namespace Core {
     class VertexBuffer
 	{
 	public:
-    	VertexBuffer(uint32_t size);
-    	VertexBuffer(float* vertices, uint32_t size);
+    	VertexBuffer(size_t size);
+    	VertexBuffer(float* vertices, size_t size);
 		~VertexBuffer();
 
 		void Bind() const;
 		static void Unbind();
 
-		void SetData(const void* data, uint32_t size);
+		void SetData(const void* data, size_t size);
 	
 	private:
 		uint32_t m_RendererID;

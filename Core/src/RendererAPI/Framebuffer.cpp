@@ -1,8 +1,14 @@
 #include "RendererAPI/Framebuffer.h"
-#include "Core/Application.h"
+
+// libs
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+
+// std
 #include <iostream>
+
+// Core
+#include "Core/Application.h"
 
 namespace Core
 {

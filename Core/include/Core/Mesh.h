@@ -1,9 +1,12 @@
 #pragma once
 
+// std
+#include <vector>
+
+// Core
 #include "RendererAPI/VertexArray.h"
 #include "RendererAPI/Texture.h"
 #include "RendererAPI/Shader.h"
-#include <vector>
 
 namespace Core
 {

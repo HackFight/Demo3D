@@ -1,6 +1,6 @@
 #pragma once
 
-// libs
+// Engine
 #include "Core/Model.h"
 
 class ModelGen {

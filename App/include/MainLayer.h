@@ -1,10 +1,12 @@
 #pragma once
 
+// Engine
 #include "Core/Layer.h"
 #include "RendererAPI/Framebuffer.h"
+
+// App
 #include "Camera.h"
 #include "GameObject.h"
-#include <memory>
 
 const int SHADOW_SIZE = 2048*8;
 

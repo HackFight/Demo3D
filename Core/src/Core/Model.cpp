@@ -1,5 +1,9 @@
 #include "Core/Model.h"
-#include <GL/gl.h>
+
+// libs
+#include <glad/glad.h>
+
+// std
 #include <iostream>
 
 namespace Core

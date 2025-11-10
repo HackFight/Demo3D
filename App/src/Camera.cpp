@@ -1,6 +1,10 @@
 #include "Camera.h"
+
+// libs
+#include <glad/glad.h>
+
+// Engine
 #include "RendererAPI/RendererAPI.h"
-#include <GL/gl.h>
 
 namespace App
 {

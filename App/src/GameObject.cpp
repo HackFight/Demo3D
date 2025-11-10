@@ -1,5 +1,9 @@
 #include "GameObject.h"
+
+// Engine
 #include "Renderer/Camera.h"
+
+// App
 #include "MaterialGen.h"
 
 namespace App

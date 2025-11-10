@@ -1,6 +1,9 @@
 #include "Core/Application.h"
+
+// std
 #include <memory>
 
+// Core
 #include "RendererAPI/GLUtils.h"
 
 namespace Core

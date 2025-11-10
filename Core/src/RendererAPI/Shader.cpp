@@ -1,8 +1,8 @@
 #include "RendererAPI/Shader.h"
 
 // libs
-#include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 // std
 #include <fstream>
@@ -11,7 +11,10 @@
 
 namespace Core
 {
-    Shader::Shader() {}
+    Shader::Shader()
+    {
+        m_RendererID = 0;
+    }
     Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	{
         // 1. retrieve the vertex/fragment source code from filePath

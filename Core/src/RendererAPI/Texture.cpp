@@ -1,6 +1,10 @@
 #include <RendererAPI/Texture.h>
+
+// libs
 #include <glad/glad.h>
 #include <stb_image/stb_image.h>
+
+// std
 #include <iostream>
 
 namespace Core {

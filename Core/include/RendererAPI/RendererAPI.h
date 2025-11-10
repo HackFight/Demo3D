@@ -1,8 +1,10 @@
 #pragma once
 
-#include "RendererAPI/VertexArray.h"
-
+// libs
 #include <glm/glm.hpp>
+
+// Core
+#include "RendererAPI/VertexArray.h"
 
 namespace Core {
 

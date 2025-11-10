@@ -1,11 +1,16 @@
 #pragma once
 
-#include "Core/Mesh.h"
-#include "RendererAPI/Shader.h"
+// std
+#include <vector>
+
+// Assimp
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <vector>
+
+// Core
+#include "Core/Mesh.h"
+#include "RendererAPI/Shader.h"
 
 namespace Core
 {

@@ -1,5 +1,6 @@
 #pragma once
 
+// libs
 #include <glad/glad.h>
 
 namespace Renderer::Utils {
@@ -9,5 +10,4 @@ namespace Renderer::Utils {
 	const char* GLDebugSeverityToString(GLenum severity);
 
 	void InitOpenGLDebugMessageCallback();
-
 }

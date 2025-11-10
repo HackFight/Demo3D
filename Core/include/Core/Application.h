@@ -1,16 +1,17 @@
 #pragma once
 
-#include "Core/Window.h"
-#include "Core/Layer.h"
-
 // std
 #include <string>
 #include <memory>
+#include <vector>
 
 // libs
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <vector>
+
+// Core
+#include "Core/Window.h"
+#include "Core/Layer.h"
 
 namespace Core {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-// libs
+// Engine
 #include "RendererAPI/VertexArray.h"
 
 class MeshGen {
