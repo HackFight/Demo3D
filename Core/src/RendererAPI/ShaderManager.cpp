@@ -1,58 +1,17 @@
-#include "RendererAPI/Shader.h"
+#include "RendererAPI/ShaderManager.h"
 
 // libs
-#include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
 // std
+#include <cstdint>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
 namespace Core
 {
-    void Shader::release()
-    {
-        if (m_RendererID != 0)
-        {
-            glDeleteProgram(m_RendererID);
-            m_RendererID = 0;
-        }
-    }
-
-    Shader::Shader() : m_RendererID(0) {}
-    Shader::Shader(const char* vertexPath, const char* fragmentPath)
-	{
-		LoadShader(vertexPath, fragmentPath);
-	}
-    Shader::~Shader()
-	{
-        release();
-	}
-
-    Shader::Shader(Shader&& other) noexcept : m_RendererID(std::exchange(other.m_RendererID, 0)) {}
-
-
-    Shader& Shader::operator=(Shader&& other) noexcept
-    {
-        if (this != &other)
-        {
-            release();
-            m_RendererID = std::exchange(other.m_RendererID, 0);
-        }
-        return *this;
-    }
-
-	void Shader::Bind() const
-	{
-        glUseProgram(m_RendererID);
-	}
-    void Shader::Unbind()
-	{
-        glUseProgram(0);
-	}
-
-    void Shader::LoadShader(const char* vertexPath, const char* fragmentPath)
+    uint32_t ShaderManager::CreateShader(const char* vertexPath, const char* fragmentPath)
     {
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
@@ -115,57 +74,86 @@ namespace Core
         };
 
         // shader Program
-        m_RendererID = glCreateProgram();
-        glAttachShader(m_RendererID, vertex);
-        glAttachShader(m_RendererID, fragment);
-        glLinkProgram(m_RendererID);
+        GLuint shader = glCreateProgram();
+        glAttachShader(shader, vertex);
+        glAttachShader(shader, fragment);
+        glLinkProgram(shader);
         // print linking errors if any
-        glGetProgramiv(m_RendererID, GL_LINK_STATUS, &success);
+        glGetProgramiv(shader, GL_LINK_STATUS, &success);
         if (!success)
         {
-            glGetProgramInfoLog(m_RendererID, 512, NULL, infoLog);
+            glGetProgramInfoLog(shader, 512, NULL, infoLog);
             std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 
-            glDeleteProgram(m_RendererID);
-            m_RendererID = 0;
+            glDeleteProgram(shader);
+            shader = 0;
         }
 
         // delete the shaders as they're linked into our program now and no longer necessary
         glDeleteShader(vertex);
         glDeleteShader(fragment);
+
+        shaders.push_back(shader);
+        return shaders.size() - 1;
     }
 
-    void Shader::setBool(const std::string& name, bool value) const
+    void ShaderManager::Bind(uint32_t shader)
     {
-        glUniform1i(glGetUniformLocation(m_RendererID, name.c_str()), (int)value);
+        glUseProgram(shaders[shader]);
     }
-    void Shader::setInt(const std::string& name, int value) const
+    void ShaderManager::Unbind()
     {
-        glUniform1i(glGetUniformLocation(m_RendererID, name.c_str()), value);
-    }
-    void Shader::setFloat(const std::string& name, float value) const
-    {
-        glUniform1f(glGetUniformLocation(m_RendererID, name.c_str()), value);
-    }
-    void Shader::set2f(const std::string& name, float v1, float v2) const
-    {
-        glUniform2f(glGetUniformLocation(m_RendererID, name.c_str()), v1, v2);
-    }
-    void Shader::set2f(const std::string& name, glm::vec2 v) const
-    {
-        glUniform2f(glGetUniformLocation(m_RendererID, name.c_str()), v.x, v.y);
-    }
-    void Shader::set3f(const std::string& name, float v1, float v2, float v3) const
-    {
-        glUniform3f(glGetUniformLocation(m_RendererID, name.c_str()), v1, v2, v3);
-    }
-    void Shader::set3f(const std::string& name, glm::vec3 v) const
-    {
-        glUniform3f(glGetUniformLocation(m_RendererID, name.c_str()), v.x, v.y, v.z);
+        glUseProgram(0);
     }
 
-    void Shader::setmat4(const std::string& name, glm::mat4 mat) const
+    void ShaderManager::setBool(uint32_t shader, const std::string& name, bool value)
     {
-        glUniformMatrix4fv(glGetUniformLocation(m_RendererID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
+        Bind(shader);
+        glUniform1i(glGetUniformLocation(shaders[shader], name.c_str()), (int)value);
+    }
+    void ShaderManager::setInt(uint32_t shader, const std::string& name, int value)
+    {
+        Bind(shader);
+        glUniform1i(glGetUniformLocation(shaders[shader], name.c_str()), value);
+    }
+    void ShaderManager::setFloat(uint32_t shader, const std::string& name, float value)
+    {
+        Bind(shader);
+        glUniform1f(glGetUniformLocation(shaders[shader], name.c_str()), value);
+    }
+    void ShaderManager::set2f(uint32_t shader, const std::string& name, float v1, float v2)
+    {
+        Bind(shader);
+        glUniform2f(glGetUniformLocation(shaders[shader], name.c_str()), v1, v2);
+    }
+    void ShaderManager::set2f(uint32_t shader, const std::string& name, glm::vec2 v)
+    {
+        Bind(shader);
+        glUniform2f(glGetUniformLocation(shaders[shader], name.c_str()), v.x, v.y);
+    }
+    void ShaderManager::set3f(uint32_t shader, const std::string& name, float v1, float v2, float v3)
+    {
+        Bind(shader);
+        glUniform3f(glGetUniformLocation(shaders[shader], name.c_str()), v1, v2, v3);
+    }
+    void ShaderManager::set3f(uint32_t shader, const std::string& name, glm::vec3 v)
+    {
+        Bind(shader);
+        glUniform3f(glGetUniformLocation(shaders[shader], name.c_str()), v.x, v.y, v.z);
+    }
+
+    void ShaderManager::setmat4(uint32_t shader, const std::string& name, glm::mat4 mat)
+    {
+        Bind(shader);
+        glUniformMatrix4fv(glGetUniformLocation(shaders[shader], name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
+    }
+
+    void ShaderManager::ReleaseAll()
+    {
+        for(GLuint shader : shaders)
+        {
+            glDeleteProgram(shader);
+            shader = 0;
+        }
     }
 }
