@@ -25,6 +25,7 @@ namespace Core
         static void AttachTexture(uint32_t framebuffer, uint32_t texture);
         static void AttachRenderbuffer(uint32_t framebuffer, uint32_t renderbuffer);
 
+        static void Blit(uint32_t framebuffer);
         static void Blit(uint32_t framebuffer, uint32_t destinationFramebuffer);
 
         static void ReleaseAll();
@@ -54,6 +55,10 @@ namespace Core
 
         static void SetData(uint32_t renderbuffer, GLint internalFormat, GLsizei width, GLsizei height, bool multisampled, GLsizei samples);
         static void Resize(uint32_t renderbuffer, GLsizei width, GLsizei height);
+
+        static RenderbufferInfo GetRenderbufferInfo(uint32_t renderbuffer) { return renderbuffers[renderbuffer]; }
+
+        static void ReleaseAll();
 
     private:
         static std::vector<RenderbufferInfo> renderbuffers;
