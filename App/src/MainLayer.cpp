@@ -49,6 +49,14 @@ MainLayer::MainLayer()
 }
 MainLayer::~MainLayer()
 {
+	VertexBufferManager::ReleaseAll();
+    IndexBufferManager::ReleaseAll();
+	VertexBufferManager::ReleaseAll();
+	ShaderManager::ReleaseAll();
+	TextureManager::ReleaseAll();
+	RenderbufferManager::ReleaseAll();
+	FramebufferManager::ReleaseAll();
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

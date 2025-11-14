@@ -9,9 +9,9 @@ namespace Core
 {
     struct FramebufferInfo
     {
-        GLuint RendererID;
-        GLsizei Width;
-        GLsizei Height;
+        GLuint RendererID = 0;
+        GLsizei Width = 0;
+        GLsizei Height = 0;
     };
 
     class FramebufferManager

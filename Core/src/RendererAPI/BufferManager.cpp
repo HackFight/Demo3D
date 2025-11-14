@@ -100,7 +100,7 @@ namespace Core
     {
         VertexArrayInfo vertexArray;
 
-        glCreateBuffers(1, &vertexArray.RendererID);
+        glCreateVertexArrays(1, &vertexArray.RendererID);
 
         vertexArrays.push_back(vertexArray);
         return vertexArrays.size() - 1;

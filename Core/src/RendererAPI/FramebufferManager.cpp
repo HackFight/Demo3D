@@ -51,7 +51,7 @@ namespace Core
         }
 
 		GLenum attachement;
-        if(textureInfo.internalFormat == GL_RGB8 || textureInfo.internalFormat == GL_RGBA8)
+        if(textureInfo.internalFormat == GL_RGB8 || textureInfo.internalFormat == GL_RGBA8 || textureInfo.internalFormat == GL_RGBA16F)
             attachement = GL_COLOR_ATTACHMENT0;
         else if(textureInfo.internalFormat == GL_DEPTH_COMPONENT32F || textureInfo.internalFormat == GL_DEPTH_COMPONENT24)
             attachement = GL_DEPTH_ATTACHMENT;
@@ -146,7 +146,7 @@ namespace Core
     uint32_t RenderbufferManager::CreateRenderbuffer()
     {
         RenderbufferInfo renderbuffer;
-        glGenFramebuffers(1, &renderbuffer.RendererID);
+        glGenRenderbuffers(1, &renderbuffer.RendererID);
 
         renderbuffers.push_back(renderbuffer);
         return renderbuffers.size() - 1;

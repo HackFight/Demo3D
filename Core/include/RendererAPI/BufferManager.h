@@ -38,8 +38,8 @@ namespace Core
 
     struct IndexBufferInfo
     {
-        GLuint RendererID;
-        GLsizeiptr Count;
+        GLuint RendererID = 0;
+        GLsizeiptr Count = 0;
     };
 
     class IndexBufferManager
@@ -61,9 +61,9 @@ namespace Core
 
     struct VertexArrayInfo
     {
-        GLuint RendererID;
-        uint32_t vertexBuffer;
-        uint32_t indexBuffer;
+        GLuint RendererID = 0;
+        uint32_t vertexBuffer = -1;
+        uint32_t indexBuffer = -1;
     };
 
     class VertexArrayManager

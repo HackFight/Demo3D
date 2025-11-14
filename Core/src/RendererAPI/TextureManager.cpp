@@ -38,9 +38,15 @@ namespace Core
         }
 
         if (nrChannels == 4)
-            textures[texture].internalFormat = textures[texture].format = GL_RGBA8;
+        {
+            textures[texture].internalFormat = GL_RGBA8;
+			textures[texture].format = GL_RGBA;
+        }
         else if (nrChannels == 3)
-            textures[texture].internalFormat = textures[texture].format = GL_RGB8;
+        {
+            textures[texture].internalFormat = GL_RGB8;
+			textures[texture].format = GL_RGB;
+        }
 
         SetData(texture, GL_TEXTURE_2D, textures[texture].internalFormat, width, height, textures[texture].format, GL_UNSIGNED_BYTE, data, false, 0);
         stbi_image_free(data);
@@ -58,7 +64,7 @@ namespace Core
             unsigned char *data = stbi_load(faces[i], &width, &height, &nrChannels, 0);
             if (data)
             {
-                SetData(texture, GL_TEXTURE_CUBE_MAP, GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, data, false, 0);
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
                 stbi_image_free(data);
             }
             else
@@ -67,6 +73,15 @@ namespace Core
                 stbi_image_free(data);
             }
         }
+
+        textures[texture].target = GL_TEXTURE_CUBE_MAP;
+        textures[texture].internalFormat = GL_RGB8;
+        textures[texture].format = GL_RGB;
+        textures[texture].dataType = GL_UNSIGNED_BYTE;
+        textures[texture].width = width;
+        textures[texture].height = height;
+        textures[texture].multisampled = false;
+        textures[texture].samples = 0;
 
         TextureInfo info = textures[texture];
 

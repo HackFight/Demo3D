@@ -11,15 +11,15 @@ namespace Core
 {
     struct TextureInfo
 	{
-        GLuint RendererID;
-		GLenum target;
-		GLint internalFormat;
-		GLsizei width;
-		GLsizei height;
-		GLenum format;
-		GLenum dataType;
-		bool multisampled;
-		GLsizei samples;
+        GLuint RendererID = 0;
+		GLenum target = 0;
+		GLint internalFormat = 0;
+		GLsizei width = 0;
+		GLsizei height = 0;
+		GLenum format = 0;
+        GLenum dataType = 0;
+		bool multisampled = false;
+		GLsizei samples = 0;
 	};
 
     class TextureManager
