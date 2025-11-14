@@ -9,6 +9,7 @@
 
 namespace Core
 {
+    std::vector<TextureInfo> TextureManager::textures;
     uint32_t TextureManager::CreateTexture()
     {
         TextureInfo texture;

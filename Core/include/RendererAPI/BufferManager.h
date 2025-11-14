@@ -33,7 +33,7 @@ namespace Core
         static void ReleaseAll();
 
     private:
-        static std::vector<GLuint> buffers;
+        static std::vector<GLuint> vertexBuffers;
     };
 
     struct IndexBufferInfo
@@ -56,7 +56,7 @@ namespace Core
 
     private:
         static uint32_t CreateIndexBuffer();
-        static std::vector<IndexBufferInfo> buffers;
+        static std::vector<IndexBufferInfo> indexBuffer;
     };
 
     struct VertexArrayInfo

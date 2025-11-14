@@ -1,8 +1,10 @@
 #include "Camera.h"
 
 // libs
-#include <cstdint>
 #include <glad/glad.h>
+
+//std
+#include <cstdint>
 
 // Engine
 #include "RendererAPI/RendererAPI.h"

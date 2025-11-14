@@ -2,11 +2,11 @@
 #include "RendererAPI/TextureManager.h"
 
 // libs
-#include <cstdint>
 #include <glad/glad.h>
 
 // std
 #include <iostream>
+#include <cstdint>
 
 namespace Core
 {

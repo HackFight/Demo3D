@@ -13,6 +13,7 @@
 
 namespace Core
 {
+    std::vector<FramebufferInfo> FramebufferManager::framebuffers;
     uint32_t FramebufferManager::CreateFramebuffer()
     {
         FramebufferInfo framebuffer;
@@ -139,6 +140,9 @@ namespace Core
         }
     }
 
+
+
+    std::vector<RenderbufferInfo> RenderbufferManager::renderbuffers;
     uint32_t RenderbufferManager::CreateRenderbuffer()
     {
         RenderbufferInfo renderbuffer;

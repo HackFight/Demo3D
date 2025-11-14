@@ -11,6 +11,7 @@
 
 namespace Core
 {
+    std::vector<GLuint> ShaderManager::shaders;
     uint32_t ShaderManager::CreateShader(const char* vertexPath, const char* fragmentPath)
     {
         // 1. retrieve the vertex/fragment source code from filePath

@@ -1,16 +1,16 @@
 #include "RendererAPI/BufferManager.h"
-#include <cstdint>
 
 namespace Core
 {
+    std::vector<GLuint> VertexBufferManager::vertexBuffers;
     uint32_t VertexBufferManager::CreateVertexBuffer()
     {
         GLuint buffer;
 
         glCreateBuffers(1, &buffer);
 
-        buffers.push_back(buffer);
-        return buffers.size() - 1;
+        vertexBuffers.push_back(buffer);
+        return vertexBuffers.size() - 1;
     }
     uint32_t VertexBufferManager::CreateVertexBuffer(GLsizeiptr size)
     {
@@ -27,7 +27,7 @@ namespace Core
 
     void VertexBufferManager::Bind(uint32_t buffer)
     {
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[buffer]);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[buffer]);
     }
     void VertexBufferManager::Unbind()
     {
@@ -42,7 +42,7 @@ namespace Core
 
     void VertexBufferManager::ReleaseAll()
     {
-        for(GLuint buffer : buffers)
+        for(GLuint buffer : vertexBuffers)
         {
             glDeleteBuffers(1, &buffer);
         }
@@ -50,19 +50,20 @@ namespace Core
 
 
 
+    std::vector<IndexBufferInfo> IndexBufferManager::indexBuffer;
     uint32_t IndexBufferManager::CreateIndexBuffer()
     {
         IndexBufferInfo buffer;
 
         glCreateBuffers(1, &buffer.RendererID);
 
-        buffers.push_back(buffer);
-        return buffers.size() - 1;
+        indexBuffer.push_back(buffer);
+        return indexBuffer.size() - 1;
     }
     uint32_t IndexBufferManager::CreateIndexBuffer(uint32_t* indices, GLsizeiptr count)
     {
         uint32_t buffer = CreateIndexBuffer();
-        buffers[buffer].Count = count;
+        indexBuffer[buffer].Count = count;
 
         Bind(buffer);
         glBufferData(GL_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
@@ -72,7 +73,7 @@ namespace Core
 
     void IndexBufferManager::Bind(uint32_t buffer)
     {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[buffer].RendererID);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer[buffer].RendererID);
     }
     void IndexBufferManager::Unbind()
     {
@@ -81,12 +82,12 @@ namespace Core
 
     GLsizeiptr IndexBufferManager::GetCount(uint32_t buffer)
     {
-        return buffers[buffer].Count;
+        return indexBuffer[buffer].Count;
     }
 
     void IndexBufferManager::ReleaseAll()
     {
-        for (IndexBufferInfo info : buffers)
+        for (IndexBufferInfo info : indexBuffer)
         {
             glDeleteBuffers(1, &info.RendererID);
         }
@@ -94,6 +95,7 @@ namespace Core
 
 
 
+    std::vector<VertexArrayInfo> VertexArrayManager::vertexArrays;
     uint32_t VertexArrayManager::CreateVertexArray()
     {
         VertexArrayInfo vertexArray;

@@ -5,7 +5,6 @@
 #include "RendererAPI/RendererAPI.h"
 #include "RendererAPI/ShaderManager.h"
 #include "RendererAPI/TextureManager.h"
-#include <cstdint>
 
 namespace Core
 {

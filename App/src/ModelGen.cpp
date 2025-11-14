@@ -1,4 +1,6 @@
 #include "ModelGen.h"
+
+//std
 #include <cstdint>
 
 Core::Model ModelGen::GetQuad(std::vector<uint32_t> textures)

@@ -1,17 +1,11 @@
 #include "MainLayer.h"
 
-// libs
-#include <cstdint>
-#include <glad/glad.h>
-
 // std
 #include <iostream>
 #include <vector>
+#include <cstdint>
 
 // imgui
-#include "RendererAPI/FramebufferManager.h"
-#include "RendererAPI/ShaderManager.h"
-#include "RendererAPI/TextureManager.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -19,6 +13,9 @@
 // Engine
 #include "Core/Application.h"
 #include "RendererAPI/RendererAPI.h"
+#include "RendererAPI/FramebufferManager.h"
+#include "RendererAPI/ShaderManager.h"
+#include "RendererAPI/TextureManager.h"
 
 // App
 #include "ModelGen.h"
