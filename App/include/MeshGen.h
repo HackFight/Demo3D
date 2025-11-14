@@ -1,12 +1,12 @@
 #pragma once
 
-// Engine
-#include "RendererAPI/VertexArray.h"
+//std
+#include <stdint.h>
 
 class MeshGen {
 public:
-    static Core::VertexArray GetQuad();
-    static Core::VertexArray GetCube();
-    static Core::VertexArray GetReversedCube();
-    static Core::VertexArray GetPlane(const int size);
+    static uint32_t GetQuad();
+    static uint32_t GetCube();
+    static uint32_t GetReversedCube();
+    static uint32_t GetPlane(const int size);
 };

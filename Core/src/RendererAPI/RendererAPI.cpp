@@ -1,6 +1,8 @@
 #include "RendererAPI/RendererAPI.h"
+#include "RendererAPI/BufferManager.h"
 
 // libs
+#include <cstdint>
 #include <glad/glad.h>
 
 namespace Core {
@@ -75,16 +77,16 @@ namespace Core {
 		}
 	}
 
-	void RendererAPI::DrawIndexed(const VertexArray vertexArray, uint32_t indexCount)
+	void RendererAPI::DrawIndexed(const uint32_t vertexArray, uint32_t indexCount)
 	{
-		vertexArray.Bind();
-		uint32_t count = indexCount ? indexCount : vertexArray.GetIndexCount();
+		VertexArrayManager::Bind(vertexArray);
+		uint32_t count = indexCount ? indexCount : VertexArrayManager::GetIndexCount(vertexArray);
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
-	void RendererAPI::DrawLines(const VertexArray vertexArray, uint32_t vertexCount)
+	void RendererAPI::DrawLines(const uint32_t vertexArray, uint32_t vertexCount)
 	{
-		vertexArray.Bind();
+		VertexArrayManager::Bind(vertexArray);
 		glDrawArrays(GL_LINES, 0, vertexCount);
 	}
 

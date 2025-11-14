@@ -1,20 +1,25 @@
 #include "Core/Mesh.h"
 
 // Core
+#include "RendererAPI/BufferManager.h"
 #include "RendererAPI/RendererAPI.h"
+#include "RendererAPI/ShaderManager.h"
+#include "RendererAPI/TextureManager.h"
+#include <cstdint>
 
 namespace Core
 {
     Mesh::Mesh(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures)
         : textures(textures)
     {
-        VertexBuffer vertexBuffer((float*)vertices.data(), vertices.size() * sizeof(Core::Vertex));
-        IndexBuffer indexBuffer(indices.data(), indices.size());
-        vertexArray.AddVertexBuffer(vertexBuffer);
-        vertexArray.SetIndexBuffer(indexBuffer);
+        uint32_t vertexBuffer = VertexBufferManager::CreateVertexBuffer((float*)vertices.data(), vertices.size() * sizeof(Core::Vertex));
+        uint32_t indexBuffer = IndexBufferManager::CreateIndexBuffer(indices.data(), indices.size());
+        vertexArray = VertexArrayManager::CreateVertexArray();
+        VertexArrayManager::AddVertexBuffer(vertexArray, vertexBuffer);
+        VertexArrayManager::SetIndexBuffer(vertexArray, indexBuffer);
     }
 
-    void Mesh::Draw(Core::Shader shader)
+    void Mesh::Draw(uint32_t shader)
     {
         unsigned int diffuseNr = 1;
         unsigned int specularNr = 1;
@@ -31,8 +36,8 @@ namespace Core
             else if (name == "texture_emission")
                 number = std::to_string(emissionNr++);
 
-            shader.setInt(("material." + name + number).c_str(), i);
-            textures[i].ptr.Bind(i);
+            ShaderManager::setInt(shader, ("material." + name + number).c_str(), i);
+            TextureManager::Bind(textures[i].ptr, i);
         }
 
         // draw mesh

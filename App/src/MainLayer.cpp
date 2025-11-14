@@ -1,6 +1,7 @@
 #include "MainLayer.h"
 
 // libs
+#include <cstdint>
 #include <glad/glad.h>
 
 // std
@@ -8,6 +9,9 @@
 #include <vector>
 
 // imgui
+#include "RendererAPI/FramebufferManager.h"
+#include "RendererAPI/ShaderManager.h"
+#include "RendererAPI/TextureManager.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -41,7 +45,7 @@ MainLayer::MainLayer()
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(Core::Application::Get().GetWindow()->GetHandle(), true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplGlfw_InitForOpenGL(Application::Get().GetWindow()->GetHandle(), true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
 
     LoadAssets();
@@ -75,17 +79,17 @@ void MainLayer::OnUpdate(double ts)
 void MainLayer::OnRender()
 {
     RendererAPI::SRGBColorSpace(false); // disble gamma correction for intermediate steps
-    shadowDepthMapFramebuffer.Bind();
+    FramebufferManager::Bind(shadowDepthMapFramebuffer);
 	RenderShadowMap();
 
     ResizeBuffers();
-    multiSampledframebuffer.Bind();
+    FramebufferManager::Bind(multiSampledframebuffer);
 	RenderScene();
 
     glm::vec2 viewportSize = Application::Get().GetFramebufferSize();
-	multiSampledframebuffer.Blit(framebuffer);
+    FramebufferManager::Blit(multiSampledframebuffer, framebuffer);
 
-    Framebuffer::Unbind();
+    FramebufferManager::Unbind();
     if (gammaCorrection)
         RendererAPI::SRGBColorSpace(true); // enable gamma correction for final render
     RenderPostProcessing();
@@ -101,8 +105,7 @@ void MainLayer::RenderShadowMap()
     lightCam.coreCamera.setPos(-sunLight.direction * 10.0f + camera.coreCamera.getPos());
     lightSpaceMat = lightCam.coreCamera.getProjectionMatrix() * lightCam.coreCamera.getViewMatrix();
 
-    shadowShader.Bind();
-    shadowShader.setmat4("lightSpaceMat", lightSpaceMat);
+    ShaderManager::setmat4(shadowShader, "lightSpaceMat", lightSpaceMat);
     for (App::GameObject object : gameObjects)
     {
         object.Render(lightCam.coreCamera, shadowShader);
@@ -114,12 +117,8 @@ void MainLayer::RenderScene()
     RendererAPI::ClearColor();
     RendererAPI::ClearDepth();
 
-    blinnPhongShader.Bind();
-    blinnPhongShader.setmat4("lightSpaceMat", lightSpaceMat);
-
-    texturedShader.Bind();
-    texturedShader.setmat4("lightSpaceMat", lightSpaceMat);
-    texturedShader.Unbind();
+    ShaderManager::setmat4(blinnPhongShader, "lightSpaceMat", lightSpaceMat);
+    ShaderManager::setmat4(texturedShader, "lightSpaceMat", lightSpaceMat);
 
     for ( App::GameObject object : gameObjects)
     {
@@ -134,10 +133,9 @@ void MainLayer::RenderPostProcessing()
     RendererAPI::ClearColor();
     RendererAPI::DepthTest(false);
 
-	postProcessingShader.Bind();
-	postProcessingShader.setBool("toneMapping", toneMapping);
-	postProcessingShader.setFloat("exposure", exposure);
-    screenQuad.Render(camera.coreCamera);
+    ShaderManager::setBool(postProcessingShader, "toneMapping", toneMapping);
+    ShaderManager::setFloat(postProcessingShader, "exposure", exposure);
+    gameObjects[screenQuad].Render(camera.coreCamera);
 
     RendererAPI::DepthTest(true);
 }
@@ -161,34 +159,34 @@ void MainLayer::ResizeBuffers()
 
     RendererAPI::SetViewport(0, 0, viewportSize.x, viewportSize.y);
 
-    multiSampledtextureColorBuffer.Resize(viewportSize.x, viewportSize.y);
-    multiSampledtextureDepthStencilBuffer.Resize(viewportSize.x, viewportSize.y);
+    TextureManager::Resize(multiSampledtextureColorBuffer, viewportSize.x, viewportSize.y);
+    TextureManager::Resize(multiSampledtextureDepthStencilBuffer, viewportSize.x, viewportSize.y);
 
-    textureColorBuffer.Resize(viewportSize.x, viewportSize.y);
-    renderbuffer.Resize(viewportSize.x, viewportSize.y);
+    TextureManager::Resize(textureColorBuffer, viewportSize.x, viewportSize.y);
+    RenderbufferManager::Resize(renderbuffer, viewportSize.x, viewportSize.y);
 }
 
 void MainLayer::ProcessInput(double ts)
 {
-    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_ESCAPE) == GLFW_PRESS && canPress)
+    if (glfwGetKey(Application::Get().GetWindow()->GetHandle(), GLFW_KEY_ESCAPE) == GLFW_PRESS && canPress)
     {
-        mouseDisabled ? glfwSetInputMode(Core::Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL) : glfwSetInputMode(Core::Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        mouseDisabled ? glfwSetInputMode(Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL) : glfwSetInputMode(Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		mouseDisabled = !mouseDisabled;
         canPress = false;
     }
-    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_ESCAPE) == GLFW_RELEASE)
+    if (glfwGetKey(Application::Get().GetWindow()->GetHandle(), GLFW_KEY_ESCAPE) == GLFW_RELEASE)
         canPress = true;
-    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_W) == GLFW_PRESS)
-        camera.coreCamera.ProcessKeyboard(Core::FORWARD, ts);
-    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_S) == GLFW_PRESS)
-        camera.coreCamera.ProcessKeyboard(Core::BACKWARD, ts);
-    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_A) == GLFW_PRESS)
-        camera.coreCamera.ProcessKeyboard(Core::LEFT, ts);
-    if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_D) == GLFW_PRESS)
-        camera.coreCamera.ProcessKeyboard(Core::RIGHT, ts);
+    if (glfwGetKey(Application::Get().GetWindow()->GetHandle(), GLFW_KEY_W) == GLFW_PRESS)
+        camera.coreCamera.ProcessKeyboard(FORWARD, ts);
+    if (glfwGetKey(Application::Get().GetWindow()->GetHandle(), GLFW_KEY_S) == GLFW_PRESS)
+        camera.coreCamera.ProcessKeyboard(BACKWARD, ts);
+    if (glfwGetKey(Application::Get().GetWindow()->GetHandle(), GLFW_KEY_A) == GLFW_PRESS)
+        camera.coreCamera.ProcessKeyboard(LEFT, ts);
+    if (glfwGetKey(Application::Get().GetWindow()->GetHandle(), GLFW_KEY_D) == GLFW_PRESS)
+        camera.coreCamera.ProcessKeyboard(RIGHT, ts);
 
     double xpos, ypos;
-    glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
+    glfwGetCursorPos(Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
     double xoffset = xpos - lastX;
     double yoffset = lastY - ypos;
     lastX = xpos;
@@ -200,26 +198,26 @@ void MainLayer::ProcessInput(double ts)
 void MainLayer::LoadAssets()
 {
 	// load and setup the blinn-phong shader
-    blinnPhongShader.LoadShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
-    blinnPhongShader.Bind();
-    blinnPhongShader.set3f("light.direction", sunLight.direction);
-    blinnPhongShader.set3f("light.ambient", sunLight.ambient);
-    blinnPhongShader.set3f("light.diffuse", sunLight.diffuse);
-    blinnPhongShader.set3f("light.specular", sunLight.specular);
-    blinnPhongShader.setInt("shadowMap", 5);
+    blinnPhongShader = ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
+    ShaderManager::Bind(blinnPhongShader);
+    ShaderManager::set3f(blinnPhongShader, "light.direction", sunLight.direction);
+    ShaderManager::set3f(blinnPhongShader, "light.ambient", sunLight.ambient);
+    ShaderManager::set3f(blinnPhongShader, "light.diffuse", sunLight.diffuse);
+    ShaderManager::set3f(blinnPhongShader, "light.specular", sunLight.specular);
+    ShaderManager::setInt(blinnPhongShader, "shadowMap", 5);
 
 	// load and setup the textured shader
-    texturedShader.LoadShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured.frag");
-    texturedShader.Bind();
-    texturedShader.set3f("light.direction", sunLight.direction);
-    texturedShader.set3f("light.ambient", sunLight.ambient);
-    texturedShader.set3f("light.diffuse", sunLight.diffuse);
-    texturedShader.set3f("light.specular", sunLight.specular);
-    texturedShader.setInt("shadowMap", 5);
+    texturedShader = ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured.frag");
+    ShaderManager::Bind(texturedShader);
+    ShaderManager::set3f(texturedShader, "light.direction", sunLight.direction);
+    ShaderManager::set3f(texturedShader, "light.ambient", sunLight.ambient);
+    ShaderManager::set3f(texturedShader, "light.diffuse", sunLight.diffuse);
+    ShaderManager::set3f(texturedShader, "light.specular", sunLight.specular);
+    ShaderManager::setInt(texturedShader, "shadowMap", 5);
 
-    Shader skyboxShader(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag");
+    uint32_t skyboxShader = ShaderManager::CreateShader(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag");
 
-    postProcessingShader.LoadShader(RESOURCES_PATH "shaders/post.vert", RESOURCES_PATH "shaders/post.frag");
+    postProcessingShader = ShaderManager::CreateShader(RESOURCES_PATH "shaders/post.vert", RESOURCES_PATH "shaders/post.frag");
     
     std::vector<const char*> faces
     {
@@ -232,31 +230,31 @@ void MainLayer::LoadAssets()
     };
 
     // load the default texture
-    std::vector<Texture> defaultTextures
+    std::vector<uint32_t> defaultTextures
     {
-        Texture(RESOURCES_PATH "textures/default.png")
+        TextureManager::CreateTexture(RESOURCES_PATH "textures/default.png")
     };
-	defaultTextures[0].SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	defaultTextures[0].GenerateMipmaps();
+	TextureManager::SetParameters(defaultTextures[0], GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+    TextureManager::GenerateMipmaps(defaultTextures[0]);
 
 	// load the box textures
-    std::vector<Texture> boxTextures
+    std::vector<uint32_t> boxTextures
     {
-        Texture(RESOURCES_PATH "textures/box.png"),
-        Texture(RESOURCES_PATH "textures/box-specular.png")
+        TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png"),
+        TextureManager::CreateTexture(RESOURCES_PATH "textures/box-specular.png")
     };
-	boxTextures[0].SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-	boxTextures[0].GenerateMipmaps();
+    TextureManager::SetParameters(boxTextures[0], GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+    TextureManager::GenerateMipmaps(boxTextures[0]);
 
 	// load the redstone ore textures
-    std::vector<Texture> redstoneOreTextures
+    std::vector<uint32_t> redstoneOreTextures
     {
-        Texture(RESOURCES_PATH "textures/redstone-ore.png"),
-        Texture(RESOURCES_PATH "textures/redstone-ore-specular.png"),
-        Texture(RESOURCES_PATH "textures/redstone-ore-emission.png")
+        TextureManager::CreateTexture(RESOURCES_PATH "textures/redstone-ore.png"),
+        TextureManager::CreateTexture(RESOURCES_PATH "textures/redstone-ore-specular.png"),
+        TextureManager::CreateTexture(RESOURCES_PATH "textures/redstone-ore-emission.png")
     };
-	redstoneOreTextures[0].SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
-	redstoneOreTextures[0].GenerateMipmaps();
+	TextureManager::SetParameters(redstoneOreTextures[0], GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
+    TextureManager::GenerateMipmaps(redstoneOreTextures[0]);
 
 	// create the ground plane
     gameObjects.push_back( App::GameObject(ModelGen::GetPlane(1000, defaultTextures), texturedShader, glm::vec3(0.0f)));
@@ -281,7 +279,7 @@ void MainLayer::LoadAssets()
 
 	// setup the camera
     camera = App::Camera(glm::vec3(0.0f, 1.0f, 2.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
-    camera.SetSkybox(MeshGen::GetReversedCube(), Texture(faces), skyboxShader);
+    camera.SetSkybox(MeshGen::GetReversedCube(), TextureManager::CreateCubemap(faces), skyboxShader);
 
     lightCam = App::Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f);
     lightCam.coreCamera.orthographic = true;
@@ -289,32 +287,33 @@ void MainLayer::LoadAssets()
     lightCam.coreCamera.lookAt(camera.coreCamera.getPos());
 
 	// setup multisampled framebuffer
-    multiSampledtextureColorBuffer = Texture(GL_TEXTURE_2D_MULTISAMPLE, GL_RGBA16F, 1920, 1200, GL_RGBA, GL_FLOAT, NULL, true, 4);
-    multiSampledtextureDepthStencilBuffer = Texture(GL_TEXTURE_2D_MULTISAMPLE, GL_DEPTH24_STENCIL8, 1920, 1200, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, true, 4);
+    multiSampledtextureColorBuffer = TextureManager::CreateTexture(GL_TEXTURE_2D_MULTISAMPLE, GL_RGBA16F, 1920, 1200, GL_RGBA, GL_FLOAT, NULL, true, 4);
+    multiSampledtextureDepthStencilBuffer = TextureManager::CreateTexture(GL_TEXTURE_2D_MULTISAMPLE, GL_DEPTH24_STENCIL8, 1920, 1200, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, true, 4);
 
-    multiSampledframebuffer.AttachTexture(multiSampledtextureColorBuffer);
-	multiSampledframebuffer.AttachTexture(multiSampledtextureDepthStencilBuffer);
+    multiSampledframebuffer = FramebufferManager::CreateFramebuffer();
+    FramebufferManager::AttachTexture(multiSampledframebuffer, multiSampledtextureColorBuffer);
+    FramebufferManager::AttachTexture(multiSampledframebuffer, multiSampledtextureDepthStencilBuffer);
 
     // setup post processing
-    textureColorBuffer = Texture(GL_TEXTURE_2D, GL_RGBA16F, 1920, 1200, GL_RGBA, GL_FLOAT, NULL, false, 0);
+    textureColorBuffer = TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGBA16F, 1920, 1200, GL_RGBA, GL_FLOAT, NULL, false, 0);
     
-    std::vector<Texture> tempVec;
-    tempVec.push_back(textureColorBuffer);
-    
-    screenQuad = App::GameObject(ModelGen::GetQuad(tempVec), postProcessingShader);
+    gameObjects.push_back(App::GameObject(ModelGen::GetQuad(std::vector<uint32_t>{textureColorBuffer}), postProcessingShader));
+    screenQuad = gameObjects.size() - 1;
 
-    renderbuffer = Renderbuffer(GL_DEPTH24_STENCIL8, 1920, 1200, false, 0);
+    renderbuffer = RenderbufferManager::CreateRenderbuffer(GL_DEPTH24_STENCIL8, 1920, 1200, false, 0);
     
-    framebuffer.AttachTexture(textureColorBuffer);
-    framebuffer.AttachRenderBuffer(renderbuffer);
+    framebuffer = FramebufferManager::CreateFramebuffer();
+    FramebufferManager::AttachTexture(framebuffer, textureColorBuffer);
+    FramebufferManager::AttachRenderbuffer(framebuffer, renderbuffer);
 
 
 	// setup shadow mapping framebuffer
-    shadowTexture = Texture(GL_TEXTURE_2D, GL_DEPTH_COMPONENT32F, SHADOW_SIZE, SHADOW_SIZE, GL_DEPTH_COMPONENT, GL_FLOAT, NULL, false, 0);
-    shadowTexture.SetParameters(GL_CLAMP_TO_BORDER, GL_LINEAR, GL_LINEAR);
-    shadowTexture.SetBorderColor(1.0f, 1.0f, 1.0f, 1.0f);
+    shadowTexture = TextureManager::CreateTexture(GL_TEXTURE_2D, GL_DEPTH_COMPONENT32F, SHADOW_SIZE, SHADOW_SIZE, GL_DEPTH_COMPONENT, GL_FLOAT, NULL, false, 0);
+    TextureManager::SetParameters(shadowTexture, GL_CLAMP_TO_BORDER, GL_LINEAR, GL_LINEAR);
+    TextureManager::SetBorderColor(shadowTexture, 1.0f, 1.0f, 1.0f, 1.0f);
 
-    shadowDepthMapFramebuffer.AttachTexture(shadowTexture);
+    shadowDepthMapFramebuffer = FramebufferManager::CreateFramebuffer();
+    FramebufferManager::AttachTexture(shadowDepthMapFramebuffer, shadowTexture);
     
-    shadowShader = Shader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/empty.frag");
+    shadowShader = ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/empty.frag");
 }

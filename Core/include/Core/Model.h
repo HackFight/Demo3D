@@ -10,7 +10,6 @@
 
 // Core
 #include "Core/Mesh.h"
-#include "RendererAPI/Shader.h"
 
 namespace Core
 {
@@ -22,7 +21,7 @@ public:
     Model(std::vector<Mesh> meshes);
     Model(Mesh mesh);
 
-    void Draw(Core::Shader shader);
+    void Draw(uint32_t shader);
 
 private:
     std::vector<Mesh> meshes;

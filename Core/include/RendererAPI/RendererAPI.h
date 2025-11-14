@@ -1,10 +1,8 @@
 #pragma once
 
 // libs
+#include <cstdint>
 #include <glm/glm.hpp>
-
-// Core
-#include "RendererAPI/VertexArray.h"
 
 namespace Core {
 
@@ -31,11 +29,9 @@ namespace Core {
 		static void UnbindAllTextures();
 		static void SetCullMode(CullSide cull);
 
-		static void DrawIndexed(const VertexArray vertexArray, uint32_t indexCount = 0);
-		static void DrawLines(const VertexArray vertexArray, uint32_t vertexCount);
+		static void DrawIndexed(const uint32_t vertexArray, uint32_t indexCount = 0);
+		static void DrawLines(const uint32_t vertexArray, uint32_t vertexCount);
 		
 		static void SetLineWidth(float width);
 	};
-
-
 }

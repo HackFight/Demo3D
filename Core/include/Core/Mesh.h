@@ -1,12 +1,12 @@
 #pragma once
 
 // std
+#include <stdint.h>
+#include <string>
 #include <vector>
 
 // Core
-#include "RendererAPI/VertexArray.h"
-#include "RendererAPI/Texture.h"
-#include "RendererAPI/Shader.h"
+#include "RendererAPI/BufferManager.h"
 
 namespace Core
 {
@@ -15,16 +15,16 @@ namespace Core
     public:
         struct Texture
         {
-            Core::Texture ptr;
+            uint32_t ptr;
             std::string type;
             std::string path;
         };
 
         // mesh data
-        Core::VertexArray vertexArray;
+        uint32_t vertexArray;
         std::vector<Texture> textures;
 
         Mesh(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures);
-        void Draw(Core::Shader shader);
+        void Draw(uint32_t shader);
     };
 }

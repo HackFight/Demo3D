@@ -1,10 +1,10 @@
 #pragma once
 
 // Engine
-#include "RendererAPI/Shader.h"
-#include "RendererAPI/Texture.h"
-#include "RendererAPI/VertexArray.h"
 #include "Renderer/Camera.h"
+
+//std
+#include <cstdint>
 
 namespace App
 {
@@ -13,14 +13,14 @@ namespace App
     public:
         Camera(glm::vec3 position = glm::vec3(0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = -90.0f, float pitch = 0.0f);
 
-        void SetSkybox(Core::VertexArray skyboxVertexArray, Core::Texture skyboxTexture, Core::Shader skyboxShader);
+        void SetSkybox(uint32_t skyboxVertexArray, uint32_t skyboxTexture, uint32_t skyboxShader);
         void RenderSkybox();
 
         Core::Camera coreCamera;
 
     private:
-        Core::Shader skyboxShader;
-        Core::VertexArray skyboxVertexArray;
-        Core::Texture skyboxTexture;
+        uint32_t skyboxShader;
+        uint32_t skyboxVertexArray;
+        uint32_t skyboxTexture;
     };
 }

@@ -1,7 +1,6 @@
 #pragma once
 
-// Engine
-#include "RendererAPI/Shader.h"
+#include <stdint.h>
 
 enum BlinnPhongMaterial
 {
@@ -40,5 +39,5 @@ enum BlinnPhongMaterial
 class MaterialGen
 {
 public:
-    static void setBlinnPhongMaterial(Core::Shader shader, BlinnPhongMaterial material);
+    static void setBlinnPhongMaterial(uint32_t shader, BlinnPhongMaterial material);
 };

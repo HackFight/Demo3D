@@ -1,6 +1,8 @@
 #include "Core/Model.h"
+#include "RendererAPI/TextureManager.h"
 
 // libs
+#include <cstdint>
 #include <glad/glad.h>
 
 // std
@@ -19,10 +21,10 @@ namespace Core
         : meshes(std::vector<Mesh>{mesh}) {}
 
 
-    void Model::Draw(Core::Shader shader)
+    void Model::Draw(uint32_t shader)
     {
         for (unsigned int i = 0; i < meshes.size(); i++)
-            meshes[i].Draw(std::move(shader));
+            meshes[i].Draw(shader);
     }
 
     void Model::loadModel(std::string path)
@@ -135,11 +137,11 @@ namespace Core
             if (!skip)
             {
                 Mesh::Texture texture;
-                texture.ptr = Texture(filename.c_str(), true);
+                texture.ptr = TextureManager::CreateTexture(filename.c_str(), true);
                 if(textures_loaded.size() < 1)
                 {
-                    texture.ptr.SetParameters(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-                    texture.ptr.GenerateMipmaps();
+                    TextureManager::SetParameters(texture.ptr, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+                    TextureManager::GenerateMipmaps(texture.ptr);
                 }
                 texture.type = typeName;
                 texture.path = filename;

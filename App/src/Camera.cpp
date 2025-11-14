@@ -1,10 +1,13 @@
 #include "Camera.h"
 
 // libs
+#include <cstdint>
 #include <glad/glad.h>
 
 // Engine
 #include "RendererAPI/RendererAPI.h"
+#include "RendererAPI/ShaderManager.h"
+#include "RendererAPI/TextureManager.h"
 
 namespace App
 {
@@ -13,23 +16,22 @@ namespace App
         coreCamera = Core::Camera(position.x, position.y, position.z, up.x, up.y, up.z, yaw, pitch);
     }
 
-    void Camera::SetSkybox(Core::VertexArray vertexArray, Core::Texture texture, Core::Shader shader)
+    void Camera::SetSkybox(uint32_t vertexArray, uint32_t texture, uint32_t shader)
     {
         skyboxVertexArray = vertexArray;
         skyboxTexture = texture;
-        skyboxShader = std::move(shader);
+        skyboxShader = shader;
     }
 
     void Camera::RenderSkybox()
     {
         Core::RendererAPI::SetDepthFunc(GL_EQUAL);
 
-        skyboxShader.Bind();
-        skyboxShader.setmat4("projMat", coreCamera.getProjectionMatrix());
-        skyboxShader.setmat4("viewMat", glm::mat4(glm::mat3(coreCamera.getViewMatrix())));
-        skyboxShader.setInt("skybox", 0);
+        Core::ShaderManager::setmat4(skyboxShader, "projMat", coreCamera.getProjectionMatrix());
+        Core::ShaderManager::setmat4(skyboxShader, "viewMat", glm::mat4(glm::mat3(coreCamera.getViewMatrix())));
+        Core::ShaderManager::setInt(skyboxShader, "skybox", 0);
 
-        skyboxTexture.Bind(0);
+        Core::TextureManager::Bind(skyboxTexture, 0);
 
         Core::RendererAPI::DrawIndexed(skyboxVertexArray);
 

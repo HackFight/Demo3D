@@ -2,11 +2,11 @@
 
 // Engine
 #include "Core/Layer.h"
-#include "RendererAPI/Framebuffer.h"
 
 // App
 #include "Camera.h"
 #include "GameObject.h"
+#include <cstdint>
 
 const int SHADOW_SIZE = 2048*8;
 
@@ -40,19 +40,19 @@ private:
 
 	App::Camera camera, lightCam;
 
-	Core::Texture multiSampledtextureColorBuffer, multiSampledtextureDepthStencilBuffer;
-	Core::Framebuffer multiSampledframebuffer;
+	uint32_t multiSampledtextureColorBuffer, multiSampledtextureDepthStencilBuffer;
+	uint32_t multiSampledframebuffer;
 
-	Core::Texture textureColorBuffer;
-	Core::Renderbuffer renderbuffer;
-	Core::Framebuffer framebuffer;
-	App::GameObject screenQuad;
+	uint32_t textureColorBuffer;
+	uint32_t renderbuffer;
+	uint32_t framebuffer;
+	uint32_t screenQuad;
 
-	Core::Texture shadowTexture;
-	Core::Framebuffer shadowDepthMapFramebuffer;
+	uint32_t shadowTexture;
+	uint32_t shadowDepthMapFramebuffer;
 	glm::mat4 lightSpaceMat;
 
-	Core::Shader shadowShader, blinnPhongShader, texturedShader, postProcessingShader;
+	uint32_t shadowShader, blinnPhongShader, texturedShader, postProcessingShader;
 
 	std::vector<App::GameObject> gameObjects;
 
