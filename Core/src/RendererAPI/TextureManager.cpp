@@ -6,6 +6,7 @@
 
 // std
 #include <iostream>
+#include <iomanip> // Add this include for std::setprecision
 
 namespace Core
 {
@@ -56,6 +57,9 @@ namespace Core
     uint32_t TextureManager::CreateCubemap(std::vector<const char *> faces)
     {
         uint32_t texture = CreateTexture();
+
+        textures[texture].target = GL_TEXTURE_CUBE_MAP;
+        glBindTexture(GL_TEXTURE_CUBE_MAP, textures[texture].RendererID);
         
         int width, height, nrChannels;
         for (unsigned int i = 0; i < faces.size(); i++)
@@ -74,7 +78,6 @@ namespace Core
             }
         }
 
-        textures[texture].target = GL_TEXTURE_CUBE_MAP;
         textures[texture].internalFormat = GL_RGB8;
         textures[texture].format = GL_RGB;
         textures[texture].dataType = GL_UNSIGNED_BYTE;
@@ -157,12 +160,55 @@ namespace Core
 		glTexParameterfv(info.target, GL_TEXTURE_BORDER_COLOR, color);
     }
 
+    static size_t _EstimateBppFromInternalFormat(GLint internalFormat)
+    {
+        switch (internalFormat)
+        {
+        case GL_RGBA16F: return 8;    // 4 channels * 2 bytes
+        case GL_RGBA8:   return 4;
+        case GL_RGB8:    return 3;
+        case GL_R8:      return 1;
+        case GL_DEPTH_COMPONENT32F: return 4;
+        case GL_DEPTH24_STENCIL8: return 4; // approx
+        default: return 4; // conservative default
+        }
+    }
+
+    size_t TextureManager::EstimateTotalMemoryBytes()
+    {
+        size_t total = 0;
+        for (const TextureInfo& t : textures)
+        {
+            if (t.RendererID == 0 || t.width == 0 || t.height == 0) continue;
+            size_t bpp = _EstimateBppFromInternalFormat(t.internalFormat);
+            size_t pixels = (size_t)t.width * (size_t)t.height;
+            size_t bytes = pixels * bpp;
+            if (t.multisampled && t.samples > 0) bytes *= (size_t)t.samples;
+            total += bytes;
+        }
+        return total;
+    }
+
+    void TextureManager::DebugPrintSummary()
+    {
+        size_t totalBytes = EstimateTotalMemoryBytes();
+        size_t texCount = 0;
+        for (const TextureInfo& t : textures) if (t.RendererID != 0) ++texCount;
+        std::cout << "[TextureManager] Textures: " << texCount
+            << ", Estimated GPU bytes: " << std::fixed << std::setprecision(2)
+            << (totalBytes / 1024.0 / 1024.0) << " MB\n";
+    }
+
     void TextureManager::ReleaseAll()
     {
-        for(TextureInfo info : textures)
+        for (auto& info : textures)
         {
-            glDeleteTextures(1, &info.RendererID);
-            info.RendererID = 0;
+            if (info.RendererID != 0)
+            {
+                glDeleteTextures(1, &info.RendererID);
+                info.RendererID = 0;
+            }
         }
+        textures.clear();
     }
 }

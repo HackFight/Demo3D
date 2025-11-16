@@ -56,7 +56,7 @@ namespace Core
 
     private:
         static uint32_t CreateIndexBuffer();
-        static std::vector<IndexBufferInfo> indexBuffer;
+        static std::vector<IndexBufferInfo> indexBuffers;
     };
 
     struct VertexArrayInfo

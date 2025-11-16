@@ -44,6 +44,9 @@ namespace Core
 
         static void ReleaseAll();
 
+        // Diagnostics
+        static void DebugPrintSummary();                  // Print texture count and estimated bytes
+        static size_t EstimateTotalMemoryBytes();         // Estimate memory used by tracked textures (approx.)
     private:
         static std::vector<TextureInfo> textures;
     };

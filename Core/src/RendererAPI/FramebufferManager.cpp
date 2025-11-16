@@ -196,10 +196,14 @@ namespace Core
 
     void RenderbufferManager::ReleaseAll()
     {
-        for(RenderbufferInfo renderbuffer : renderbuffers)
+        for (auto& renderbuffer : renderbuffers)
         {
-            glDeleteRenderbuffers(1, &renderbuffer.RendererID);
-            renderbuffer.RendererID = 0;
+            if (renderbuffer.RendererID != 0)
+            {
+                glDeleteRenderbuffers(1, &renderbuffer.RendererID);
+                renderbuffer.RendererID = 0;
+            }
         }
+        renderbuffers.clear();
     }
 }

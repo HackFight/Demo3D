@@ -26,14 +26,14 @@ namespace App
 		Core::ShaderManager::setInt(shader, "material.texture_diffuse1", 0);
 		Core::ShaderManager::setInt(shader, "material.texture_specular1", 1);
 		Core::ShaderManager::setInt(shader, "material.texture_emission1", 2);
-		MaterialGen::setBlinnPhongMaterial(std::move(shader), m_Material);
+		MaterialGen::setBlinnPhongMaterial(shader, m_Material);
 
 		Core::ShaderManager::set3f(shader, "viewPos", camera.getPos());
-		m_Model.Draw(std::move(shader));
+		m_Model.Draw(shader);
 	}
 
 	void GameObject::Render(Core::Camera camera)
 	{
-		Render(camera, std::move(m_Shader));
+		Render(camera, m_Shader);
 	}
 }

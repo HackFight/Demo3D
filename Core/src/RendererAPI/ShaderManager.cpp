@@ -151,10 +151,13 @@ namespace Core
 
     void ShaderManager::ReleaseAll()
     {
-        for(GLuint shader : shaders)
+        for (GLuint shader : shaders)
         {
-            glDeleteProgram(shader);
-            shader = 0;
+            if (shader != 0)
+            {
+                glDeleteProgram(shader);
+            }
         }
+        shaders.clear();
     }
 }

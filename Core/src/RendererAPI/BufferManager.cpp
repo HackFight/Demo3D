@@ -44,26 +44,30 @@ namespace Core
     {
         for(GLuint buffer : vertexBuffers)
         {
-            glDeleteBuffers(1, &buffer);
+            if (buffer != 0)
+            {
+                glDeleteBuffers(1, &buffer);
+            }
         }
+        vertexBuffers.clear();
     }
 
 
 
-    std::vector<IndexBufferInfo> IndexBufferManager::indexBuffer;
+    std::vector<IndexBufferInfo> IndexBufferManager::indexBuffers;
     uint32_t IndexBufferManager::CreateIndexBuffer()
     {
         IndexBufferInfo buffer;
 
         glCreateBuffers(1, &buffer.RendererID);
 
-        indexBuffer.push_back(buffer);
-        return indexBuffer.size() - 1;
+        indexBuffers.push_back(buffer);
+        return indexBuffers.size() - 1;
     }
     uint32_t IndexBufferManager::CreateIndexBuffer(uint32_t* indices, GLsizeiptr count)
     {
         uint32_t buffer = CreateIndexBuffer();
-        indexBuffer[buffer].Count = count;
+        indexBuffers[buffer].Count = count;
 
         Bind(buffer);
         glBufferData(GL_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
@@ -73,7 +77,7 @@ namespace Core
 
     void IndexBufferManager::Bind(uint32_t buffer)
     {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer[buffer].RendererID);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffers[buffer].RendererID);
     }
     void IndexBufferManager::Unbind()
     {
@@ -82,15 +86,20 @@ namespace Core
 
     GLsizeiptr IndexBufferManager::GetCount(uint32_t buffer)
     {
-        return indexBuffer[buffer].Count;
+        return indexBuffers[buffer].Count;
     }
 
     void IndexBufferManager::ReleaseAll()
     {
-        for (IndexBufferInfo info : indexBuffer)
+        for (IndexBufferInfo& info : indexBuffers)
         {
-            glDeleteBuffers(1, &info.RendererID);
+            if (info.RendererID != 0)
+            {
+                glDeleteBuffers(1, &info.RendererID);
+				info.RendererID = 0;
+            }
         }
+        indexBuffers.clear();
     }
 
 
@@ -147,10 +156,14 @@ namespace Core
 
     void VertexArrayManager::ReleaseAll()
     {
-        for (VertexArrayInfo info : vertexArrays)
+        for (VertexArrayInfo& info : vertexArrays)
         {
-            glDeleteVertexArrays(1, &info.RendererID);
-            info.RendererID = 0;
+            if (info.RendererID != 0)
+            {
+                glDeleteVertexArrays(1, &info.RendererID);
+                info.RendererID = 0;
+            }
         }
+        vertexArrays.clear();
     }
 }

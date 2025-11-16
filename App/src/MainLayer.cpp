@@ -76,6 +76,7 @@ void MainLayer::OnUpdate(double ts)
     {
         timeAcc -= 1.0;
         std::cout << frameCounter << " FPS\n";
+		TextureManager::DebugPrintSummary();
         frameCounter = 0;
     }
 
@@ -162,6 +163,9 @@ void MainLayer::ResizeBuffers()
 {
     glm::vec2 viewportSize = Application::Get().GetFramebufferSize();
 
+    if (viewportSize == oldViewportSize || viewportSize.x == 0 || viewportSize.y == 0)
+		return;
+
     RendererAPI::SetViewport(0, 0, viewportSize.x, viewportSize.y);
 
     TextureManager::Resize(multiSampledtextureColorBuffer, viewportSize.x, viewportSize.y);
@@ -169,6 +173,8 @@ void MainLayer::ResizeBuffers()
 
     TextureManager::Resize(textureColorBuffer, viewportSize.x, viewportSize.y);
     RenderbufferManager::Resize(renderbuffer, viewportSize.x, viewportSize.y);
+
+	oldViewportSize = viewportSize;
 }
 
 void MainLayer::ProcessInput(double ts)
@@ -292,20 +298,20 @@ void MainLayer::LoadAssets()
     lightCam.coreCamera.lookAt(camera.coreCamera.getPos());
 
 	// setup multisampled framebuffer
-    multiSampledtextureColorBuffer = TextureManager::CreateTexture(GL_TEXTURE_2D_MULTISAMPLE, GL_RGBA16F, 1920, 1200, GL_RGBA, GL_FLOAT, NULL, true, 4);
-    multiSampledtextureDepthStencilBuffer = TextureManager::CreateTexture(GL_TEXTURE_2D_MULTISAMPLE, GL_DEPTH24_STENCIL8, 1920, 1200, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, true, 4);
+    multiSampledtextureColorBuffer = TextureManager::CreateTexture(GL_TEXTURE_2D_MULTISAMPLE, GL_RGBA16F, 600, 600, GL_RGBA, GL_FLOAT, NULL, true, 4);
+    multiSampledtextureDepthStencilBuffer = TextureManager::CreateTexture(GL_TEXTURE_2D_MULTISAMPLE, GL_DEPTH24_STENCIL8, 600, 600, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, true, 4);
 
     multiSampledframebuffer = FramebufferManager::CreateFramebuffer();
     FramebufferManager::AttachTexture(multiSampledframebuffer, multiSampledtextureColorBuffer);
     FramebufferManager::AttachTexture(multiSampledframebuffer, multiSampledtextureDepthStencilBuffer);
 
     // setup post processing
-    textureColorBuffer = TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGBA16F, 1920, 1200, GL_RGBA, GL_FLOAT, NULL, false, 0);
+    textureColorBuffer = TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGBA16F, 600, 600, GL_RGBA, GL_FLOAT, NULL, false, 0);
     
     gameObjects.push_back(App::GameObject(ModelGen::GetQuad(std::vector<uint32_t>{textureColorBuffer}), postProcessingShader));
     screenQuad = gameObjects.size() - 1;
 
-    renderbuffer = RenderbufferManager::CreateRenderbuffer(GL_DEPTH24_STENCIL8, 1920, 1200, false, 0);
+    renderbuffer = RenderbufferManager::CreateRenderbuffer(GL_DEPTH24_STENCIL8, 600, 600, false, 0);
     
     framebuffer = FramebufferManager::CreateFramebuffer();
     FramebufferManager::AttachTexture(framebuffer, textureColorBuffer);

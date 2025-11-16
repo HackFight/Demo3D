@@ -10,7 +10,7 @@
 //std
 #include <cstdint>
 
-const int SHADOW_SIZE = 2048*8;
+const int SHADOW_SIZE = 2048;
 
 struct DirectionalLight
 {
@@ -76,4 +76,6 @@ private:
 	bool gammaCorrection = true;
 	bool toneMapping = true;
 	float exposure = 1.0f;
+
+	glm::vec2 oldViewportSize = glm::vec2(1920, 1200);
 };
