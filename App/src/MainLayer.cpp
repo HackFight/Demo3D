@@ -210,7 +210,6 @@ void MainLayer::LoadAssets()
 {
 	// load and setup the blinn-phong shader
     blinnPhongShader = ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
-    ShaderManager::Bind(blinnPhongShader);
     ShaderManager::set3f(blinnPhongShader, "light.direction", sunLight.direction);
     ShaderManager::set3f(blinnPhongShader, "light.ambient", sunLight.ambient);
     ShaderManager::set3f(blinnPhongShader, "light.diffuse", sunLight.diffuse);

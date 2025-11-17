@@ -1,4 +1,6 @@
-#include "MainLayer.h"
+//#include "MainLayer.h"
+#include "TestLayer.h"
+
 #include "Core/Application.h"
 
 int main()
@@ -11,7 +13,8 @@ int main()
 	appSpec.WindowSpec.Multisampling = true;
 
 	Core::Application app(appSpec);
-	app.PushLayer<MainLayer>();
+	//app.PushLayer<MainLayer>();
+	app.PushLayer<TestLayer>();
 	app.Run();
 	
 	return 0;
