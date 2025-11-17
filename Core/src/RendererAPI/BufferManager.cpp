@@ -1,4 +1,5 @@
 #include "RendererAPI/BufferManager.h"
+#include <iostream>
 
 namespace Core
 {
@@ -27,7 +28,10 @@ namespace Core
 
     void VertexBufferManager::Bind(uint32_t buffer)
     {
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[buffer]);
+		if (glIsBuffer(vertexBuffers[buffer]))
+            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[buffer]);
+		else
+			std::cout << "Warning: Trying to bind invalid Vertex Buffer ID " << buffer << std::endl;
     }
     void VertexBufferManager::Unbind()
     {
@@ -70,14 +74,17 @@ namespace Core
         indexBuffers[buffer].Count = count;
 
         Bind(buffer);
-        glBufferData(GL_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 
         return buffer;
     }
 
     void IndexBufferManager::Bind(uint32_t buffer)
     {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffers[buffer].RendererID);
+		if (glIsBuffer(indexBuffers[buffer].RendererID))
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffers[buffer].RendererID);
+        else
+			std::cout << "Warning: Trying to bind invalid Index Buffer ID " << buffer << std::endl;
     }
     void IndexBufferManager::Unbind()
     {
@@ -117,7 +124,10 @@ namespace Core
 
     void VertexArrayManager::Bind(uint32_t vertexArray)
     {
-        glBindVertexArray(vertexArrays[vertexArray].RendererID);
+		if(glIsVertexArray(vertexArrays[vertexArray].RendererID))
+            glBindVertexArray(vertexArrays[vertexArray].RendererID);
+        else
+			std::cout << "Warning: Trying to bind invalid Vertex Array ID " << vertexArray << std::endl;
     }
     void VertexArrayManager::Unbind()
     {
