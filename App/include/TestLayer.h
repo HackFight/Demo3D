@@ -5,9 +5,18 @@
 
 //App
 #include "Camera.h"
+#include "GameObject.h"
 
 //std
 #include <stdint.h>
+
+struct DirectionalLight
+{
+    glm::vec3 direction;
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+};
 
 class TestLayer : public Core::Layer
 {
@@ -20,11 +29,9 @@ public:
 
 private:
     void ProcessInput(double ts);
+	void LoadAssets();
 
-    uint32_t vertexBuffer;
-    uint32_t indexBuffer;
-    uint32_t vertexArray;
-    uint32_t shader;
+    uint32_t blinnPhongShader, texturedShader;
 
     App::Camera camera;
     bool mouseDisabled = true;
@@ -33,4 +40,14 @@ private:
 
     double timeAcc = 0.0;
 	int frameCounter = 0;
+
+    DirectionalLight sunLight
+    {
+        glm::vec3(1.0f, -2.0f, 2.0f),
+        glm::vec3(0.1f, 0.1f, 0.1f),
+        glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3(2.0f, 2.0f, 2.0f)
+    };
+
+	std::vector<App::GameObject> gameObjects;
 };

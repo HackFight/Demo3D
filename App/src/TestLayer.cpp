@@ -10,7 +10,7 @@
 
 //App
 #include "Camera.h"
-#include "MaterialGen.h"
+#include "ModelGen.h"
 
 //Libs
 #include "glm/fwd.hpp"
@@ -43,72 +43,7 @@ TestLayer::TestLayer()
     ImGui_ImplGlfw_InitForOpenGL(Core::Application::Get().GetWindow()->GetHandle(), true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
 
-    std::vector<Core::Vertex> vertices
-    {
-        {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-        {{ 0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-        {{ 0.5f,  0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-        {{-0.5f,  0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
-
-        {{ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-        {{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-        {{ 0.5f,  0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-        {{ 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
-
-        {{ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-        {{-0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-        {{ 0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
-
-        {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-        {{-0.5f, -0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-        {{-0.5f,  0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-        {{-0.5f,  0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
-
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-        {{ 0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-        {{ 0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-        {{-0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
-
-        {{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-        {{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-        {{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-        {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}}
-    };
-    std::vector<uint32_t> indices
-    {
-        0, 1, 2,
-        0, 2, 3,
-
-        4, 5, 6,
-        4, 6, 7,
-
-        8,  9, 10,
-        8, 10, 11,
-
-        12, 13, 14,
-        12, 14, 15,
-
-        16, 17, 18,
-        16, 18, 19,
-
-        20, 21, 22,
-        20, 22, 23
-    };
-    vertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*) vertices.data(), vertices.size() * sizeof(Core::Vertex));
-    indexBuffer = Core::IndexBufferManager::CreateIndexBuffer(indices.data(), indices.size());
-    vertexArray = Core::VertexArrayManager::CreateVertexArray();
-    Core::VertexArrayManager::AddVertexBuffer(vertexArray, vertexBuffer);
-    Core::VertexArrayManager::SetIndexBuffer(vertexArray, indexBuffer);
-
-    shader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong-no-shadow.frag");
-    Core::ShaderManager::set3f(shader, "light.direction", glm::vec3(-1.0f, -1.0f, -1.0f));
-    Core::ShaderManager::set3f(shader, "light.ambient", glm::vec3(0.0f));
-    Core::ShaderManager::set3f(shader, "light.diffuse", glm::vec3(1.0f));
-    Core::ShaderManager::set3f(shader, "light.specular", glm::vec3(2.0f));
-    MaterialGen::setBlinnPhongMaterial(shader, CyanPlastic);
-
-	camera = App::Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+	LoadAssets();
 }
 TestLayer::~TestLayer()
 {
@@ -154,17 +89,10 @@ void TestLayer::OnRender()
     Core::RendererAPI::ClearColor();
     Core::RendererAPI::ClearDepth();
 
-    Core::ShaderManager::setmat4(shader, "viewMat", camera.coreCamera.getViewMatrix());
-    Core::ShaderManager::setmat4(shader, "projMat", camera.coreCamera.getProjectionMatrix());
-    Core::ShaderManager::setmat4(shader, "modelMat", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f)));
-
-    Core::ShaderManager::setInt(shader, "material.texture_diffuse1", 0);
-    Core::ShaderManager::setInt(shader, "material.texture_specular1", 1);
-    Core::ShaderManager::setInt(shader, "material.texture_emission1", 2);
-
-    Core::ShaderManager::set3f(shader, "viewPos", camera.coreCamera.getPos());
-    Core::ShaderManager::Bind(shader);
-    Core::RendererAPI::DrawIndexed(vertexArray);
+    for(App::GameObject& obj : gameObjects)
+    {
+        obj.Render(camera.coreCamera);
+	}
 
     ImGui::Begin("ImGui test");
     ImGui::Text("Hemlo :3");
@@ -201,4 +129,34 @@ void TestLayer::ProcessInput(double ts)
     lastY = ypos;
     if(mouseDisabled)
         camera.coreCamera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+void TestLayer::LoadAssets()
+{
+	//###### Shaders ######
+    blinnPhongShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong-no-shadow.frag");
+    Core::ShaderManager::set3f(blinnPhongShader, "light.direction", sunLight.direction);
+    Core::ShaderManager::set3f(blinnPhongShader, "light.ambient", sunLight.ambient);
+    Core::ShaderManager::set3f(blinnPhongShader, "light.diffuse", sunLight.diffuse);
+    Core::ShaderManager::set3f(blinnPhongShader, "light.specular", sunLight.specular);
+
+    texturedShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured-no-shadow.frag");
+    Core::ShaderManager::set3f(texturedShader, "light.direction", sunLight.direction);
+    Core::ShaderManager::set3f(texturedShader, "light.ambient", sunLight.ambient);
+    Core::ShaderManager::set3f(texturedShader, "light.diffuse", sunLight.diffuse);
+    Core::ShaderManager::set3f(texturedShader, "light.specular", sunLight.specular);
+
+
+
+	//###### GameObjects ######
+	gameObjects.push_back(App::GameObject(ModelGen::GetPlane(10, std::vector<uint32_t>{Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/default.png")}), texturedShader));
+
+    gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, glm::vec3(-1.0f, 0.5f, 0.0f)));
+
+    gameObjects.push_back(App::GameObject(ModelGen::GetCube(std::vector<uint32_t>{Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png", true), Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box-specular.png", true)}), texturedShader, glm::vec3(1.0f, 0.5f, 0.0f)));
+
+
+
+	//###### Cameras ######
+    camera = App::Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 }

@@ -79,14 +79,14 @@ Core::Model ModelGen::GetCube(std::vector<uint32_t> textures)
     return Core::Model(Core::Mesh(vertices, indices, toMeshTextures(textures)));
 }
 
-Core::Model ModelGen::GetPlane(const int size, std::vector<uint32_t> textures)
+Core::Model ModelGen::GetPlane(int size, std::vector<uint32_t> textures)
 {
     std::vector<Core::Vertex> vertices;
     for (int x = 0; x <= size; x++)
     {
         for (int z = 0; z <= size; z++)
         {
-            vertices.push_back({ {x - size / 2.0f, 0.0f, z - size / 2.0f}, {0.0f, 1.0f, 0.0f}, {x, z}, {x + z, x + z, 1.0f} });
+            vertices.push_back({ {x - (float)size / 2.0f, 0.0f, z - (float)size / 2.0f}, {0.0f, 1.0f, 0.0f}, {x, z}, {x + z, x + z, 1.0f} });
         }
     }
 

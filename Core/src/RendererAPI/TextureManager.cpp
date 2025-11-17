@@ -24,6 +24,7 @@ namespace Core
     {
         uint32_t texture = CreateTexture();
         SetData(texture, target, internalFormat, width, height, format, dataType, data, multisampled, samples);
+        SetParameters(texture, GL_REPEAT, GL_NEAREST, GL_NEAREST);
         return texture;
     }
     uint32_t TextureManager::CreateTexture(const char* filename, bool flip)
@@ -50,6 +51,7 @@ namespace Core
         }
 
         SetData(texture, GL_TEXTURE_2D, textures[texture].internalFormat, width, height, textures[texture].format, GL_UNSIGNED_BYTE, data, false, 0);
+		SetParameters(texture, GL_REPEAT, GL_NEAREST, GL_NEAREST);
         stbi_image_free(data);
 
         return texture;

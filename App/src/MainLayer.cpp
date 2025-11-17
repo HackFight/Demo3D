@@ -84,15 +84,17 @@ void MainLayer::OnUpdate(double ts)
 }
 void MainLayer::OnRender()
 {
+    glm::vec2 viewportSize = Application::Get().GetFramebufferSize();
+
     RendererAPI::SRGBColorSpace(false); // disble gamma correction for intermediate steps
     FramebufferManager::Bind(shadowDepthMapFramebuffer);
 	RenderShadowMap();
 
     ResizeBuffers();
+    RendererAPI::SetViewport(0, 0, viewportSize.x, viewportSize.y);
     FramebufferManager::Bind(multiSampledframebuffer);
 	RenderScene();
 
-    glm::vec2 viewportSize = Application::Get().GetFramebufferSize();
     FramebufferManager::Blit(multiSampledframebuffer, framebuffer);
 
     FramebufferManager::Unbind();
