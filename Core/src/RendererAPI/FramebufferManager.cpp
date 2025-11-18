@@ -16,6 +16,12 @@ namespace Core
     std::vector<FramebufferInfo> FramebufferManager::framebuffers;
     uint32_t FramebufferManager::CreateFramebuffer()
     {
+		// First time initialization
+        if (framebuffers.empty())
+        {
+            framebuffers.push_back(FramebufferInfo()); // Reserve 0 as invalid Framebuffer ID
+        }
+
         FramebufferInfo framebuffer;
         glGenFramebuffers(1, &framebuffer.RendererID);
 
@@ -135,8 +141,11 @@ namespace Core
     {
         for(FramebufferInfo framebuffer : framebuffers)
         {
-            glDeleteFramebuffers(1, &framebuffer.RendererID);
-            framebuffer.RendererID = 0;
+            if (framebuffer.RendererID != 0)
+            {
+                glDeleteFramebuffers(1, &framebuffer.RendererID);
+                framebuffer.RendererID = 0;
+            }
         }
     }
 
@@ -145,6 +154,12 @@ namespace Core
     std::vector<RenderbufferInfo> RenderbufferManager::renderbuffers;
     uint32_t RenderbufferManager::CreateRenderbuffer()
     {
+		// First time initialization
+        if (renderbuffers.empty())
+        {
+            renderbuffers.push_back(RenderbufferInfo()); // Reserve 0 as invalid Renderbuffer ID
+		}
+
         RenderbufferInfo renderbuffer;
         glGenRenderbuffers(1, &renderbuffer.RendererID);
 

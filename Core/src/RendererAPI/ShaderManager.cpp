@@ -14,6 +14,12 @@ namespace Core
     std::vector<GLuint> ShaderManager::shaders;
     uint32_t ShaderManager::CreateShader(const char* vertexPath, const char* fragmentPath)
     {
+		// First time init
+        if (shaders.empty())
+        {
+			shaders.push_back(0); //0 element is "no shader"
+        }
+
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
         std::string fragmentCode;

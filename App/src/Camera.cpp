@@ -14,6 +14,7 @@
 namespace App
 {
     Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
+		: skyboxShader(0), skyboxVertexArray(0), skyboxTexture(0)
     {
         coreCamera = Core::Camera(position.x, position.y, position.z, up.x, up.y, up.z, yaw, pitch);
     }

@@ -62,8 +62,8 @@ namespace Core
     struct VertexArrayInfo
     {
         GLuint RendererID = 0;
-        uint32_t vertexBuffer = -1;
-        uint32_t indexBuffer = -1;
+        uint32_t vertexBuffer = 0;
+        uint32_t indexBuffer = 0;
     };
 
     class VertexArrayManager

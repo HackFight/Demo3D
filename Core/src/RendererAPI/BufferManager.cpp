@@ -6,6 +6,12 @@ namespace Core
     std::vector<GLuint> VertexBufferManager::vertexBuffers;
     uint32_t VertexBufferManager::CreateVertexBuffer()
     {
+		// First time initialization
+        if (vertexBuffers.empty())
+        {
+            vertexBuffers.push_back(0); // Reserve 0 as invalid buffer ID
+		}
+
         GLuint buffer;
 
         glCreateBuffers(1, &buffer);
@@ -61,6 +67,12 @@ namespace Core
     std::vector<IndexBufferInfo> IndexBufferManager::indexBuffers;
     uint32_t IndexBufferManager::CreateIndexBuffer()
     {
+		// First time initialization
+        if (indexBuffers.empty())
+        {
+            indexBuffers.push_back(IndexBufferInfo()); // Reserve 0 as invalid buffer ID
+		}
+
         IndexBufferInfo buffer;
 
         glCreateBuffers(1, &buffer.RendererID);
@@ -114,6 +126,12 @@ namespace Core
     std::vector<VertexArrayInfo> VertexArrayManager::vertexArrays;
     uint32_t VertexArrayManager::CreateVertexArray()
     {
+		// First time initialization
+        if (vertexArrays.empty())
+        {
+            vertexArrays.push_back(VertexArrayInfo()); // Reserve 0 as invalid Vertex Array ID
+        }
+
         VertexArrayInfo vertexArray;
 
         glCreateVertexArrays(1, &vertexArray.RendererID);

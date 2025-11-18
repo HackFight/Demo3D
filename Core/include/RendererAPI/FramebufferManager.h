@@ -36,12 +36,12 @@ namespace Core
 
     struct RenderbufferInfo
     {
-        GLuint RendererID;
-        GLint internalFormat;
-		GLsizei width;
-		GLsizei height;
-		bool multisampled;
-		GLsizei samples;
+        GLuint RendererID = 0;
+        GLint internalFormat = 0;
+		GLsizei width = 0;
+		GLsizei height = 0;
+		bool multisampled = false;
+		GLsizei samples = 0;
     };
 
     class RenderbufferManager

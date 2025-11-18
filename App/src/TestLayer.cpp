@@ -11,6 +11,7 @@
 //App
 #include "Camera.h"
 #include "ModelGen.h"
+#include "MeshGen.h"
 
 //Libs
 #include "glm/fwd.hpp"
@@ -154,14 +155,14 @@ void TestLayer::LoadAssets()
     Core::ShaderManager::set3f(texturedShader, "light.specular", sunLight.specular);
 
     //###### Textures ######
-    /*uint32_t skyboxTexture = Core::TextureManager::CreateCubemap(std::vector<const char*>{
+    uint32_t skyboxTexture = Core::TextureManager::CreateCubemap(std::vector<const char*>{
         RESOURCES_PATH "textures/skybox/right.jpg",
         RESOURCES_PATH "textures/skybox/left.jpg",
         RESOURCES_PATH "textures/skybox/top.jpg",
         RESOURCES_PATH "textures/skybox/bottom.jpg",
         RESOURCES_PATH "textures/skybox/front.jpg",
         RESOURCES_PATH "textures/skybox/back.jpg"
-    });*/
+    });
 
 
 	//###### GameObjects ######
@@ -169,8 +170,7 @@ void TestLayer::LoadAssets()
 
     gameObjects.push_back(App::GameObject(ModelGen::GetCube(std::vector<uint32_t>{Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png", true), Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box-specular.png", true)}), texturedShader, glm::vec3(1.0f, 0.5f, 0.0f)));
 
-    //camera.SetSkybox(MeshGen::GetReversedCube(), skyboxTexture, Core::ShaderManager::CreateShader( RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag"));
-
 	//###### Cameras ######
     camera = App::Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+    camera.SetSkybox(MeshGen::GetReversedCube(), skyboxTexture, Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag"));
 }

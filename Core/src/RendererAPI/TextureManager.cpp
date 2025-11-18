@@ -13,6 +13,12 @@ namespace Core
     std::vector<TextureInfo> TextureManager::textures;
     uint32_t TextureManager::CreateTexture()
     {
+        // Fist time init
+        if (textures.empty())
+        {
+			textures.push_back(TextureInfo());
+		}
+
         TextureInfo texture;
 
         glGenTextures(1, &texture.RendererID);
