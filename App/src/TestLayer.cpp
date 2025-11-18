@@ -28,7 +28,7 @@
 TestLayer::TestLayer()
 {
 	Core::RendererAPI::Init();
-	Core::RendererAPI::SetClearColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	Core::RendererAPI::SetClearColor(glm::vec4(0.0f));
 
     glfwSetInputMode(Core::Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &lastX, &lastY);
