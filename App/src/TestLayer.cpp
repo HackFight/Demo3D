@@ -94,6 +94,13 @@ void TestLayer::OnRender()
         obj.Render(camera.coreCamera);
 	}
 
+    camera.RenderSkybox();
+
+    RenderGUI();
+}
+
+void TestLayer::RenderGUI()
+{
     ImGui::Begin("ImGui test");
     ImGui::Text("Hemlo :3");
     ImGui::End();
@@ -146,16 +153,23 @@ void TestLayer::LoadAssets()
     Core::ShaderManager::set3f(texturedShader, "light.diffuse", sunLight.diffuse);
     Core::ShaderManager::set3f(texturedShader, "light.specular", sunLight.specular);
 
+    //###### Textures ######
+    /*uint32_t skyboxTexture = Core::TextureManager::CreateCubemap(std::vector<const char*>{
+        RESOURCES_PATH "textures/skybox/right.jpg",
+        RESOURCES_PATH "textures/skybox/left.jpg",
+        RESOURCES_PATH "textures/skybox/top.jpg",
+        RESOURCES_PATH "textures/skybox/bottom.jpg",
+        RESOURCES_PATH "textures/skybox/front.jpg",
+        RESOURCES_PATH "textures/skybox/back.jpg"
+    });*/
 
 
 	//###### GameObjects ######
-	gameObjects.push_back(App::GameObject(ModelGen::GetPlane(10, std::vector<uint32_t>{Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/default.png")}), texturedShader));
-
     gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, glm::vec3(-1.0f, 0.5f, 0.0f)));
 
     gameObjects.push_back(App::GameObject(ModelGen::GetCube(std::vector<uint32_t>{Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png", true), Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box-specular.png", true)}), texturedShader, glm::vec3(1.0f, 0.5f, 0.0f)));
 
-
+    //camera.SetSkybox(MeshGen::GetReversedCube(), skyboxTexture, Core::ShaderManager::CreateShader( RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag"));
 
 	//###### Cameras ######
     camera = App::Camera(glm::vec3(0.0f, 0.0f, 3.0f));

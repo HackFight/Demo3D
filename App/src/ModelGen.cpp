@@ -116,7 +116,7 @@ std::vector<Core::Mesh::Texture> ModelGen::toMeshTextures(std::vector<uint32_t> 
     for (size_t i = 0; i < textures.size(); i++)
     {
         Core::Mesh::Texture texture;
-        texture.ptr = textures[i];
+        texture.ptr = textures.at(i);
         switch (i)
         {
             case 0:

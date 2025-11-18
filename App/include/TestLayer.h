@@ -28,6 +28,7 @@ public:
 	virtual void OnRender() override;
 
 private:
+    void RenderGUI();
     void ProcessInput(double ts);
 	void LoadAssets();
 
