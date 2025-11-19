@@ -1,6 +1,9 @@
 #include "TestLayer.h"
 
 //Engine
+#include "Core/Mesh.h"
+#include "Core/Model.h"
+#include "MaterialGen.h"
 #include "RendererAPI/BufferManager.h"
 #include "RendererAPI/RendererAPI.h"
 #include "RendererAPI/ShaderManager.h"
@@ -17,6 +20,7 @@
 #include "glm/fwd.hpp"
 
 //std
+#include <cstdint>
 #include <iostream>
 #include <vector>
 
@@ -73,7 +77,6 @@ void TestLayer::OnUpdate(double ts)
     {
         timeAcc -= 1.0;
         std::cout << frameCounter << " FPS\n";
-		Core::TextureManager::DebugPrintSummary();
         frameCounter = 0;
     }
 
@@ -164,11 +167,15 @@ void TestLayer::LoadAssets()
         RESOURCES_PATH "textures/skybox/back.jpg"
     });
 
-
 	//###### GameObjects ######
-    gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, glm::vec3(-1.0f, 0.5f, 0.0f)));
+    gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, {-1.0f ,0.5f, 0.0f}));
 
-    gameObjects.push_back(App::GameObject(ModelGen::GetCube(std::vector<uint32_t>{Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png", true), Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box-specular.png", true)}), texturedShader, glm::vec3(1.0f, 0.5f, 0.0f)));
+    std::vector<uint32_t> boxTextures =
+    {
+        Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png", true),
+        Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box-specular.png", true)
+    };
+    gameObjects.push_back(App::GameObject(ModelGen::GetCube(boxTextures), texturedShader, {1.0f, 0.5f, 0.0f}));
 
 	//###### Cameras ######
     camera = App::Camera(glm::vec3(0.0f, 0.0f, 3.0f));

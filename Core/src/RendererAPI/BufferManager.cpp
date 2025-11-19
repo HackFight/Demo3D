@@ -181,6 +181,10 @@ namespace Core
     {
         return IndexBufferManager::GetCount(vertexArrays[vertexArray].indexBuffer);
     }
+    VertexArrayInfo VertexArrayManager::GetVAOInfo(uint32_t vertexArray)
+    {
+        return vertexArrays[vertexArray];
+    }
 
     void VertexArrayManager::ReleaseAll()
     {

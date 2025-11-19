@@ -78,6 +78,7 @@ namespace Core
         static void SetIndexBuffer(uint32_t vertexArray, uint32_t buffer);
 
         static GLsizeiptr GetIndexCount(uint32_t vertexArray);
+        static VertexArrayInfo GetVAOInfo(uint32_t vertexArray);
 
         static void ReleaseAll();
 
