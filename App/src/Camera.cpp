@@ -14,29 +14,27 @@
 namespace App
 {
     Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
-		: skyboxShader(0), skyboxVertexArray(0), skyboxTexture(0)
+		: skyboxShader(0), skyboxModel(Core::Model())
     {
         coreCamera = Core::Camera(position.x, position.y, position.z, up.x, up.y, up.z, yaw, pitch);
     }
 
-    void Camera::SetSkybox(uint32_t vertexArray, uint32_t texture, uint32_t shader)
+    void Camera::SetSkybox(Core::Model model, uint32_t shader)
     {
-        skyboxVertexArray = vertexArray;
-        skyboxTexture = texture;
         skyboxShader = shader;
+        skyboxModel = model;
     }
 
     void Camera::RenderSkybox()
     {
         Core::RendererAPI::SetDepthFunc(GL_EQUAL);
 
-        Core::ShaderManager::setmat4(skyboxShader, "projMat", coreCamera.getProjectionMatrix());
         Core::ShaderManager::setmat4(skyboxShader, "viewMat", glm::mat4(glm::mat3(coreCamera.getViewMatrix())));
+        Core::ShaderManager::setmat4(skyboxShader, "projMat", coreCamera.getProjectionMatrix());
+
         Core::ShaderManager::setInt(skyboxShader, "skybox", 0);
 
-        Core::TextureManager::Bind(skyboxTexture, 0);
-
-        Core::RendererAPI::DrawIndexed(skyboxVertexArray);
+        skyboxModel.Draw(skyboxShader);
 
         Core::RendererAPI::SetDepthFunc(GL_LESS);
     }

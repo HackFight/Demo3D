@@ -15,7 +15,7 @@ namespace App
 	class GameObject
 	{
 	public:
-		GameObject(Core::Model model, uint32_t shader, glm::vec3 position = glm::vec3(0.0f), BlinnPhongMaterial material = WhitePlastic);
+		GameObject(Core::Model model = Core::Model(), uint32_t shader = 0, glm::vec3 position = glm::vec3(0.0f), BlinnPhongMaterial material = WhitePlastic);
 		~GameObject();
 
 		void Render(Core::Camera camera, uint32_t forcedShader);

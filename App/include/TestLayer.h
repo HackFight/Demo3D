@@ -32,7 +32,7 @@ private:
     void ProcessInput(double ts);
 	void LoadAssets();
 
-    uint32_t blinnPhongShader, texturedShader;
+    uint32_t blinnPhongShader, texturedShader, skyboxShader;
 
     App::Camera camera;
     bool mouseDisabled = true;

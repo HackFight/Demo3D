@@ -291,7 +291,7 @@ void MainLayer::LoadAssets()
 
 	// setup the camera
     camera = App::Camera(glm::vec3(0.0f, 1.0f, 2.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
-    camera.SetSkybox(MeshGen::GetReversedCube(), TextureManager::CreateCubemap(faces), skyboxShader);
+    camera.SetSkybox(ModelGen::GetReversedCube({ TextureManager::CreateCubemap(faces) }), skyboxShader);
 
     lightCam = App::Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f);
     lightCam.coreCamera.orthographic = true;

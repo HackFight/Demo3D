@@ -96,7 +96,7 @@ void TestLayer::OnRender()
         obj.Render(camera.coreCamera);
 	}
 
-    camera.RenderSkybox();
+	camera.RenderSkybox();
 
     RenderGUI();
 }
@@ -155,6 +155,8 @@ void TestLayer::LoadAssets()
     Core::ShaderManager::set3f(texturedShader, "light.diffuse", sunLight.diffuse);
     Core::ShaderManager::set3f(texturedShader, "light.specular", sunLight.specular);
 
+    skyboxShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag");
+
     //###### Textures ######
     uint32_t skyboxTexture = Core::TextureManager::CreateCubemap(std::vector<const char*>{
         RESOURCES_PATH "textures/skybox/right.jpg",
@@ -176,7 +178,9 @@ void TestLayer::LoadAssets()
     };
     gameObjects.push_back(App::GameObject(ModelGen::GetCube(boxTextures), texturedShader, {1.5f, 0.5f, 0.0f}));
 
+    Core::Model skyboxModel = ModelGen::GetReversedCube({ skyboxTexture });
+
 	//###### Cameras ######
     camera = App::Camera(glm::vec3(0.0f, 0.0f, 3.0f));
-    camera.SetSkybox(MeshGen::GetReversedCube(), skyboxTexture, Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag"));
+	camera.SetSkybox(skyboxModel, skyboxShader);
 }
