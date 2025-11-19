@@ -168,14 +168,15 @@ void TestLayer::LoadAssets()
     });
 
 	//###### GameObjects ######
-    gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, {-1.0f ,0.5f, 0.0f}));
-
+    gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, CyanPlastic));
+    
     std::vector<uint32_t> boxTextures =
     {
         Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png", true),
         Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box-specular.png", true)
     };
-    gameObjects.push_back(App::GameObject(ModelGen::GetCube(boxTextures), texturedShader, {1.0f, 0.5f, 0.0f}));
+    gameObjects.push_back(App::GameObject(ModelGen::GetCube(boxTextures), texturedShader, {1.5f, 0.5f, 0.0f}));
+    gameObjects.push_back(App::GameObject(ModelGen::GetQuad(), blinnPhongShader, {-1.5f ,0.5f, 0.0f}, CyanPlastic));
 
 	//###### Cameras ######
     camera = App::Camera(glm::vec3(0.0f, 0.0f, 3.0f));
