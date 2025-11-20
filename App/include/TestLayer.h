@@ -11,6 +11,8 @@
 //std
 #include <stdint.h>
 
+int SHADOW_SIZE = 2048;
+
 struct DirectionalLight
 {
     glm::vec3 direction;
@@ -38,7 +40,9 @@ private:
     uint32_t framebuffer, framebufferColor, renderbuffer;
     App::GameObject screenQuad;
 
-    App::Camera camera;
+    uint32_t shadowbuffer, shadowmap;
+
+    App::Camera camera, lightCamera;
     bool mouseDisabled = true;
     bool canPress = true;
     double lastX, lastY;
@@ -47,6 +51,10 @@ private:
 	int frameCounter = 0;
 
     glm::vec2 oldFbSize;
+
+	bool gammaCorrection = true;
+	bool toneMapping = true;
+	float exposure = 1.0f;
 
     DirectionalLight sunLight
     {

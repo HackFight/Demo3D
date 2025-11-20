@@ -25,7 +25,14 @@ void main()
     }
     else
     {
-        fragColor = vec4(hdrColor, 1.0);
+        if (hdrColor.r >= 1.0 || hdrColor.g >= 1.0 || hdrColor.b >= 1.0)
+        {
+            fragColor = vec4(1.0, 0.0, 1.0, 1.0);
+        }
+        else
+        {
+            fragColor = vec4(hdrColor, 1.0);
+        }
     }
 }
 

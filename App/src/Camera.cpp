@@ -27,7 +27,7 @@ namespace App
 
     void Camera::RenderSkybox()
     {
-        Core::RendererAPI::SetDepthFunc(GL_EQUAL);
+        Core::RendererAPI::SetDepthFunc(GL_LEQUAL);
 
         Core::ShaderManager::setmat4(skyboxShader, "viewMat", glm::mat4(glm::mat3(coreCamera.getViewMatrix())));
         Core::ShaderManager::setmat4(skyboxShader, "projMat", coreCamera.getProjectionMatrix());

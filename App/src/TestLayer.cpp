@@ -8,7 +8,6 @@
 #include "RendererAPI/FramebufferManager.h"
 #include "RendererAPI/RendererAPI.h"
 #include "RendererAPI/ShaderManager.h"
-#include "RendererAPI/ShaderManager.h"
 #include "RendererAPI/TextureManager.h"
 #include "Core/Application.h"
 
@@ -94,6 +93,11 @@ void TestLayer::OnRender()
     // Clear before drawing
     Core::RendererAPI::ClearColor();
     Core::RendererAPI::ClearDepth();
+    
+    Core::RendererAPI::SRGBColorSpace(false);
+
+	Core::ShaderManager::setBool(postProcessingShader, "toneMapping", toneMapping);
+	Core::ShaderManager::setFloat(postProcessingShader, "exposure", exposure);
 
     for(App::GameObject& obj : gameObjects)
     {
@@ -106,6 +110,9 @@ void TestLayer::OnRender()
     Core::RendererAPI::ClearColor();
     Core::RendererAPI::ClearDepth();
 
+    if(gammaCorrection)
+        Core::RendererAPI::SRGBColorSpace(true);
+
     screenQuad.Render(camera.coreCamera);
 
     RenderGUI();
@@ -115,6 +122,9 @@ void TestLayer::RenderGUI()
 {
     ImGui::Begin("ImGui test");
     ImGui::Text("Hemlo :3");
+	ImGui::Checkbox("Gamma Correction", &gammaCorrection);
+	ImGui::Checkbox("Tone Mapping", &toneMapping);
+	ImGui::SliderFloat("Exposure", &exposure, 0.1f, 5.0f);
     ImGui::End();
 
     ImGui::Render();
@@ -148,6 +158,8 @@ void TestLayer::ProcessInput(double ts)
     lastY = ypos;
     if(mouseDisabled)
         camera.coreCamera.ProcessMouseMovement(xoffset, yoffset);
+
+    lightCamera.coreCamera.setPos(-sunLight.direction * 10.0f + camera.coreCamera.getPos());
 }
 
 void TestLayer::LoadAssets()
@@ -198,12 +210,17 @@ void TestLayer::LoadAssets()
 
     framebufferColor = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGB8, oldFbSize.x, oldFbSize.y, GL_RGB, GL_UNSIGNED_BYTE, nullptr, false, 0);
 
+	shadowmap = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_DEPTH_COMPONENT24, SHADOW_SIZE, SHADOW_SIZE, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr, false, 0);
+
     //###### Frame & Render buffers ######
     renderbuffer = Core::RenderbufferManager::CreateRenderbuffer(GL_DEPTH24_STENCIL8, oldFbSize.x, oldFbSize.y, false, 0);
 
     framebuffer = Core::FramebufferManager::CreateFramebuffer();
     Core::FramebufferManager::AttachTexture(framebuffer, framebufferColor);
     Core::FramebufferManager::AttachRenderbuffer(framebuffer, renderbuffer);
+
+	shadowbuffer = Core::FramebufferManager::CreateFramebuffer();
+	Core::FramebufferManager::AttachTexture(shadowbuffer, shadowmap);
 
 	//###### GameObjects ######
     gameObjects.push_back(App::GameObject(ModelGen::GetPlane(10, groundTextures), texturedShader));
@@ -219,4 +236,8 @@ void TestLayer::LoadAssets()
 	//###### Cameras ######
     camera = App::Camera(glm::vec3(0.0f, 1.0f, 3.0f));
 	camera.SetSkybox(skyboxModel, skyboxShader);
+
+	lightCamera.coreCamera.orthographic = true;
+    lightCamera = App::Camera(-sunLight.direction * 10.0f + camera.coreCamera.getPos());
+	lightCamera.coreCamera.lookAt(camera.coreCamera.getPos());
 }
