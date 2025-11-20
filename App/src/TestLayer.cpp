@@ -103,6 +103,8 @@ void TestLayer::OnRender()
 	camera.RenderSkybox();
 
     Core::FramebufferManager::Unbind();
+    Core::RendererAPI::ClearColor();
+    Core::RendererAPI::ClearDepth();
 
     screenQuad.Render(camera.coreCamera);
 
