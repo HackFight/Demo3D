@@ -6,12 +6,6 @@ namespace Core
     std::vector<GLuint> VertexBufferManager::vertexBuffers;
     uint32_t VertexBufferManager::CreateVertexBuffer()
     {
-		// First time initialization
-        if (vertexBuffers.empty())
-        {
-            vertexBuffers.push_back(0); // Reserve 0 as invalid buffer ID
-		}
-
         GLuint buffer;
 
         glCreateBuffers(1, &buffer);
@@ -34,8 +28,8 @@ namespace Core
 
     void VertexBufferManager::Bind(uint32_t buffer)
     {
-		if (glIsBuffer(vertexBuffers[buffer]))
-            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[buffer]);
+		if (glIsBuffer(vertexBuffers.at(buffer)))
+            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers.at(buffer));
 		else
 			std::cout << "Warning: Trying to bind invalid Vertex Buffer ID " << buffer << std::endl;
     }
@@ -46,7 +40,7 @@ namespace Core
     
     void VertexBufferManager::SetData(uint32_t buffer, const void *data, GLsizeiptr size)
     {
-		Bind(buffer);
+		VertexBufferManager::Bind(buffer);
 		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
     }
 
@@ -67,12 +61,6 @@ namespace Core
     std::vector<IndexBufferInfo> IndexBufferManager::indexBuffers;
     uint32_t IndexBufferManager::CreateIndexBuffer()
     {
-		// First time initialization
-        if (indexBuffers.empty())
-        {
-            indexBuffers.push_back(IndexBufferInfo()); // Reserve 0 as invalid buffer ID
-		}
-
         IndexBufferInfo buffer;
 
         glCreateBuffers(1, &buffer.RendererID);
@@ -83,9 +71,9 @@ namespace Core
     uint32_t IndexBufferManager::CreateIndexBuffer(uint32_t* indices, GLsizeiptr count)
     {
         uint32_t buffer = CreateIndexBuffer();
-        indexBuffers[buffer].Count = count;
+        indexBuffers.at(buffer).Count = count;
 
-        Bind(buffer);
+        IndexBufferManager::Bind(buffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 
         return buffer;
@@ -93,8 +81,8 @@ namespace Core
 
     void IndexBufferManager::Bind(uint32_t buffer)
     {
-        if (glIsBuffer(indexBuffers[buffer].RendererID))
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffers[buffer].RendererID);
+        if (glIsBuffer(indexBuffers.at(buffer).RendererID))
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffers.at(buffer).RendererID);
         else
             std::cout << "Warning: Trying to bind invalid Index Buffer ID " << buffer << std::endl;
     }
@@ -105,7 +93,7 @@ namespace Core
 
     GLsizeiptr IndexBufferManager::GetCount(uint32_t buffer)
     {
-        return indexBuffers[buffer].Count;
+        return indexBuffers.at(buffer).Count;
     }
 
     void IndexBufferManager::ReleaseAll()
@@ -126,12 +114,6 @@ namespace Core
     std::vector<VertexArrayInfo> VertexArrayManager::vertexArrays;
     uint32_t VertexArrayManager::CreateVertexArray()
     {
-		// First time initialization
-        if (vertexArrays.empty())
-        {
-            vertexArrays.push_back(VertexArrayInfo()); // Reserve 0 as invalid Vertex Array ID
-        }
-
         VertexArrayInfo vertexArray;
 
         glCreateVertexArrays(1, &vertexArray.RendererID);
@@ -142,8 +124,8 @@ namespace Core
 
     void VertexArrayManager::Bind(uint32_t vertexArray)
     {
-        if(glIsVertexArray(vertexArrays[vertexArray].RendererID))
-            glBindVertexArray(vertexArrays[vertexArray].RendererID);
+        if(glIsVertexArray(vertexArrays.at(vertexArray).RendererID))
+            glBindVertexArray(vertexArrays.at(vertexArray).RendererID);
         else
 			std::cout << "Warning: Trying to bind invalid Vertex Array ID " << vertexArray << std::endl;
     }
@@ -157,7 +139,7 @@ namespace Core
         Bind(vertexArray);
         VertexBufferManager::Bind(buffer);
 
-        vertexArrays[vertexArray].vertexBuffer = buffer;
+        vertexArrays.at(vertexArray).vertexBuffer = buffer;
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 		glEnableVertexAttribArray(0);
@@ -167,6 +149,8 @@ namespace Core
 		glEnableVertexAttribArray(2);
         glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
 		glEnableVertexAttribArray(3);
+
+        Unbind();
     }
 
     void VertexArrayManager::SetIndexBuffer(uint32_t vertexArray, uint32_t buffer)
@@ -174,16 +158,17 @@ namespace Core
         Bind(vertexArray);
         IndexBufferManager::Bind(buffer);
 
-        vertexArrays[vertexArray].indexBuffer = buffer;
+        vertexArrays.at(vertexArray).indexBuffer = buffer;
+        Unbind();
     }
 
     GLsizeiptr VertexArrayManager::GetIndexCount(uint32_t vertexArray)
     {
-        return IndexBufferManager::GetCount(vertexArrays[vertexArray].indexBuffer);
+        return IndexBufferManager::GetCount(vertexArrays.at(vertexArray).indexBuffer);
     }
     VertexArrayInfo VertexArrayManager::GetVAOInfo(uint32_t vertexArray)
     {
-        return vertexArrays[vertexArray];
+        return vertexArrays.at(vertexArray);
     }
 
     void VertexArrayManager::ReleaseAll()

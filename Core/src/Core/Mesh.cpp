@@ -23,6 +23,10 @@ namespace Core
         unsigned int diffuseNr = 1;
         unsigned int specularNr = 1;
         unsigned int emissionNr = 1;
+        for (unsigned int i = 0; i < 4; i++)
+        {
+            TextureManager::Unbind(i);
+        }
         for (unsigned int i = 0; i < textures.size(); i++)
         {
             // retrieve texture number (the N in diffuse_textureN)

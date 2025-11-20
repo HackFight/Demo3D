@@ -13,12 +13,6 @@ namespace Core
     std::vector<TextureInfo> TextureManager::textures;
     uint32_t TextureManager::CreateTexture()
     {
-        // Fist time init
-        if (textures.empty())
-        {
-			textures.push_back(TextureInfo());
-		}
-
         TextureInfo texture;
 
         glGenTextures(1, &texture.RendererID);
@@ -110,9 +104,15 @@ namespace Core
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(textures[texture].target, textures[texture].RendererID);
     }
-    void TextureManager::Unbind(uint32_t texture)
+    void TextureManager::Unbind(uint32_t texture, int i)
     {
+        glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(textures[texture].target, 0);
+    }
+    void TextureManager::Unbind(int i)
+    {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void TextureManager::SetData(uint32_t texture, GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum dataType, const void *data, bool multisampled, GLsizei samples)

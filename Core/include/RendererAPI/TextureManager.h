@@ -31,7 +31,8 @@ namespace Core
         static uint32_t CreateCubemap(std::vector<const char*> faces);
 
         static void Bind(uint32_t texture, int i);
-        static void Unbind(uint32_t texture);
+        static void Unbind(uint32_t texture, int i);
+        static void Unbind(int i);
 
         static void SetData(uint32_t texture, GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum dataType, const void* data, bool multisampled, GLsizei samples);
         static void Resize(uint32_t texture, GLsizei width, GLsizei height);
