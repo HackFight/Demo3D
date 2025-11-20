@@ -65,6 +65,7 @@ namespace Core
 
         Bind(framebuffer);
         glFramebufferTexture2D(GL_FRAMEBUFFER, attachement, textureInfo.target, textureInfo.RendererID, 0);
+        Unbind();
     }
 
     void FramebufferManager::AttachRenderbuffer(uint32_t framebuffer, uint32_t renderbuffer)
@@ -100,6 +101,7 @@ namespace Core
 
         Bind(framebuffer);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachement, GL_RENDERBUFFER, renderbufferInfo.RendererID);
+        Unbind();
     }
 
     void FramebufferManager::Blit(uint32_t framebuffer)

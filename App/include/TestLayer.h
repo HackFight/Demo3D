@@ -5,6 +5,7 @@
 
 //App
 #include "Camera.h"
+#include "Core/Model.h"
 #include "GameObject.h"
 
 //std
@@ -32,7 +33,10 @@ private:
     void ProcessInput(double ts);
 	void LoadAssets();
 
-    uint32_t blinnPhongShader, texturedShader, skyboxShader;
+    uint32_t blinnPhongShader, texturedShader, skyboxShader, postProcessingShader;
+
+    uint32_t framebuffer, framebufferColor, renderbuffer;
+    App::GameObject screenQuad;
 
     App::Camera camera;
     bool mouseDisabled = true;
@@ -41,6 +45,8 @@ private:
 
     double timeAcc = 0.0;
 	int frameCounter = 0;
+
+    glm::vec2 oldFbSize;
 
     DirectionalLight sunLight
     {

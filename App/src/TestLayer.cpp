@@ -5,6 +5,7 @@
 #include "GameObject.h"
 #include "MaterialGen.h"
 #include "RendererAPI/BufferManager.h"
+#include "RendererAPI/FramebufferManager.h"
 #include "RendererAPI/RendererAPI.h"
 #include "RendererAPI/ShaderManager.h"
 #include "RendererAPI/ShaderManager.h"
@@ -32,6 +33,7 @@ TestLayer::TestLayer()
 {
 	Core::RendererAPI::Init();
 	Core::RendererAPI::SetClearColor(glm::vec4(0.0f));
+    oldFbSize = Core::Application::Get().GetFramebufferSize();
 
     glfwSetInputMode(Core::Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &lastX, &lastY);
@@ -88,6 +90,7 @@ void TestLayer::OnRender()
     glm::vec2 fb = Core::Application::Get().GetFramebufferSize();
     Core::RendererAPI::SetViewport(0, 0, (int)fb.x, (int)fb.y);
 
+    Core::FramebufferManager::Bind(framebuffer);
     // Clear before drawing
     Core::RendererAPI::ClearColor();
     Core::RendererAPI::ClearDepth();
@@ -98,6 +101,10 @@ void TestLayer::OnRender()
 	}
 
 	camera.RenderSkybox();
+
+    Core::FramebufferManager::Unbind();
+
+    screenQuad.Render(camera.coreCamera);
 
     RenderGUI();
 }
@@ -158,6 +165,10 @@ void TestLayer::LoadAssets()
 
     skyboxShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag");
 
+    postProcessingShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/post.vert", RESOURCES_PATH "shaders/post.frag");
+    Core::ShaderManager::setBool(postProcessingShader, "toneMapping", false);
+    Core::ShaderManager::setFloat(postProcessingShader, "exposure", 1.0f);
+
     //###### Textures ######
     uint32_t skyboxTexture = Core::TextureManager::CreateCubemap({
         RESOURCES_PATH "textures/skybox/right.jpg",
@@ -168,20 +179,40 @@ void TestLayer::LoadAssets()
         RESOURCES_PATH "textures/skybox/back.jpg"
     });
 
-	//###### GameObjects ######
-    gameObjects.push_back(App::GameObject(ModelGen::GetPlane(10, {Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/default.png")}), texturedShader));
-    gameObjects.push_back(App::GameObject(ModelGen::GetQuad(), blinnPhongShader, {-1.5f ,0.5f, 0.0f}, Gold));
-    gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, Gold));
-    
+    std::vector<uint32_t> groundTextures =
+    {
+        Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/default.png")
+    };
+    Core::TextureManager::SetParameters(groundTextures.at(0), GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+    Core::TextureManager::GenerateMipmaps(groundTextures.at(0));
+
     std::vector<uint32_t> boxTextures =
     {
         Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png", true),
         Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box-specular.png", true)
     };
+    Core::TextureManager::SetParameters(boxTextures.at(0), GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+    Core::TextureManager::GenerateMipmaps(boxTextures.at(0));
+
+    framebufferColor = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGB8, oldFbSize.x, oldFbSize.y, GL_RGB, GL_UNSIGNED_BYTE, nullptr, false, 0);
+
+    //###### Frame & Render buffers ######
+    renderbuffer = Core::RenderbufferManager::CreateRenderbuffer(GL_DEPTH24_STENCIL8, oldFbSize.x, oldFbSize.y, false, 0);
+
+    framebuffer = Core::FramebufferManager::CreateFramebuffer();
+    Core::FramebufferManager::AttachTexture(framebuffer, framebufferColor);
+    Core::FramebufferManager::AttachRenderbuffer(framebuffer, renderbuffer);
+
+	//###### GameObjects ######
+    gameObjects.push_back(App::GameObject(ModelGen::GetPlane(10, groundTextures), texturedShader));
+    gameObjects.push_back(App::GameObject(ModelGen::GetQuad(), blinnPhongShader, {-1.5f ,0.5f, 0.0f}, Gold));
+    gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, Gold));
     gameObjects.push_back(App::GameObject(ModelGen::GetCube(boxTextures), texturedShader, {1.5f, 0.5f, 0.0f}));
     gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, {0.0f, 2.0f, -2.0f}));
     
     Core::Model skyboxModel = ModelGen::GetReversedCube({ skyboxTexture });
+
+    screenQuad = App::GameObject(ModelGen::GetQuad({ framebufferColor }), postProcessingShader);
 
 	//###### Cameras ######
     camera = App::Camera(glm::vec3(0.0f, 1.0f, 3.0f));
