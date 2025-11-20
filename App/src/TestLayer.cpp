@@ -1,6 +1,7 @@
 #include "TestLayer.h"
 
 //Engine
+#include "Core/Model.h"
 #include "GameObject.h"
 #include "MaterialGen.h"
 #include "RendererAPI/BufferManager.h"
@@ -169,8 +170,8 @@ void TestLayer::LoadAssets()
 
 	//###### GameObjects ######
     gameObjects.push_back(App::GameObject(ModelGen::GetPlane(10, {Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/default.png")}), texturedShader));
-    gameObjects.push_back(App::GameObject(ModelGen::GetQuad(), blinnPhongShader, {-1.5f ,0.5f, 0.0f}, CyanPlastic));
-    gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, CyanPlastic));
+    gameObjects.push_back(App::GameObject(ModelGen::GetQuad(), blinnPhongShader, {-1.5f ,0.5f, 0.0f}, Gold));
+    gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, Gold));
     
     std::vector<uint32_t> boxTextures =
     {
@@ -178,8 +179,9 @@ void TestLayer::LoadAssets()
         Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box-specular.png", true)
     };
     gameObjects.push_back(App::GameObject(ModelGen::GetCube(boxTextures), texturedShader, {1.5f, 0.5f, 0.0f}));
+    gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, {0.0f, 2.0f, -2.0f}));
+    
     Core::Model skyboxModel = ModelGen::GetReversedCube({ skyboxTexture });
-
 
 	//###### Cameras ######
     camera = App::Camera(glm::vec3(0.0f, 1.0f, 3.0f));
