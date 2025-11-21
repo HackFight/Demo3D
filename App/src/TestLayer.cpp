@@ -93,13 +93,12 @@ void TestLayer::OnRender()
     Core::FramebufferManager::Bind(shadowbuffer);
     Core::RendererAPI::ClearDepth();
 
-    lightCamera.coreCamera.setPos(-sunLight.direction * 10.0f + camera.coreCamera.getPos());
     glm::mat4 lightSpaceMat = lightCamera.coreCamera.getProjectionMatrix() * lightCamera.coreCamera.getViewMatrix();
 
     Core::ShaderManager::setmat4(shadowShader, "lightSpaceMat", lightSpaceMat);
     for(App::GameObject& obj : gameObjects)
     {
-        obj.Render(lightCamera.coreCamera,shadowShader);
+        obj.Render(lightCamera.coreCamera, shadowShader);
 	}
 
     // Ensure viewport matches the current framebuffer size every frame
@@ -124,6 +123,8 @@ void TestLayer::OnRender()
 	Core::ShaderManager::setBool(postProcessingShader, "toneMapping", toneMapping);
 	Core::ShaderManager::setFloat(postProcessingShader, "exposure", exposure);
 
+    Core::TextureManager::Bind(shadowmap, SHADOWMAP_TEXTURE_UNIT);
+
     for(App::GameObject& obj : gameObjects)
     {
         obj.Render(camera.coreCamera);
@@ -135,8 +136,7 @@ void TestLayer::OnRender()
     Core::RendererAPI::ClearColor();
     Core::RendererAPI::ClearDepth();
 
-    if(gammaCorrection)
-        Core::RendererAPI::SRGBColorSpace(true);
+    if(gammaCorrection) Core::RendererAPI::SRGBColorSpace(true);
 
     screenQuad.Render(camera.coreCamera);
 
@@ -183,8 +183,6 @@ void TestLayer::ProcessInput(double ts)
     lastY = ypos;
     if(mouseDisabled)
         camera.coreCamera.ProcessMouseMovement(xoffset, yoffset);
-
-    lightCamera.coreCamera.setPos(-sunLight.direction * 10.0f + camera.coreCamera.getPos());
 }
 
 void TestLayer::LoadAssets()
@@ -267,7 +265,7 @@ void TestLayer::LoadAssets()
     camera = App::Camera(glm::vec3(0.0f, 1.0f, 3.0f));
 	camera.SetSkybox(skyboxModel, skyboxShader);
 
+    lightCamera = App::Camera(-sunLight.direction * 10.0f);
 	lightCamera.coreCamera.orthographic = true;
-    lightCamera = App::Camera(-sunLight.direction * 10.0f + camera.coreCamera.getPos());
-	lightCamera.coreCamera.lookAt(camera.coreCamera.getPos());
+    lightCamera.coreCamera.lookAt({0.0f, 0.0f, 0.0f});
 }

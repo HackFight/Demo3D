@@ -53,7 +53,7 @@ private:
     glm::vec2 oldFbSize;
 
 	bool gammaCorrection = true;
-	bool toneMapping = true;
+	bool toneMapping = false;
 	float exposure = 1.0f;
 
     DirectionalLight sunLight
