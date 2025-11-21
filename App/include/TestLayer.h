@@ -5,13 +5,13 @@
 
 //App
 #include "Camera.h"
-#include "Core/Model.h"
 #include "GameObject.h"
 
 //std
 #include <stdint.h>
 
-int SHADOW_SIZE = 2048;
+const int SHADOW_SIZE = 2048;
+const int SHADOWMAP_TEXTURE_UNIT = 5;
 
 struct DirectionalLight
 {
@@ -40,7 +40,7 @@ private:
     uint32_t framebuffer, framebufferColor, renderbuffer;
     App::GameObject screenQuad;
 
-    uint32_t shadowbuffer, shadowmap;
+    uint32_t shadowbuffer, shadowmap, shadowShader;
 
     App::Camera camera, lightCamera;
     bool mouseDisabled = true;

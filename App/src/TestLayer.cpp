@@ -85,17 +85,42 @@ void TestLayer::OnUpdate(double ts)
 
 void TestLayer::OnRender()
 {
+    Core::RendererAPI::SRGBColorSpace(false);
+
+    // Render shadowmap
+    Core::RendererAPI::SetViewport(0, 0, SHADOW_SIZE, SHADOW_SIZE);
+
+    Core::FramebufferManager::Bind(shadowbuffer);
+    Core::RendererAPI::ClearDepth();
+
+    lightCamera.coreCamera.setPos(-sunLight.direction * 10.0f + camera.coreCamera.getPos());
+    glm::mat4 lightSpaceMat = lightCamera.coreCamera.getProjectionMatrix() * lightCamera.coreCamera.getViewMatrix();
+
+    Core::ShaderManager::setmat4(shadowShader, "lightSpaceMat", lightSpaceMat);
+    for(App::GameObject& obj : gameObjects)
+    {
+        obj.Render(lightCamera.coreCamera,shadowShader);
+	}
+
     // Ensure viewport matches the current framebuffer size every frame
     glm::vec2 fb = Core::Application::Get().GetFramebufferSize();
     Core::RendererAPI::SetViewport(0, 0, (int)fb.x, (int)fb.y);
+
+    // Resize the buffer if needed
+    if(oldFbSize != fb)
+    {
+        Core::TextureManager::Resize(framebufferColor, fb.x, fb.y);
+        Core::RenderbufferManager::Resize(renderbuffer, fb.x, fb.y);
+        oldFbSize = fb;
+    }
 
     Core::FramebufferManager::Bind(framebuffer);
     // Clear before drawing
     Core::RendererAPI::ClearColor();
     Core::RendererAPI::ClearDepth();
     
-    Core::RendererAPI::SRGBColorSpace(false);
-
+    Core::ShaderManager::setmat4(blinnPhongShader, "lightSpaceMat", lightSpaceMat);
+    Core::ShaderManager::setmat4(texturedShader, "lightSpaceMat", lightSpaceMat);
 	Core::ShaderManager::setBool(postProcessingShader, "toneMapping", toneMapping);
 	Core::ShaderManager::setFloat(postProcessingShader, "exposure", exposure);
 
@@ -165,23 +190,27 @@ void TestLayer::ProcessInput(double ts)
 void TestLayer::LoadAssets()
 {
 	//###### Shaders ######
-    blinnPhongShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong-no-shadow.frag");
+    blinnPhongShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
     Core::ShaderManager::set3f(blinnPhongShader, "light.direction", sunLight.direction);
     Core::ShaderManager::set3f(blinnPhongShader, "light.ambient", sunLight.ambient);
     Core::ShaderManager::set3f(blinnPhongShader, "light.diffuse", sunLight.diffuse);
     Core::ShaderManager::set3f(blinnPhongShader, "light.specular", sunLight.specular);
+    Core::ShaderManager::setInt(blinnPhongShader, "shadowMap", SHADOWMAP_TEXTURE_UNIT);
 
-    texturedShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured-no-shadow.frag");
+    texturedShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/textured.frag");
     Core::ShaderManager::set3f(texturedShader, "light.direction", sunLight.direction);
     Core::ShaderManager::set3f(texturedShader, "light.ambient", sunLight.ambient);
     Core::ShaderManager::set3f(texturedShader, "light.diffuse", sunLight.diffuse);
     Core::ShaderManager::set3f(texturedShader, "light.specular", sunLight.specular);
+    Core::ShaderManager::setInt(texturedShader, "shadowMap", SHADOWMAP_TEXTURE_UNIT);
 
     skyboxShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag");
 
     postProcessingShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/post.vert", RESOURCES_PATH "shaders/post.frag");
     Core::ShaderManager::setBool(postProcessingShader, "toneMapping", false);
     Core::ShaderManager::setFloat(postProcessingShader, "exposure", 1.0f);
+
+    shadowShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/empty.frag");
 
     //###### Textures ######
     uint32_t skyboxTexture = Core::TextureManager::CreateCubemap({
@@ -211,6 +240,7 @@ void TestLayer::LoadAssets()
     framebufferColor = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGB8, oldFbSize.x, oldFbSize.y, GL_RGB, GL_UNSIGNED_BYTE, nullptr, false, 0);
 
 	shadowmap = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_DEPTH_COMPONENT24, SHADOW_SIZE, SHADOW_SIZE, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr, false, 0);
+    Core::TextureManager::Bind(shadowmap, SHADOWMAP_TEXTURE_UNIT);
 
     //###### Frame & Render buffers ######
     renderbuffer = Core::RenderbufferManager::CreateRenderbuffer(GL_DEPTH24_STENCIL8, oldFbSize.x, oldFbSize.y, false, 0);
