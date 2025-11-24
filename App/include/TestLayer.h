@@ -36,7 +36,7 @@ private:
 	void LoadAssets();
 
     uint32_t blinnPhongShader, texturedShader, skyboxShader, postProcessingShader;
-
+    
     uint32_t framebuffer, framebufferColor, renderbuffer;
     App::GameObject screenQuad;
 
