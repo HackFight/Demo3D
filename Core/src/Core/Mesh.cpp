@@ -23,6 +23,7 @@ namespace Core
         unsigned int diffuseNr = 1;
         unsigned int specularNr = 1;
         unsigned int emissionNr = 1;
+        unsigned int normalmapNr = 1;
         for (unsigned int i = 0; i < 4; i++)
         {
             TextureManager::Unbind(i);
@@ -38,6 +39,8 @@ namespace Core
                 number = std::to_string(specularNr++);
             else if (name == "texture_emission")
                 number = std::to_string(emissionNr++);
+            else if (name == "texture_normal")
+                number = std::to_string(normalmapNr++);
 
             ShaderManager::setInt(shader, ("material." + name + number).c_str(), i);
             TextureManager::Bind(textures[i].ptr, i);

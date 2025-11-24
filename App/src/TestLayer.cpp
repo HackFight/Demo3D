@@ -211,6 +211,9 @@ void TestLayer::LoadAssets()
     shadowShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/empty.frag");
 
     //###### Textures ######
+    std::vector<GLubyte> emptyData(128 * 128 * 4, 0);
+    uint32_t emptyTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGBA8, 128, 128, GL_RGBA, GL_UNSIGNED_BYTE, &emptyData[0], false, 0);
+
     uint32_t skyboxTexture = Core::TextureManager::CreateCubemap({
         RESOURCES_PATH "textures/skybox/right.jpg",
         RESOURCES_PATH "textures/skybox/left.jpg",
@@ -226,6 +229,16 @@ void TestLayer::LoadAssets()
     };
     Core::TextureManager::SetParameters(groundTextures.at(0), GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
     Core::TextureManager::GenerateMipmaps(groundTextures.at(0));
+
+    std::vector<uint32_t> wallTextures =
+    {
+        Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/brick-wall.png"),
+        emptyTexture,
+        emptyTexture,
+        Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/brick-wall-normal.png")
+    };
+    Core::TextureManager::SetParameters(wallTextures.at(0), GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+    Core::TextureManager::GenerateMipmaps(wallTextures.at(0));
 
     std::vector<uint32_t> boxTextures =
     {
@@ -252,7 +265,7 @@ void TestLayer::LoadAssets()
 
 	//###### GameObjects ######
     gameObjects.push_back(App::GameObject(ModelGen::GetPlane(10, groundTextures), texturedShader));
-    gameObjects.push_back(App::GameObject(ModelGen::GetQuad(), blinnPhongShader, {-1.5f ,0.5f, 0.0f}, Gold));
+    gameObjects.push_back(App::GameObject(ModelGen::GetQuad(wallTextures), texturedShader, {-1.5f ,0.5f, 0.0f}, Gold));
     gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, Gold));
     gameObjects.push_back(App::GameObject(ModelGen::GetCube(boxTextures), texturedShader, {1.5f, 0.5f, 0.0f}));
     gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, {0.0f, 2.0f, -2.0f}));
