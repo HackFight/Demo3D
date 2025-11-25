@@ -1,4 +1,4 @@
-#include "TestLayer.h"
+#include "PhysicsTestLayer.h"
 
 //Engine
 #include "Core/Model.h"
@@ -28,7 +28,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-TestLayer::TestLayer()
+PhysicsTestLayer::PhysicsTestLayer()
 {
 	Core::RendererAPI::Init();
 	Core::RendererAPI::SetClearColor(glm::vec4(0.0f));
@@ -50,7 +50,7 @@ TestLayer::TestLayer()
 
 	LoadAssets();
 }
-TestLayer::~TestLayer()
+PhysicsTestLayer::~PhysicsTestLayer()
 {
     Core::VertexBufferManager::ReleaseAll();
     Core::IndexBufferManager::ReleaseAll();
@@ -65,7 +65,7 @@ TestLayer::~TestLayer()
     ImGui::DestroyContext();
 }
 
-void TestLayer::OnUpdate(double ts)
+void PhysicsTestLayer::OnUpdate(double ts)
 {
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
@@ -82,12 +82,13 @@ void TestLayer::OnUpdate(double ts)
         frameCounter = 0;
     }
 
-    
+    cubeVertices.at(0).position += 0.1f * ts;
+    Core::VertexBufferManager::SetData(cubeVertexBuffer, cubeVertices.data(), cubeVertices.size());
 
     ProcessInput(ts);
 }
 
-void TestLayer::OnRender()
+void PhysicsTestLayer::OnRender()
 {
     Core::RendererAPI::SRGBColorSpace(false);
 
@@ -147,7 +148,7 @@ void TestLayer::OnRender()
     RenderGUI();
 }
 
-void TestLayer::RenderGUI()
+void PhysicsTestLayer::RenderGUI()
 {
     ImGui::Begin("ImGui test");
     ImGui::Text("Hemlo :3");
@@ -160,7 +161,7 @@ void TestLayer::RenderGUI()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void TestLayer::ProcessInput(double ts)
+void PhysicsTestLayer::ProcessInput(double ts)
 {
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_ESCAPE) == GLFW_PRESS && canPress)
     {
@@ -189,7 +190,7 @@ void TestLayer::ProcessInput(double ts)
         camera.coreCamera.ProcessMouseMovement(xoffset, yoffset);
 }
 
-void TestLayer::LoadAssets()
+void PhysicsTestLayer::LoadAssets()
 {
 	//###### Shaders ######
     blinnPhongShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
@@ -209,7 +210,7 @@ void TestLayer::LoadAssets()
     skyboxShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag");
 
     postProcessingShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/post.vert", RESOURCES_PATH "shaders/post.frag");
-    Core::ShaderManager::setBool(postProcessingShader, "toneMapping", false);
+    Core::ShaderManager::setBool(postProcessingShader, "toneMapping", toneMapping);
     Core::ShaderManager::setFloat(postProcessingShader, "exposure", 1.0f);
 
     shadowShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/empty.frag");
@@ -269,11 +270,62 @@ void TestLayer::LoadAssets()
 
 	//###### GameObjects ######
     gameObjects.push_back(App::GameObject(ModelGen::GetPlane(10, groundTextures), texturedShader));
-    gameObjects.push_back(App::GameObject(ModelGen::GetQuad(wallTextures), texturedShader, {-1.5f ,0.5f, 0.0f}, Gold));
-    gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, Gold));
-    gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/vyse-helmet/vyse-helmet.obj"), blinnPhongShader, { 0.0f ,1.5f, 0.0f}, FLASHBANG));
-    gameObjects.push_back(App::GameObject(ModelGen::GetCube(boxTextures), texturedShader, {1.5f, 0.5f, 0.0f}));
-    gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, {0.0f, 2.0f, -2.0f}));
+
+    cubeVertices =
+    {
+        {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+        {{ 0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+        {{ 0.5f,  0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+        {{-0.5f,  0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
+
+        {{ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+        {{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+        {{ 0.5f,  0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+        {{ 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
+
+        {{ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+        {{-0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+        {{ 0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
+
+        {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+        {{-0.5f, -0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+        {{-0.5f,  0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+        {{-0.5f,  0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
+
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+        {{ 0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+        {{ 0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+        {{-0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
+
+        {{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+        {{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+        {{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+        {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}}
+    };
+    std::vector<uint32_t> cubeIndices
+    {
+        0, 1, 2,
+        0, 2, 3,
+
+        4, 5, 6,
+        4, 6, 7,
+
+        8,  9, 10,
+        8, 10, 11,
+
+        12, 13, 14,
+        12, 14, 15,
+
+        16, 17, 18,
+        16, 18, 19,
+
+        20, 21, 22,
+        20, 22, 23
+    };
+    cubeVertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)cubeVertices.data(), cubeVertices.size() * sizeof(Core::Vertex));
+    uint32_t indexBuffer = Core::IndexBufferManager::CreateIndexBuffer(cubeIndices.data(), cubeIndices.size());
+    gameObjects.push_back(App::GameObject(Core::Model(Core::Mesh(cubeVertices, cubeIndices, {})), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, CyanPlastic));
     
     Core::Model skyboxModel = ModelGen::GetReversedCube({ skyboxTexture });
 

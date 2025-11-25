@@ -1,5 +1,4 @@
-//#include "MainLayer.h"
-#include "TestLayer.h"
+#include "PhysicsTestLayer.h"
 
 #include "Core/Application.h"
 
@@ -14,7 +13,8 @@ int main()
 
 	Core::Application app(appSpec);
 	//app.PushLayer<MainLayer>();
-	app.PushLayer<TestLayer>();
+	//app.PushLayer<TestLayer>();
+	app.PushLayer<PhysicsTestLayer>();
 	app.Run();
 	
 	return 0;

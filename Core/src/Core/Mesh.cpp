@@ -17,6 +17,13 @@ namespace Core
         VertexArrayManager::AddVertexBuffer(vertexArray, vertexBuffer);
         VertexArrayManager::SetIndexBuffer(vertexArray, indexBuffer);
     }
+    Mesh::Mesh(uint32_t vertexBuffer, uint32_t indexBuffer, std::vector<Texture> textures)
+        : textures(textures)
+    {
+        vertexArray = VertexArrayManager::CreateVertexArray();
+        VertexArrayManager::AddVertexBuffer(vertexArray, vertexBuffer);
+        VertexArrayManager::SetIndexBuffer(vertexArray, indexBuffer);
+    }
 
     void Mesh::Draw(uint32_t shader)
     {
