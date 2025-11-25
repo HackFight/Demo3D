@@ -27,6 +27,11 @@ namespace Core
             meshes[i].Draw(shader);
     }
 
+    Mesh& Model::GetMesh(size_t index)
+    {
+        return meshes[index];
+	}
+
     void Model::loadModel(std::string path)
     {
         Assimp::Importer import;

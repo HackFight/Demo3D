@@ -13,25 +13,27 @@
 
 namespace Core
 {
-class Model
-{
-public:
-    Model();
-    Model(const char* filename);
-    Model(std::vector<Mesh> meshes);
-    Model(Mesh mesh);
+    class Model
+    {
+    public:
+        Model();
+        Model(const char* filename);
+        Model(std::vector<Mesh> meshes);
+        Model(Mesh mesh);
 
-    void Draw(uint32_t shader);
+        void Draw(uint32_t shader);
 
-private:
-    std::vector<Mesh> meshes;
-    std::string directory;
-    std::vector<Mesh::Texture> textures_loaded;
+        Mesh& GetMesh(size_t index);
 
-    void loadModel(std::string filename);
-    void processNode(aiNode *node, const aiScene *scene);
-    Mesh processMesh(aiMesh *mesh, const aiScene *scene);
+    private:
+        std::vector<Mesh> meshes;
+        std::string directory;
+        std::vector<Mesh::Texture> textures_loaded;
 
-    std::vector<Mesh::Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
-};
+        void loadModel(std::string filename);
+        void processNode(aiNode* node, const aiScene* scene);
+        Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+
+        std::vector<Mesh::Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+    };
 }

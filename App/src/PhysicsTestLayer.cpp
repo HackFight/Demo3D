@@ -82,8 +82,8 @@ void PhysicsTestLayer::OnUpdate(double ts)
         frameCounter = 0;
     }
 
-    cubeVertices.at(0).position.x += 1.0f * ts;
-    Core::VertexBufferManager::SetSubData(cubeVertexBuffer, (float*)cubeVertices.data(), sizeof(Core::Vertex), 0);
+    jellyCube.m_Model.m_PhysicsPoints.at(0).x += -0.1f * ts;
+	jellyCube.m_Model.UpdateGPUBuffer();
 
     ProcessInput(ts);
 }
@@ -271,7 +271,7 @@ void PhysicsTestLayer::LoadAssets()
 	//###### GameObjects ######
     gameObjects.push_back(App::GameObject(ModelGen::GetPlane(10, groundTextures), texturedShader));
 
-    cubeVertices =
+    std::vector<Core::Vertex> cubeVertices =
     {
         {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
         {{ 0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
@@ -323,9 +323,44 @@ void PhysicsTestLayer::LoadAssets()
         20, 21, 22,
         20, 22, 23
     };
-    cubeVertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)cubeVertices.data(), cubeVertices.size() * sizeof(Core::Vertex));
-    uint32_t indexBuffer = Core::IndexBufferManager::CreateIndexBuffer(cubeIndices.data(), cubeIndices.size());
-    gameObjects.push_back(App::GameObject(Core::Model(Core::Mesh(cubeVertexBuffer, indexBuffer, {})), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, CyanPlastic));
+    std::vector<std::vector<size_t>> pointsAttach
+    {
+        {0, 13, 19},
+        {1, 4, 18},
+        {5, 8, 17},
+        {9, 12, 16},
+
+        {3, 14, 20},
+        {2, 7, 21},
+        {6, 11, 22},
+		{10, 15, 23}
+	};
+    std::vector<glm::vec3> physicsPoints
+    {
+        {-0.5f, -0.5f, 0.5f},
+        { 0.5f, -0.5f, 0.5f},
+        {0.5f, -0.5f, -0.5f},
+        {-0.5f, -0.5f, -0.5f},
+
+        { -0.5f, 0.5f, 0.5f},
+        { 0.5f, 0.5f, 0.5f},
+        {0.5f, 0.5f, -0.5f},
+		{-0.5f, 0.5f, -0.5f}
+    };
+
+    uint32_t cubeVertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)cubeVertices.data(), cubeVertices.size() * sizeof(Core::Vertex));
+    uint32_t cubeIndexBuffer = Core::IndexBufferManager::CreateIndexBuffer(cubeIndices.data(), cubeIndices.size());
+
+	jellyCube = App::SoftBody(
+        App::SoftBodyModel(
+            Core::Mesh(cubeVertexBuffer, cubeIndexBuffer, {}),
+            cubeVertices,
+			pointsAttach,
+			physicsPoints),
+        blinnPhongShader,
+        { 0.0f ,0.5f, 0.0f },
+        CyanPlastic);
+	gameObjects.push_back(jellyCube);
     
     Core::Model skyboxModel = ModelGen::GetReversedCube({ skyboxTexture });
 

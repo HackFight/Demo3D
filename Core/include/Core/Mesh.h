@@ -20,12 +20,15 @@ namespace Core
             std::string path;
         };
 
-        // mesh data
-        uint32_t vertexArray;
-        std::vector<Texture> textures;
-
         Mesh(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures);
         Mesh(uint32_t vertexBuffer, uint32_t indexBuffer, std::vector<Texture> textures);
+
         void Draw(uint32_t shader);
+
+		uint32_t GetVertexBuffer() const { return m_VertexBuffer; }
+
+    private:
+        uint32_t m_VertexBuffer, m_IndexBuffer, vertexArray;
+        std::vector<Texture> textures;
     };
 }

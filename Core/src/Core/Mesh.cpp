@@ -11,14 +11,14 @@ namespace Core
     Mesh::Mesh(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures)
         : textures(textures)
     {
-        uint32_t vertexBuffer = VertexBufferManager::CreateVertexBuffer((float*)vertices.data(), vertices.size() * sizeof(Core::Vertex));
-        uint32_t indexBuffer = IndexBufferManager::CreateIndexBuffer(indices.data(), indices.size());
+        m_VertexBuffer = VertexBufferManager::CreateVertexBuffer((float*)vertices.data(), vertices.size() * sizeof(Core::Vertex));
+        m_IndexBuffer = IndexBufferManager::CreateIndexBuffer(indices.data(), indices.size());
         vertexArray = VertexArrayManager::CreateVertexArray();
-        VertexArrayManager::AddVertexBuffer(vertexArray, vertexBuffer);
-        VertexArrayManager::SetIndexBuffer(vertexArray, indexBuffer);
+        VertexArrayManager::AddVertexBuffer(vertexArray, m_VertexBuffer);
+        VertexArrayManager::SetIndexBuffer(vertexArray, m_IndexBuffer);
     }
     Mesh::Mesh(uint32_t vertexBuffer, uint32_t indexBuffer, std::vector<Texture> textures)
-        : textures(textures)
+        : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer), textures(textures)
     {
         vertexArray = VertexArrayManager::CreateVertexArray();
         VertexArrayManager::AddVertexBuffer(vertexArray, vertexBuffer);

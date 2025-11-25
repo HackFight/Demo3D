@@ -5,7 +5,7 @@
 
 //App
 #include "Camera.h"
-#include "GameObject.h"
+#include "SoftBody.h"
 #include "RendererAPI/BufferManager.h"
 
 //std
@@ -66,7 +66,6 @@ private:
         glm::vec3(2.0f, 2.0f, 2.0f)
     };
 
+    App::SoftBody jellyCube;
 	std::vector<App::GameObject> gameObjects;
-    uint32_t cubeVertexBuffer;
-    std::vector<Core::Vertex> cubeVertices;
 };
