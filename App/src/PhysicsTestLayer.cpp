@@ -82,8 +82,8 @@ void PhysicsTestLayer::OnUpdate(double ts)
         frameCounter = 0;
     }
 
-    cubeVertices.at(0).position += 0.1f * ts;
-    Core::VertexBufferManager::SetData(cubeVertexBuffer, cubeVertices.data(), cubeVertices.size());
+    cubeVertices.at(0).position.x += 1.0f * ts;
+    Core::VertexBufferManager::SetSubData(cubeVertexBuffer, (float*)cubeVertices.data(), sizeof(Core::Vertex), 0);
 
     ProcessInput(ts);
 }
@@ -325,7 +325,7 @@ void PhysicsTestLayer::LoadAssets()
     };
     cubeVertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)cubeVertices.data(), cubeVertices.size() * sizeof(Core::Vertex));
     uint32_t indexBuffer = Core::IndexBufferManager::CreateIndexBuffer(cubeIndices.data(), cubeIndices.size());
-    gameObjects.push_back(App::GameObject(Core::Model(Core::Mesh(cubeVertices, cubeIndices, {})), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, CyanPlastic));
+    gameObjects.push_back(App::GameObject(Core::Model(Core::Mesh(cubeVertexBuffer, indexBuffer, {})), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, CyanPlastic));
     
     Core::Model skyboxModel = ModelGen::GetReversedCube({ skyboxTexture });
 

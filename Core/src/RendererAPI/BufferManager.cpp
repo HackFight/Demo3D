@@ -43,6 +43,11 @@ namespace Core
 		VertexBufferManager::Bind(buffer);
 		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
     }
+    void VertexBufferManager::SetSubData(uint32_t buffer, const void* data, GLsizeiptr size, GLsizeiptr offset)
+    {
+        VertexBufferManager::Bind(buffer);
+        glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+	}
 
     void VertexBufferManager::ReleaseAll()
     {

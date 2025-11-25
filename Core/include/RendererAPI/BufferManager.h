@@ -30,6 +30,7 @@ namespace Core
         static void Unbind();
 
         static void SetData(uint32_t buffer, const void* data, GLsizeiptr size);
+		static void SetSubData(uint32_t buffer, const void* data, GLsizeiptr size, GLsizeiptr offset);
 
         static void ReleaseAll();
 
