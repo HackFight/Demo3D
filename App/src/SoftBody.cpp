@@ -15,24 +15,31 @@ namespace App
 	{}
 	SoftBodyModel::~SoftBodyModel() {}
 
-	void SoftBodyModel::Update(double ts)
+	void SoftBodyModel::Update(double ts, int substeps, int iterations)
 	{
-		std::vector<glm::vec3> oldPositions;
-		for(PointMass& particle : m_PointMasses)
+		ts /= substeps;
+		for(int i = 0; i < substeps; i++)
 		{
-			particle.velocity += m_Gravity * (float)ts;
-			oldPositions.push_back(particle.position);
-			particle.position += particle.velocity * (float)ts;
-		}
+			std::vector<glm::vec3> oldPositions;
+			for(PointMass& particle : m_PointMasses)
+			{
+				particle.velocity += m_Gravity * (float)ts;
+				oldPositions.push_back(particle.position);
+				particle.position += particle.velocity * (float)ts;
+			}
 
-		for(const std::shared_ptr<Constraint> constraint : m_Constraints)
-		{
-			constraint->Solve(m_PointMasses, ts);
-		}
+			for(int j = 0; j < iterations; j++)
+			{
+				for(const std::shared_ptr<Constraint>& constraint : m_Constraints)
+				{
+					constraint->Solve(m_PointMasses, ts);
+				}
+			}
 
-		for(int i = 0; i < m_PointMasses.size(); i++)
-		{
-			m_PointMasses[i].velocity = (m_PointMasses[i].position - oldPositions[i])/(float)ts;
+			for(int j = 0; j < m_PointMasses.size(); j++)
+			{
+				m_PointMasses[j].velocity = (m_PointMasses[j].position - oldPositions[j])/(float)ts;
+			}
 		}
 	}
 

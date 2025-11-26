@@ -23,6 +23,7 @@
 //std
 #include <cstdint>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 // imgui
@@ -84,7 +85,7 @@ void PhysicsTestLayer::OnUpdate(double ts)
         frameCounter = 0;
     }
 
-    jellyCube.m_Model.Update(ts);
+    jellyCube.m_Model.Update(ts, 10);
 	jellyCube.m_Model.UpdateGPUBuffer();
 
     ProcessInput(ts);
@@ -339,15 +340,15 @@ void PhysicsTestLayer::LoadAssets()
 	};
     std::vector<App::PointMass> physicsPoints
     {
-        {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}},
-        {{ 0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}},
-        {{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}},
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}},
+        {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
+        {{ 0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
+        {{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
 
-        {{ -0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}},
-        {{ 0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}},
-        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}},
-		{{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}}
+        {{ -0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
+        {{ 0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
+        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
+		{{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f}
     };
     std::vector<size_t> indices
     {
@@ -355,6 +356,22 @@ void PhysicsTestLayer::LoadAssets()
     };
     std::vector<std::shared_ptr<App::Constraint>> constraints;
     constraints.push_back(std::make_shared<App::GroundConstraint>(indices, -0.5f));
+
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{0, 1}, 1.0f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{1, 2}, 1.0f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{2, 3}, 1.0f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{3, 0}, 1.0f));
+
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{4, 5}, 1.0f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{5, 6}, 1.0f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{6, 7}, 1.0f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{7, 4}, 1.0f));
+
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{0, 4}, 1.0f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{1, 5}, 1.0f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{2, 6}, 1.0f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{3, 7}, 1.0f));
+
 
     uint32_t cubeVertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)cubeVertices.data(), cubeVertices.size() * sizeof(Core::Vertex), false);
     uint32_t cubeIndexBuffer = Core::IndexBufferManager::CreateIndexBuffer(cubeIndices.data(), cubeIndices.size());

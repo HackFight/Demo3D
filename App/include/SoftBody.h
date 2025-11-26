@@ -19,7 +19,7 @@ namespace App
 		std::vector<PointMass> m_PointMasses;
 		std::vector<std::shared_ptr<Constraint>> m_Constraints;
 
-		void Update(double ts);
+		void Update(double ts, int substeps = 1, int iterations = 1);
 		void UpdateGPUBuffer();
 
 	private:
