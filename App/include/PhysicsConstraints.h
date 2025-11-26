@@ -15,7 +15,7 @@ namespace App
 	{
 	public:
 		Constraint(std::vector<size_t> indices) : m_Indices(indices) {}
-		~Constraint() {}
+		virtual ~Constraint() = default;
 
 		virtual void Solve(std::vector<PointMass>& particles, double ts) {}
 
@@ -27,9 +27,8 @@ namespace App
     public:
 		GroundConstraint(std::vector<size_t> indices, float groundHeight = 0.0f)
 			: Constraint(indices), m_GroundHeight(groundHeight) {}
-		~GroundConstraint() {}
 
-        void Solve(std::vector<PointMass>& particles, double ts);
+        void Solve(std::vector<PointMass>& particles, double ts) override;
 
     private:
         float m_GroundHeight;

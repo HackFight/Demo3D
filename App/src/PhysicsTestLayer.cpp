@@ -15,9 +15,9 @@
 //App
 #include "Camera.h"
 #include "ModelGen.h"
+#include "SoftBody.h"
 
 //Libs
-#include "SoftBody.h"
 #include "glm/fwd.hpp"
 
 //std
@@ -353,10 +353,8 @@ void PhysicsTestLayer::LoadAssets()
     {
         0, 1, 2, 3, 4, 5, 6, 7
     };
-    std::vector<App::Constraint> constraints
-    {
-        App::GroundConstraint(indices, 0.0f)
-    };
+    std::vector<std::shared_ptr<App::Constraint>> constraints;
+    constraints.push_back(std::make_shared<App::GroundConstraint>(indices, -0.5f));
 
     uint32_t cubeVertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)cubeVertices.data(), cubeVertices.size() * sizeof(Core::Vertex), false);
     uint32_t cubeIndexBuffer = Core::IndexBufferManager::CreateIndexBuffer(cubeIndices.data(), cubeIndices.size());

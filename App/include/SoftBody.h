@@ -5,6 +5,7 @@
 #include "Core/Mesh.h"
 #include <glm/glm.hpp>
 #include <vector>
+#include <memory>
 
 namespace App
 {
@@ -12,11 +13,11 @@ namespace App
 	{
 	public:
 		SoftBodyModel() {}
-		SoftBodyModel(Core::Mesh mesh, std::vector<Core::Vertex> vertices, std::vector<std::vector<size_t>> pointsAttach, std::vector<PointMass> pointMasses, std::vector<Constraint> constraints);
+		SoftBodyModel(Core::Mesh mesh, std::vector<Core::Vertex> vertices, std::vector<std::vector<size_t>> pointsAttach, std::vector<PointMass> pointMasses, std::vector<std::shared_ptr<Constraint>> constraints);
 		~SoftBodyModel();
 
 		std::vector<PointMass> m_PointMasses;
-		std::vector<Constraint> m_Constraints;
+		std::vector<std::shared_ptr<Constraint>> m_Constraints;
 
 		void Update(double ts);
 		void UpdateGPUBuffer();

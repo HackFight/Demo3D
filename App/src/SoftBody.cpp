@@ -4,14 +4,7 @@
 
 namespace App
 {
-	SoftBody::SoftBody(SoftBodyModel model, uint32_t shader, glm::vec3 position, BlinnPhongMaterial material)
-		: GameObject(model, shader, position, material),
-		m_Model(model)
-	{}
-	SoftBody::~SoftBody() {}
-
-
-	SoftBodyModel::SoftBodyModel(Core::Mesh mesh, std::vector<Core::Vertex> vertices, std::vector<std::vector<size_t>> pointsAttach, std::vector<PointMass> pointMasses, std::vector<Constraint> constraints)
+	SoftBodyModel::SoftBodyModel(Core::Mesh mesh, std::vector<Core::Vertex> vertices, std::vector<std::vector<size_t>> pointsAttach, std::vector<PointMass> pointMasses, std::vector<std::shared_ptr<Constraint>> constraints)
 		: Core::Model(mesh),
 		m_VertexBuffer(mesh.GetVertexBuffer()),
 		m_Vertices(vertices),
@@ -32,9 +25,9 @@ namespace App
 			particle.position += particle.velocity * (float)ts;
 		}
 
-		for(Constraint constraint : m_Constraints)
+		for(const std::shared_ptr<Constraint> constraint : m_Constraints)
 		{
-			constraint.Solve(m_PointMasses, ts);
+			constraint->Solve(m_PointMasses, ts);
 		}
 
 		for(int i = 0; i < m_PointMasses.size(); i++)
@@ -55,4 +48,11 @@ namespace App
 		}
 		Core::VertexBufferManager::SetSubData(m_VertexBuffer, (float*)m_Vertices.data(), m_Vertices.size() * sizeof(Core::Vertex), 0);
 	}
+
+	SoftBody::SoftBody(SoftBodyModel model, uint32_t shader, glm::vec3 position, BlinnPhongMaterial material)
+		: GameObject(model, shader, position, material),
+		m_Model(model)
+	{
+	}
+	SoftBody::~SoftBody() {}
 }
