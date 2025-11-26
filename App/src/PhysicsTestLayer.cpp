@@ -4,6 +4,7 @@
 #include "Core/Model.h"
 #include "GameObject.h"
 #include "MaterialGen.h"
+#include "PhysicsConstraints.h"
 #include "RendererAPI/BufferManager.h"
 #include "RendererAPI/FramebufferManager.h"
 #include "RendererAPI/RendererAPI.h"
@@ -16,6 +17,7 @@
 #include "ModelGen.h"
 
 //Libs
+#include "SoftBody.h"
 #include "glm/fwd.hpp"
 
 //std
@@ -82,7 +84,7 @@ void PhysicsTestLayer::OnUpdate(double ts)
         frameCounter = 0;
     }
 
-    jellyCube.m_Model.m_PhysicsPoints.at(0).x += -0.1f * ts;
+    jellyCube.m_Model.Update(ts);
 	jellyCube.m_Model.UpdateGPUBuffer();
 
     ProcessInput(ts);
@@ -220,12 +222,12 @@ void PhysicsTestLayer::LoadAssets()
     uint32_t emptyTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGBA8, 128, 128, GL_RGBA, GL_UNSIGNED_BYTE, &emptyData[0], false, 0);
 
     uint32_t skyboxTexture = Core::TextureManager::CreateCubemap({
-        RESOURCES_PATH "textures/skybox/right.jpg",
-        RESOURCES_PATH "textures/skybox/left.jpg",
-        RESOURCES_PATH "textures/skybox/top.jpg",
-        RESOURCES_PATH "textures/skybox/bottom.jpg",
-        RESOURCES_PATH "textures/skybox/front.jpg",
-        RESOURCES_PATH "textures/skybox/back.jpg"
+        RESOURCES_PATH "textures/skyboxes/default/right.jpg",
+        RESOURCES_PATH "textures/skyboxes/default/left.jpg",
+        RESOURCES_PATH "textures/skyboxes/default/top.jpg",
+        RESOURCES_PATH "textures/skyboxes/default/bottom.jpg",
+        RESOURCES_PATH "textures/skyboxes/default/front.jpg",
+        RESOURCES_PATH "textures/skyboxes/default/back.jpg"
     });
 
     std::vector<uint32_t> groundTextures =
@@ -335,17 +337,26 @@ void PhysicsTestLayer::LoadAssets()
         {6, 11, 22},
 		{10, 15, 23}
 	};
-    std::vector<glm::vec3> physicsPoints
+    std::vector<App::PointMass> physicsPoints
     {
-        {-0.5f, -0.5f, 0.5f},
-        { 0.5f, -0.5f, 0.5f},
-        {0.5f, -0.5f, -0.5f},
-        {-0.5f, -0.5f, -0.5f},
+        {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}},
+        {{ 0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}},
+        {{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}},
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}},
 
-        { -0.5f, 0.5f, 0.5f},
-        { 0.5f, 0.5f, 0.5f},
-        {0.5f, 0.5f, -0.5f},
-		{-0.5f, 0.5f, -0.5f}
+        {{ -0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}},
+        {{ 0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}},
+        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}},
+		{{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}}
+    };
+    std::vector<App::PointMass*> references;
+    for(App::PointMass particle : physicsPoints)
+    {
+        references.push_back(&particle);
+    }
+    std::vector<App::Constraint> constraints
+    {
+        App::GroundConstraint(references, 0.0f)
     };
 
     uint32_t cubeVertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)cubeVertices.data(), cubeVertices.size() * sizeof(Core::Vertex), false);
@@ -356,7 +367,8 @@ void PhysicsTestLayer::LoadAssets()
             Core::Mesh(cubeVertexBuffer, cubeIndexBuffer, {}),
             cubeVertices,
 			pointsAttach,
-			physicsPoints),
+			physicsPoints,
+            constraints),
         blinnPhongShader,
         { 0.0f ,0.5f, 0.0f },
         CyanPlastic);

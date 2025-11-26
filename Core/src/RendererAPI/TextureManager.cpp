@@ -1,4 +1,5 @@
 #include "RendererAPI/TextureManager.h"
+#include "RendererAPI/BufferManager.h"
 
 // libs
 #include <cstdint>
@@ -70,7 +71,20 @@ namespace Core
             unsigned char *data = stbi_load(faces[i], &width, &height, &nrChannels, 0);
             if (data)
             {
-                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+                GLint internalFormat;
+                GLenum format;
+                if (nrChannels == 4)
+                {
+                    internalFormat = GL_RGBA8;
+                    format = GL_RGBA;
+                }
+                else if (nrChannels == 3)
+                {
+                    internalFormat = GL_RGB8;
+                    format = GL_RGB;
+                }
+
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
                 stbi_image_free(data);
             }
             else
@@ -80,8 +94,17 @@ namespace Core
             }
         }
 
-        textures[texture].internalFormat = GL_RGB8;
-        textures[texture].format = GL_RGB;
+        if (nrChannels == 4)
+        {
+            textures[texture].internalFormat = GL_RGBA8;
+            textures[texture].format = GL_RGBA;
+        }
+        else if (nrChannels == 3)
+        {
+            textures[texture].internalFormat = GL_RGB8;
+            textures[texture].format = GL_RGB;
+        }
+
         textures[texture].dataType = GL_UNSIGNED_BYTE;
         textures[texture].width = width;
         textures[texture].height = height;

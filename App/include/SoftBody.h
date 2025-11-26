@@ -1,7 +1,10 @@
 #pragma once
 
 #include "GameObject.h"
+#include "PhysicsConstraints.h"
 #include "Core/Mesh.h"
+#include <glm/glm.hpp>
+#include <vector>
 
 namespace App
 {
@@ -9,14 +12,17 @@ namespace App
 	{
 	public:
 		SoftBodyModel() {}
-		SoftBodyModel(Core::Mesh mesh, std::vector<Core::Vertex> vertices, std::vector<std::vector<size_t>> pointsAttach, std::vector<glm::vec3> physicsPoints);
+		SoftBodyModel(Core::Mesh mesh, std::vector<Core::Vertex> vertices, std::vector<std::vector<size_t>> pointsAttach, std::vector<PointMass> pointMasses, std::vector<Constraint> constraints);
 		~SoftBodyModel();
 
-		std::vector<glm::vec3> m_PhysicsPoints;
+		std::vector<PointMass> m_PointMasses;
+		std::vector<Constraint> m_Constraints;
 
+		void Update(double ts);
 		void UpdateGPUBuffer();
 
 	private:
+		glm::vec3 m_Gravity;
 		uint32_t m_VertexBuffer;
 		std::vector<Core::Vertex> m_Vertices;
 		std::vector<std::vector<size_t>> m_PointsAttach; //Points attach are here to link multiple vertices to a single physics point
