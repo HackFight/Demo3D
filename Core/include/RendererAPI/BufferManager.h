@@ -23,13 +23,13 @@ namespace Core
     {
     public:
         static uint32_t CreateVertexBuffer();
-        static uint32_t CreateVertexBuffer(GLsizeiptr size);
-        static uint32_t CreateVertexBuffer(float* vertices, GLsizeiptr size);
+        static uint32_t CreateVertexBuffer(GLsizeiptr size, bool staticDraw = true);
+        static uint32_t CreateVertexBuffer(float* vertices, GLsizeiptr size, bool staticDraw = true);
 
         static void Bind(uint32_t buffer);
         static void Unbind();
 
-        static void SetData(uint32_t buffer, const void* data, GLsizeiptr size);
+        static void SetData(uint32_t buffer, const void* data, GLsizeiptr size, bool staticDraw);
 		static void SetSubData(uint32_t buffer, const void* data, GLsizeiptr size, GLsizeiptr offset);
 
         static void ReleaseAll();

@@ -13,16 +13,16 @@ namespace Core
         vertexBuffers.push_back(buffer);
         return vertexBuffers.size() - 1;
     }
-    uint32_t VertexBufferManager::CreateVertexBuffer(GLsizeiptr size)
+    uint32_t VertexBufferManager::CreateVertexBuffer(GLsizeiptr size, bool staticDraw)
     {
         uint32_t buffer = CreateVertexBuffer();
-        SetData(buffer, nullptr, size);
+        SetData(buffer, nullptr, size, staticDraw);
         return buffer;
     }
-    uint32_t VertexBufferManager::CreateVertexBuffer(float* vertices, GLsizeiptr size)
+    uint32_t VertexBufferManager::CreateVertexBuffer(float* vertices, GLsizeiptr size, bool staticDraw)
     {
         uint32_t buffer = CreateVertexBuffer();
-        SetData(buffer, vertices, size);
+        SetData(buffer, vertices, size, staticDraw);
         return buffer;
     }
 
@@ -38,10 +38,11 @@ namespace Core
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
     
-    void VertexBufferManager::SetData(uint32_t buffer, const void *data, GLsizeiptr size)
+    void VertexBufferManager::SetData(uint32_t buffer, const void *data, GLsizeiptr size, bool staticDraw)
     {
 		VertexBufferManager::Bind(buffer);
-		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+        GLenum usage = staticDraw ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
+		glBufferData(GL_ARRAY_BUFFER, size, data, usage);
     }
     void VertexBufferManager::SetSubData(uint32_t buffer, const void* data, GLsizeiptr size, GLsizeiptr offset)
     {

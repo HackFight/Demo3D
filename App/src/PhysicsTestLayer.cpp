@@ -348,7 +348,7 @@ void PhysicsTestLayer::LoadAssets()
 		{-0.5f, 0.5f, -0.5f}
     };
 
-    uint32_t cubeVertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)cubeVertices.data(), cubeVertices.size() * sizeof(Core::Vertex));
+    uint32_t cubeVertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)cubeVertices.data(), cubeVertices.size() * sizeof(Core::Vertex), false);
     uint32_t cubeIndexBuffer = Core::IndexBufferManager::CreateIndexBuffer(cubeIndices.data(), cubeIndices.size());
 
 	jellyCube = App::SoftBody(
