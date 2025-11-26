@@ -1,14 +1,15 @@
 #include "PhysicsConstraints.h"
+#include <vector>
 
 namespace App
 {
-    void GroundConstraint::Solve(double ts)
+    void GroundConstraint::Solve(std::vector<PointMass>& particles, double ts)
     {
-        for(PointMass* particle : m_Particles)
+        for(size_t index : m_Indices)
         {
-            if(particle->position.y < m_GroundHeight)
+            if(particles.at(index).position.y < m_GroundHeight)
             {
-                particle->position.y = m_GroundHeight;
+                particles.at(index).position.y = m_GroundHeight;
             }
         }
     }

@@ -34,7 +34,7 @@ namespace App
 
 		for(Constraint constraint : m_Constraints)
 		{
-			constraint.Solve(ts);
+			constraint.Solve(m_PointMasses, ts);
 		}
 
 		for(int i = 0; i < m_PointMasses.size(); i++)

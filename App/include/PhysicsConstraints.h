@@ -14,21 +14,22 @@ namespace App
 	class Constraint
 	{
 	public:
-		Constraint(std::vector<PointMass*> particles) : m_Particles(particles) {}
+		Constraint(std::vector<size_t> indices) : m_Indices(indices) {}
 		~Constraint() {}
 
-		virtual void Solve(double ts) {}
+		virtual void Solve(std::vector<PointMass>& particles, double ts) {}
 
-		std::vector<PointMass*> m_Particles;
+		std::vector<size_t> m_Indices;
 	};
 
 	class GroundConstraint : public Constraint
 	{
     public:
-		GroundConstraint(std::vector<PointMass*> particles, float groundHeight = 0.0f) : Constraint(particles), m_GroundHeight(groundHeight) {}
+		GroundConstraint(std::vector<size_t> indices, float groundHeight = 0.0f)
+			: Constraint(indices), m_GroundHeight(groundHeight) {}
 		~GroundConstraint() {}
 
-        void Solve(double ts);
+        void Solve(std::vector<PointMass>& particles, double ts);
 
     private:
         float m_GroundHeight;

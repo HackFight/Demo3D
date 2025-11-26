@@ -349,14 +349,13 @@ void PhysicsTestLayer::LoadAssets()
         {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}},
 		{{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}}
     };
-    std::vector<App::PointMass*> references;
-    for(App::PointMass particle : physicsPoints)
+    std::vector<size_t> indices
     {
-        references.push_back(&particle);
-    }
+        0, 1, 2, 3, 4, 5, 6, 7
+    };
     std::vector<App::Constraint> constraints
     {
-        App::GroundConstraint(references, 0.0f)
+        App::GroundConstraint(indices, 0.0f)
     };
 
     uint32_t cubeVertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)cubeVertices.data(), cubeVertices.size() * sizeof(Core::Vertex), false);
