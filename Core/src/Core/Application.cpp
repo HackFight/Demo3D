@@ -5,6 +5,7 @@
 
 // Core
 #include "RendererAPI/GLUtils.h"
+#include "glm/common.hpp"
 
 namespace Core
 {
@@ -50,7 +51,7 @@ namespace Core
 			}
 
 			double currentFrameTime = GetTime();
-			double timeStep = currentFrameTime - lastFrameTime;
+			double timeStep = glm::clamp(currentFrameTime - lastFrameTime, 0.0, 1.0/30.0);
 			lastFrameTime = currentFrameTime;
 
 			// Foreach layer: Update and Render

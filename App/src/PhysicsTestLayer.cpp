@@ -85,6 +85,7 @@ void PhysicsTestLayer::OnUpdate(double ts)
         frameCounter = 0;
     }
 
+    jellyCube.m_Model.m_Constraints.at(0) = std::make_shared<App::GroundConstraint>(std::vector<size_t>{0, 1, 2, 3, 4, 5, 6, 7}, -jellyCube.m_Position.y);
     jellyCube.m_Model.Update(ts, 10);
 	jellyCube.m_Model.UpdateGPUBuffer();
 
@@ -196,7 +197,7 @@ void PhysicsTestLayer::ProcessInput(double ts)
 void PhysicsTestLayer::LoadAssets()
 {
 	//###### Shaders ######
-    blinnPhongShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong.frag");
+    blinnPhongShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/blinn-phong-no-shadow.frag");
     Core::ShaderManager::set3f(blinnPhongShader, "light.direction", sunLight.direction);
     Core::ShaderManager::set3f(blinnPhongShader, "light.ambient", sunLight.ambient);
     Core::ShaderManager::set3f(blinnPhongShader, "light.diffuse", sunLight.diffuse);
@@ -340,22 +341,22 @@ void PhysicsTestLayer::LoadAssets()
 	};
     std::vector<App::PointMass> physicsPoints
     {
-        {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
+        {{-0.5f, -0.5f, 0.5f}, {0.0f, 10.0f, 0.0f}, 1.0f},
         {{ 0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
         {{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, 5.0f, 0.0f}, 1.0f},
 
-        {{ -0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
+        {{ -0.5f, 0.5f, 0.5f}, {0.0f, 10.0f, 0.0f}, 1.0f},
         {{ 0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
         {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
-		{{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f}
+		{{-0.5f, 0.5f, -0.5f}, {0.0f, 5.0f, 0.0f}, 1.0f}
     };
     std::vector<size_t> indices
     {
         0, 1, 2, 3, 4, 5, 6, 7
     };
     std::vector<std::shared_ptr<App::Constraint>> constraints;
-    constraints.push_back(std::make_shared<App::GroundConstraint>(indices, -0.5f));
+    constraints.push_back(std::make_shared<App::GroundConstraint>(indices));
 
     constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{0, 1}, 1.0f));
     constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{1, 2}, 1.0f));
@@ -371,6 +372,18 @@ void PhysicsTestLayer::LoadAssets()
     constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{1, 5}, 1.0f));
     constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{2, 6}, 1.0f));
     constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{3, 7}, 1.0f));
+
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{0, 2}, 1.4142135f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{4, 6}, 1.4142135f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{0, 5}, 1.4142135f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{1, 6}, 1.4142135f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{2, 7}, 1.4142135f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{3, 4}, 1.4142135f));
+
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{0, 6}, 1.7320508f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{1, 7}, 1.7320508f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{2, 4}, 1.7320508f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{3, 5}, 1.7320508f));
 
 
     uint32_t cubeVertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)cubeVertices.data(), cubeVertices.size() * sizeof(Core::Vertex), false);

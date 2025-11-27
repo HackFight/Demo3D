@@ -21,11 +21,10 @@ namespace App
 		void Render(Core::Camera camera, uint32_t forcedShader);
 		void Render(Core::Camera camera);
 
+		glm::vec3 m_Position;
 	private:
 		Core::Model m_Model;
 		uint32_t m_Shader;
 		BlinnPhongMaterial m_Material;
-
-		glm::vec3 m_Position;
 	};
 }

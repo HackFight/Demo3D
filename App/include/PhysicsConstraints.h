@@ -18,7 +18,7 @@ namespace App
 		Constraint(std::vector<size_t> indices) : m_Indices(indices) {}
 		virtual ~Constraint() = default;
 
-		virtual void Solve(std::vector<PointMass>& particles, double ts) {}
+		virtual void Solve(std::vector<PointMass>& particles, float a, float ts) {}
 
 		std::vector<size_t> m_Indices;
 	};
@@ -29,7 +29,7 @@ namespace App
 		GroundConstraint(std::vector<size_t> indices, float groundHeight = 0.0f)
 			: Constraint(indices), m_GroundHeight(groundHeight) {}
 
-        void Solve(std::vector<PointMass>& particles, double ts) override;
+        void Solve(std::vector<PointMass>& particles, float a, float ts) override;
 
     private:
         float m_GroundHeight;
@@ -41,7 +41,7 @@ namespace App
 		DistanceConstraint(std::vector<size_t> indices, float restDistance)
 			: Constraint(indices), m_restDistance(restDistance) {}
 
-		void Solve(std::vector<PointMass>& particles, double ts) override;
+		void Solve(std::vector<PointMass>& particles, float a, float ts) override;
 
 	private:
 		float m_restDistance;

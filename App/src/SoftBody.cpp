@@ -32,7 +32,7 @@ namespace App
 			{
 				for(const std::shared_ptr<Constraint>& constraint : m_Constraints)
 				{
-					constraint->Solve(m_PointMasses, ts);
+					constraint->Solve(m_PointMasses, 1000.0f, ts);
 				}
 			}
 
