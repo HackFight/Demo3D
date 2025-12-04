@@ -1,5 +1,8 @@
 #include "SoftBody.h"
 #include "PhysicsConstraints.h"
+#include "glm/fwd.hpp"
+#include "glm/geometric.hpp"
+#include <iostream>
 #include <vector>
 
 namespace App
@@ -32,34 +35,54 @@ namespace App
 			{
 				for(const std::shared_ptr<Constraint>& constraint : m_Constraints)
 				{
-					constraint->Solve(m_PointMasses, 1000.0f, ts);
+					constraint->Solve(m_PointMasses, 0.0f, ts);
 				}
 			}
 
 			for(int j = 0; j < m_PointMasses.size(); j++)
 			{
-				m_PointMasses[j].velocity = (m_PointMasses[j].position - oldPositions[j])/(float)ts;
+				m_PointMasses.at(j).velocity = (m_PointMasses.at(j).position - oldPositions.at(j))/(float)ts;
 			}
 		}
 	}
 
 	void SoftBodyModel::UpdateGPUBuffer()
 	{
-		for (size_t i = 0; i < m_PointMasses.size(); i++)
+		for(size_t i = 0; i < m_PointMasses.size(); i++)
 		{
-			for (size_t j = 0; j < m_PointsAttach[i].size(); j++)
+			for (size_t j = 0; j < m_PointsAttach.at(i).size(); j++)
 			{
-				size_t vertexIndex = m_PointsAttach[i][j];
-				m_Vertices[vertexIndex].position = m_PointMasses[i].position;
+				size_t vertexIndex = m_PointsAttach.at(i).at(j);
+				m_Vertices.at(vertexIndex).position = m_PointMasses.at(i).position;
 			}
 		}
+
+		std::vector<std::vector<glm::vec3>> normsList;
+		for(int i = 0; i < m_Vertices.size(); i++) {
+			normsList.push_back(std::vector<glm::vec3>{});
+		}
+		for(int i = 0; i < m_Indices.size() / 3; i+=3) {
+			glm::vec3 vertexNormal = glm::normalize(glm::cross(m_Vertices.at(m_Indices.at(i+2)).position - m_Vertices.at(m_Indices.at(i+1)).position, m_Vertices.at(m_Indices.at(i)).position - m_Vertices.at(m_Indices.at(i+1)).position));
+			normsList.at(m_Indices.at(i)).push_back(vertexNormal);
+			normsList.at(m_Indices.at(i+1)).push_back(vertexNormal);
+			normsList.at(m_Indices.at(i+2)).push_back(vertexNormal);
+		}
+		for(int i = 0; i < normsList.size(); i++) {
+			glm::vec3 total = glm::vec3(0.0f);
+			for(int j = 0; j < normsList.at(i).size(); j++) {
+				std::cout << "Combining normals for vertex " << i << "\n";
+				total += normsList.at(i).at(j);
+			}
+			total = glm::normalize(total);
+			m_Vertices.at(i).normal = total;
+			std::cout << "New normal for vertex " << i << ": " << total.x << total.y << total.z << "\n";
+		}
+
 		Core::VertexBufferManager::SetSubData(m_VertexBuffer, (float*)m_Vertices.data(), m_Vertices.size() * sizeof(Core::Vertex), 0);
 	}
 
 	SoftBody::SoftBody(SoftBodyModel model, uint32_t shader, glm::vec3 position, BlinnPhongMaterial material)
 		: GameObject(model, shader, position, material),
-		m_Model(model)
-	{
-	}
+		m_Model(model) {}
 	SoftBody::~SoftBody() {}
 }

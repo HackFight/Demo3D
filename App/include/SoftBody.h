@@ -3,6 +3,7 @@
 #include "GameObject.h"
 #include "PhysicsConstraints.h"
 #include "Core/Mesh.h"
+#include <cstdint>
 #include <glm/glm.hpp>
 #include <vector>
 #include <memory>
@@ -26,6 +27,7 @@ namespace App
 		glm::vec3 m_Gravity;
 		uint32_t m_VertexBuffer;
 		std::vector<Core::Vertex> m_Vertices;
+		std::vector<uint32_t> m_Indices;
 		std::vector<std::vector<size_t>> m_PointsAttach; //Points attach are here to link multiple vertices to a single physics point
 	};
 

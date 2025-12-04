@@ -6,6 +6,7 @@ namespace App
 {
     void GroundConstraint::Solve(std::vector<PointMass>& particles, float a, float ts)
     {
+        a = 0.0f;
         for(size_t index : m_Indices)
         {
             PointMass& particle = particles.at(index);

@@ -341,15 +341,15 @@ void PhysicsTestLayer::LoadAssets()
 	};
     std::vector<App::PointMass> physicsPoints
     {
-        {{-0.5f, -0.5f, 0.5f}, {0.0f, 10.0f, 0.0f}, 1.0f},
+        {{-0.5f, -0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}, 1.0f},
         {{ 0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
         {{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 5.0f, 0.0f}, 1.0f},
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
 
-        {{ -0.5f, 0.5f, 0.5f}, {0.0f, 10.0f, 0.0f}, 1.0f},
+        {{ -0.5f, 0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}, 1.0f},
         {{ 0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
         {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
-		{{-0.5f, 0.5f, -0.5f}, {0.0f, 5.0f, 0.0f}, 1.0f}
+		{{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f}
     };
     std::vector<size_t> indices
     {
@@ -379,12 +379,6 @@ void PhysicsTestLayer::LoadAssets()
     constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{1, 6}, 1.4142135f));
     constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{2, 7}, 1.4142135f));
     constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{3, 4}, 1.4142135f));
-
-    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{0, 6}, 1.7320508f));
-    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{1, 7}, 1.7320508f));
-    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{2, 4}, 1.7320508f));
-    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{3, 5}, 1.7320508f));
-
 
     uint32_t cubeVertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)cubeVertices.data(), cubeVertices.size() * sizeof(Core::Vertex), false);
     uint32_t cubeIndexBuffer = Core::IndexBufferManager::CreateIndexBuffer(cubeIndices.data(), cubeIndices.size());
