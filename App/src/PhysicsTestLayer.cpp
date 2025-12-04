@@ -385,8 +385,8 @@ void PhysicsTestLayer::LoadAssets()
 
 	jellyCube = App::SoftBody(
         App::SoftBodyModel(
-            Core::Mesh(cubeVertexBuffer, cubeIndexBuffer, {}),
             cubeVertices,
+            cubeIndices,
 			pointsAttach,
 			physicsPoints,
             constraints),

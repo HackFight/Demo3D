@@ -25,8 +25,10 @@ namespace Core
 
         Mesh& GetMesh(size_t index);
 
-    private:
+    protected:
         std::vector<Mesh> meshes;
+
+    private:
         std::string directory;
         std::vector<Mesh::Texture> textures_loaded;
 

@@ -14,7 +14,7 @@ namespace App
 	{
 	public:
 		SoftBodyModel() {}
-		SoftBodyModel(Core::Mesh mesh, std::vector<Core::Vertex> vertices, std::vector<std::vector<size_t>> pointsAttach, std::vector<PointMass> pointMasses, std::vector<std::shared_ptr<Constraint>> constraints);
+		SoftBodyModel(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<std::vector<size_t>> pointsAttach, std::vector<PointMass> pointMasses, std::vector<std::shared_ptr<Constraint>> constraints);
 		~SoftBodyModel();
 
 		std::vector<PointMass> m_PointMasses;

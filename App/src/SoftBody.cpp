@@ -7,10 +7,11 @@
 
 namespace App
 {
-	SoftBodyModel::SoftBodyModel(Core::Mesh mesh, std::vector<Core::Vertex> vertices, std::vector<std::vector<size_t>> pointsAttach, std::vector<PointMass> pointMasses, std::vector<std::shared_ptr<Constraint>> constraints)
-		: Core::Model(mesh),
-		m_VertexBuffer(mesh.GetVertexBuffer()),
+	SoftBodyModel::SoftBodyModel(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<std::vector<size_t>> pointsAttach, std::vector<PointMass> pointMasses, std::vector<std::shared_ptr<Constraint>> constraints)
+		: Core::Model(Core::Mesh(vertices, indices, std::vector<Core::Mesh::Texture>{})),
+		m_VertexBuffer(meshes.at(0).GetVertexBuffer()),
 		m_Vertices(vertices),
+		m_Indices(indices),
 		m_PointsAttach(pointsAttach),
 		m_PointMasses(pointMasses),
 		m_Constraints(constraints),
@@ -73,7 +74,7 @@ namespace App
 				std::cout << "Combining normals for vertex " << i << "\n";
 				total += normsList.at(i).at(j);
 			}
-			total = glm::normalize(total);
+			//total = glm::normalize(total);
 			m_Vertices.at(i).normal = total;
 			std::cout << "New normal for vertex " << i << ": " << total.x << total.y << total.z << "\n";
 		}
