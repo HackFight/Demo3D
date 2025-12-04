@@ -2,7 +2,6 @@
 
 #include "GameObject.h"
 #include "PhysicsConstraints.h"
-#include "Core/Mesh.h"
 #include <cstdint>
 #include <glm/glm.hpp>
 #include <vector>

@@ -2,13 +2,12 @@
 #include "PhysicsConstraints.h"
 #include "glm/fwd.hpp"
 #include "glm/geometric.hpp"
-#include <iostream>
 #include <vector>
 
 namespace App
 {
 	SoftBodyModel::SoftBodyModel(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<std::vector<size_t>> pointsAttach, std::vector<PointMass> pointMasses, std::vector<std::shared_ptr<Constraint>> constraints)
-		: Core::Model(Core::Mesh(vertices, indices, std::vector<Core::Mesh::Texture>{})),
+		: Core::Model(Core::Mesh(vertices, indices, std::vector<Core::Mesh::Texture>{}, false)),
 		m_VertexBuffer(meshes.at(0).GetVertexBuffer()),
 		m_Vertices(vertices),
 		m_Indices(indices),
@@ -36,7 +35,7 @@ namespace App
 			{
 				for(const std::shared_ptr<Constraint>& constraint : m_Constraints)
 				{
-					constraint->Solve(m_PointMasses, 0.0f, ts);
+					constraint->Solve(m_PointMasses, 5000.0f, ts);
 				}
 			}
 
@@ -57,26 +56,23 @@ namespace App
 				m_Vertices.at(vertexIndex).position = m_PointMasses.at(i).position;
 			}
 		}
-
+		
 		std::vector<std::vector<glm::vec3>> normsList;
 		for(int i = 0; i < m_Vertices.size(); i++) {
-			normsList.push_back(std::vector<glm::vec3>{});
+			normsList.push_back(std::vector<glm::vec3>());
 		}
-		for(int i = 0; i < m_Indices.size() / 3; i+=3) {
-			glm::vec3 vertexNormal = glm::normalize(glm::cross(m_Vertices.at(m_Indices.at(i+2)).position - m_Vertices.at(m_Indices.at(i+1)).position, m_Vertices.at(m_Indices.at(i)).position - m_Vertices.at(m_Indices.at(i+1)).position));
-			normsList.at(m_Indices.at(i)).push_back(vertexNormal);
-			normsList.at(m_Indices.at(i+1)).push_back(vertexNormal);
-			normsList.at(m_Indices.at(i+2)).push_back(vertexNormal);
+		for(int i = 0; i < m_Indices.size(); i+=3) {
+			glm::vec3 normal = glm::normalize(glm::cross(m_Vertices.at(m_Indices.at(i+1)).position - m_Vertices.at(m_Indices.at(i)).position, m_Vertices.at(m_Indices.at(i+2)).position - m_Vertices.at(m_Indices.at(i)).position));
+			normsList.at(i).push_back(normal);
+			normsList.at(i+1).push_back(normal);
+			normsList.at(i+2).push_back(normal);
 		}
 		for(int i = 0; i < normsList.size(); i++) {
-			glm::vec3 total = glm::vec3(0.0f);
-			for(int j = 0; j < normsList.at(i).size(); j++) {
-				std::cout << "Combining normals for vertex " << i << "\n";
-				total += normsList.at(i).at(j);
+			glm::vec3 total(0.0f);
+			for(glm::vec3 vec : normsList.at(i)) {
+				total += vec;
 			}
-			//total = glm::normalize(total);
 			m_Vertices.at(i).normal = total;
-			std::cout << "New normal for vertex " << i << ": " << total.x << total.y << total.z << "\n";
 		}
 
 		Core::VertexBufferManager::SetSubData(m_VertexBuffer, (float*)m_Vertices.data(), m_Vertices.size() * sizeof(Core::Vertex), 0);

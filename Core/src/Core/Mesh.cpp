@@ -8,10 +8,10 @@
 
 namespace Core
 {
-    Mesh::Mesh(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures)
+    Mesh::Mesh(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures, bool staticDraw)
         : textures(textures)
     {
-        m_VertexBuffer = VertexBufferManager::CreateVertexBuffer((float*)vertices.data(), vertices.size() * sizeof(Core::Vertex));
+        m_VertexBuffer = VertexBufferManager::CreateVertexBuffer((float*)vertices.data(), vertices.size() * sizeof(Core::Vertex), staticDraw);
         m_IndexBuffer = IndexBufferManager::CreateIndexBuffer(indices.data(), indices.size());
         vertexArray = VertexArrayManager::CreateVertexArray();
         VertexArrayManager::AddVertexBuffer(vertexArray, m_VertexBuffer);

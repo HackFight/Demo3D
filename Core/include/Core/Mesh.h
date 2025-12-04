@@ -20,7 +20,7 @@ namespace Core
             std::string path;
         };
 
-        Mesh(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures);
+        Mesh(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures, bool staticDraw = true);
         Mesh(uint32_t vertexBuffer, uint32_t indexBuffer, std::vector<Texture> textures);
 
         void Draw(uint32_t shader);
