@@ -21,6 +21,8 @@ namespace App
 		void Render(Core::Camera camera, uint32_t forcedShader);
 		void Render(Core::Camera camera);
 
+		Core::Model GetModel() { return m_Model; }
+
 		glm::vec3 m_Position;
 	private:
 		Core::Model m_Model;

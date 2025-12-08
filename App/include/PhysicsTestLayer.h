@@ -41,7 +41,7 @@ private:
     uint32_t framebuffer, framebufferColor, renderbuffer;
     App::GameObject screenQuad;
 
-    uint32_t shadowbuffer, shadowmap, shadowShader;
+    uint32_t shadowbuffer, shadowmap, shadowShader, normalsShader;
 
     App::Camera camera, lightCamera;
     bool mouseDisabled = true;

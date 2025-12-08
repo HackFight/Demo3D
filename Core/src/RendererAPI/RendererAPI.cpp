@@ -90,6 +90,12 @@ namespace Core {
 		glDrawArrays(GL_LINES, 0, vertexCount);
 	}
 
+	void RendererAPI::DrawPoints(const uint32_t vertexArray, uint32_t vertexCount)
+	{
+		VertexArrayManager::Bind(vertexArray);
+		glDrawArrays(GL_POINT, 0, vertexCount);
+	}
+
 	void RendererAPI::SetLineWidth(float width)
 	{
 		glLineWidth(width);

@@ -14,7 +14,7 @@ namespace Core
     class ShaderManager
     {
     public:
-        static uint32_t CreateShader(const char* vertexPath, const char* fragmentPath);
+        static uint32_t CreateShader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
     
         static void Bind(uint32_t shader);
         static void Unbind();

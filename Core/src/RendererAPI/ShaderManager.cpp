@@ -1,4 +1,5 @@
 #include "RendererAPI/ShaderManager.h"
+#include "RendererAPI/BufferManager.h"
 
 // libs
 #include <glm/gtc/type_ptr.hpp>
@@ -12,7 +13,7 @@
 namespace Core
 {
     std::vector<GLuint> ShaderManager::shaders;
-    uint32_t ShaderManager::CreateShader(const char* vertexPath, const char* fragmentPath)
+    uint32_t ShaderManager::CreateShader(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
     {
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
@@ -74,10 +75,48 @@ namespace Core
             std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
         };
 
+        unsigned int geometry;
+        if(geometryPath != nullptr)
+        {
+            //Geomertry shader
+            std::string geoCode;
+            std::ifstream gShaderFile;
+
+            gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+            try
+            {
+                gShaderFile.open(vertexPath);
+
+                std::stringstream gShaderStream;
+
+                gShaderStream << gShaderFile.rdbuf();
+
+                gShaderFile.close();
+
+                geoCode = gShaderStream.str();
+            }
+            catch (std::ifstream::failure e)
+            {
+                std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+            }
+            const char* gShaderCode = geoCode.c_str();
+
+            geometry = glCreateShader(GL_GEOMETRY_SHADER);
+            glShaderSource(geometry, 1, &gShaderCode, NULL);
+            glCompileShader(geometry);
+            glGetShaderiv(geometry, GL_COMPILE_STATUS, &success);
+            if (!success)
+            {
+                glGetShaderInfoLog(geometry, 512, NULL, infoLog);
+                std::cout << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n" << infoLog << std::endl;
+            };
+        }
+
         // shader Program
         GLuint shader = glCreateProgram();
         glAttachShader(shader, vertex);
         glAttachShader(shader, fragment);
+        if(geometryPath != nullptr) { glAttachShader(shader, geometry); }
         glLinkProgram(shader);
         // print linking errors if any
         glGetProgramiv(shader, GL_LINK_STATUS, &success);

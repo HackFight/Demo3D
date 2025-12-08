@@ -31,6 +31,7 @@ namespace Core {
 
 		static void DrawIndexed(const uint32_t vertexArray, uint32_t indexCount = 0);
 		static void DrawLines(const uint32_t vertexArray, uint32_t vertexCount);
+		static void DrawPoints(const uint32_t vertexArray, uint32_t vertexCount);
 		
 		static void SetLineWidth(float width);
 	};

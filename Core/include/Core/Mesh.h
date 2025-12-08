@@ -26,6 +26,7 @@ namespace Core
         void Draw(uint32_t shader);
 
 		uint32_t GetVertexBuffer() const { return m_VertexBuffer; }
+        uint32_t GetVertexArray() const { return vertexArray; }
 
     private:
         uint32_t m_VertexBuffer, m_IndexBuffer, vertexArray;

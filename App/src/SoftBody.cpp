@@ -63,9 +63,9 @@ namespace App
 		}
 		for(int i = 0; i < m_Indices.size(); i+=3) {
 			glm::vec3 normal = glm::normalize(glm::cross(m_Vertices.at(m_Indices.at(i+1)).position - m_Vertices.at(m_Indices.at(i)).position, m_Vertices.at(m_Indices.at(i+2)).position - m_Vertices.at(m_Indices.at(i)).position));
-			normsList.at(i).push_back(normal);
-			normsList.at(i+1).push_back(normal);
-			normsList.at(i+2).push_back(normal);
+			normsList.at(m_Indices.at(i)).push_back(normal);
+			normsList.at(m_Indices.at(i+1)).push_back(normal);
+			normsList.at(m_Indices.at(i+2)).push_back(normal);
 		}
 		for(int i = 0; i < normsList.size(); i++) {
 			glm::vec3 total(0.0f);

@@ -139,7 +139,7 @@ void PhysicsTestLayer::OnRender()
         obj.Render(camera.coreCamera);
 	}
 
-	camera.RenderSkybox();
+    Core::RendererAPI::DrawIndexed(gameObjects.at(1).GetModel().GetMesh(0).GetVertexArray());
 
     Core::FramebufferManager::Unbind();
     Core::RendererAPI::ClearColor();
@@ -218,6 +218,8 @@ void PhysicsTestLayer::LoadAssets()
     Core::ShaderManager::setFloat(postProcessingShader, "exposure", 1.0f);
 
     shadowShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/empty.frag");
+
+    normalsShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH  "shaders/default.frag", RESOURCES_PATH "shaders/normals.geom");
 
     //###### Textures ######
     std::vector<GLubyte> emptyData(128 * 128 * 4, 0);
@@ -379,6 +381,13 @@ void PhysicsTestLayer::LoadAssets()
     constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{1, 6}, 1.4142135f));
     constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{2, 7}, 1.4142135f));
     constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{3, 4}, 1.4142135f));
+
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{1, 3}, 1.4142135f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{5, 7}, 1.4142135f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{1, 4}, 1.4142135f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{2, 5}, 1.4142135f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{3, 6}, 1.4142135f));
+    constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{0, 7}, 1.4142135f));
 
     uint32_t cubeVertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)cubeVertices.data(), cubeVertices.size() * sizeof(Core::Vertex), false);
     uint32_t cubeIndexBuffer = Core::IndexBufferManager::CreateIndexBuffer(cubeIndices.data(), cubeIndices.size());
