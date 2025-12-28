@@ -219,12 +219,12 @@ void TestLayer::LoadAssets()
     uint32_t emptyTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGBA8, 128, 128, GL_RGBA, GL_UNSIGNED_BYTE, &emptyData[0], false, 0);
 
     uint32_t skyboxTexture = Core::TextureManager::CreateCubemap({
-        RESOURCES_PATH "textures/skybox/right.jpg",
-        RESOURCES_PATH "textures/skybox/left.jpg",
-        RESOURCES_PATH "textures/skybox/top.jpg",
-        RESOURCES_PATH "textures/skybox/bottom.jpg",
-        RESOURCES_PATH "textures/skybox/front.jpg",
-        RESOURCES_PATH "textures/skybox/back.jpg"
+        RESOURCES_PATH "textures/skyboxes/default/right.jpg",
+        RESOURCES_PATH "textures/skyboxes/default/left.jpg",
+        RESOURCES_PATH "textures/skyboxes/default/top.jpg",
+        RESOURCES_PATH "textures/skyboxes/default/bottom.jpg",
+        RESOURCES_PATH "textures/skyboxes/default/front.jpg",
+        RESOURCES_PATH "textures/skyboxes/default/back.jpg"
     });
 
     std::vector<uint32_t> groundTextures =

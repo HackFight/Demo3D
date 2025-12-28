@@ -139,7 +139,7 @@ void PhysicsTestLayer::OnRender()
         obj.Render(camera.coreCamera);
 	}
 
-    Core::RendererAPI::DrawIndexed(gameObjects.at(1).GetModel().GetMesh(0).GetVertexArray());
+    camera.RenderSkybox();
 
     Core::FramebufferManager::Unbind();
     Core::RendererAPI::ClearColor();
@@ -219,7 +219,7 @@ void PhysicsTestLayer::LoadAssets()
 
     shadowShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/empty.frag");
 
-    normalsShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH  "shaders/default.frag", RESOURCES_PATH "shaders/normals.geom");
+    //normalsShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH  "shaders/default.frag", RESOURCES_PATH "shaders/normals.geom");
 
     //###### Textures ######
     std::vector<GLubyte> emptyData(128 * 128 * 4, 0);
@@ -343,12 +343,12 @@ void PhysicsTestLayer::LoadAssets()
 	};
     std::vector<App::PointMass> physicsPoints
     {
-        {{-0.5f, -0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}, 1.0f},
+        {{-0.5f, -0.5f, 0.5f}, {0.0f, 10.0f, 0.0f}, 1.0f},
         {{ 0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
         {{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
         {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
 
-        {{ -0.5f, 0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}, 1.0f},
+        {{ -0.5f, 0.5f, 0.5f}, {0.0f, 10.0f, 0.0f}, 1.0f},
         {{ 0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
         {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f},
 		{{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, 1.0f}

@@ -72,7 +72,7 @@ namespace App
 			for(glm::vec3 vec : normsList.at(i)) {
 				total += vec;
 			}
-			m_Vertices.at(i).normal = total;
+			m_Vertices.at(i).normal = glm::normalize(total);
 		}
 
 		Core::VertexBufferManager::SetSubData(m_VertexBuffer, (float*)m_Vertices.data(), m_Vertices.size() * sizeof(Core::Vertex), 0);
