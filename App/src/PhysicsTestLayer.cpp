@@ -122,6 +122,7 @@ void PhysicsTestLayer::OnRender()
         oldFbSize = fb;
     }
 
+    //Render scene
     Core::FramebufferManager::Bind(framebuffer);
     // Clear before drawing
     Core::RendererAPI::ClearColor();
@@ -141,6 +142,7 @@ void PhysicsTestLayer::OnRender()
 
     camera.RenderSkybox();
 
+    //Final pass
     Core::FramebufferManager::Unbind();
     Core::RendererAPI::ClearColor();
     Core::RendererAPI::ClearDepth();
@@ -222,9 +224,6 @@ void PhysicsTestLayer::LoadAssets()
     //normalsShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH  "shaders/default.frag", RESOURCES_PATH "shaders/normals.geom");
 
     //###### Textures ######
-    std::vector<GLubyte> emptyData(128 * 128 * 4, 0);
-    uint32_t emptyTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGBA8, 128, 128, GL_RGBA, GL_UNSIGNED_BYTE, &emptyData[0], false, 0);
-
     uint32_t skyboxTexture = Core::TextureManager::CreateCubemap({
         RESOURCES_PATH "textures/skyboxes/default/right.jpg",
         RESOURCES_PATH "textures/skyboxes/default/left.jpg",
@@ -240,24 +239,6 @@ void PhysicsTestLayer::LoadAssets()
     };
     Core::TextureManager::SetParameters(groundTextures.at(0), GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
     Core::TextureManager::GenerateMipmaps(groundTextures.at(0));
-
-    std::vector<uint32_t> wallTextures =
-    {
-        Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/brick-wall.png"),
-        emptyTexture,
-        emptyTexture,
-        Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/brick-wall-normal.png")
-    };
-    Core::TextureManager::SetParameters(wallTextures.at(0), GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-    Core::TextureManager::GenerateMipmaps(wallTextures.at(0));
-
-    std::vector<uint32_t> boxTextures =
-    {
-        Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png", true),
-        Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box-specular.png", true)
-    };
-    Core::TextureManager::SetParameters(boxTextures.at(0), GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-    Core::TextureManager::GenerateMipmaps(boxTextures.at(0));
 
     framebufferColor = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGB16F, oldFbSize.x, oldFbSize.y, GL_RGB, GL_FLOAT, nullptr, false, 0);
 
@@ -388,9 +369,6 @@ void PhysicsTestLayer::LoadAssets()
     constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{2, 5}, 1.4142135f));
     constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{3, 6}, 1.4142135f));
     constraints.push_back(std::make_shared<App::DistanceConstraint>(std::vector<size_t>{0, 7}, 1.4142135f));
-
-    uint32_t cubeVertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)cubeVertices.data(), cubeVertices.size() * sizeof(Core::Vertex), false);
-    uint32_t cubeIndexBuffer = Core::IndexBufferManager::CreateIndexBuffer(cubeIndices.data(), cubeIndices.size());
 
 	jellyCube = App::SoftBody(
         App::SoftBodyModel(
