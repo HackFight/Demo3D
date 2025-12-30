@@ -140,6 +140,11 @@ void PhysicsTestLayer::OnRender()
         obj.Render(camera.coreCamera);
 	}
 
+    /*
+    Core::ShaderManager::Bind(normalsShader);
+    Core::RendererAPI::DrawPoints(gameObjects.at(1).GetModel().GetMesh(0).GetVertexArray(),Core::VertexArrayManager::GetIndexCount(gameObjects.at(1).GetModel().GetMesh(0).GetVertexArray()));
+    */
+
     camera.RenderSkybox();
 
     //Final pass
