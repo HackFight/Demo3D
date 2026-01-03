@@ -79,7 +79,7 @@ namespace App
 	}
 
 	SoftBody::SoftBody(SoftBodyModel model, uint32_t shader, glm::vec3 position, BlinnPhongMaterial material)
-		: GameObject(model, shader, position, material),
+		: GameObject(model, shader, position, {1.0f, 1.0f, 1.0f}, material),
 		m_Model(model) {}
 	SoftBody::~SoftBody() {}
 }

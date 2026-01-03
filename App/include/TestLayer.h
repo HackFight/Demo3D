@@ -10,7 +10,7 @@
 //std
 #include <stdint.h>
 
-const int SHADOW_SIZE = 2048;
+const int SHADOW_SIZE = 2048*4;
 const int SHADOWMAP_TEXTURE_UNIT = 5;
 
 struct DirectionalLight
@@ -35,7 +35,7 @@ private:
     void ProcessInput(double ts);
 	void LoadAssets();
 
-    uint32_t blinnPhongShader, texturedShader, skyboxShader, postProcessingShader;
+    uint32_t blinnPhongShader, texturedShader, skyboxShader, postProcessingShader, normalsDebug;
     
     uint32_t framebuffer, framebufferColor, renderbuffer;
     App::GameObject screenQuad;
@@ -53,15 +53,15 @@ private:
     glm::vec2 oldFbSize;
 
 	bool gammaCorrection = true;
-	bool toneMapping = false;
+	bool toneMapping = true;
 	float exposure = 1.0f;
 
     DirectionalLight sunLight
     {
-        glm::vec3(1.0f, -2.0f, 2.0f),
-        glm::vec3(0.5f, 0.5f, 0.5f),
+        glm::vec3(1.0f, -2.0f, 0.1f),
+        glm::vec3(0.2f, 0.2f, 0.2f),
         glm::vec3(1.0f, 1.0f, 1.0f),
-        glm::vec3(2.0f, 2.0f, 2.0f)
+        glm::vec3(1.0f, 1.0f, 1.0f)
     };
 
 	std::vector<App::GameObject> gameObjects;

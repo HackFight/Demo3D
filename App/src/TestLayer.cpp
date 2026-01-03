@@ -214,6 +214,8 @@ void TestLayer::LoadAssets()
 
     shadowShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/empty.frag");
 
+	normalsDebug = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/normal.frag");
+
     //###### Textures ######
     std::vector<GLubyte> emptyData(128 * 128 * 4, 0);
     uint32_t emptyTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGBA8, 128, 128, GL_RGBA, GL_UNSIGNED_BYTE, &emptyData[0], false, 0);
@@ -269,11 +271,13 @@ void TestLayer::LoadAssets()
 
 	//###### GameObjects ######
     gameObjects.push_back(App::GameObject(ModelGen::GetPlane(10, groundTextures), texturedShader));
-    gameObjects.push_back(App::GameObject(ModelGen::GetQuad(wallTextures), texturedShader, {-1.5f ,0.5f, 0.0f}, Gold));
-    gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, Gold));
-    gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/vyse-helmet/vyse-helmet.obj"), blinnPhongShader, { 0.0f ,1.5f, 0.0f}, FLASHBANG));
+    gameObjects.push_back(App::GameObject(ModelGen::GetQuad(wallTextures), texturedShader, {-1.5f ,0.5f, 0.0f}, {0.5f, 0.5f, 0.5f}, Gold));
+    gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Gold));
+    gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/vyse-helmet/vyse-helmet.obj"), blinnPhongShader, { 0.0f ,1.5f, 0.0f }, {1.0f, 1.0f, 1.0f}, FLASHBANG));
     gameObjects.push_back(App::GameObject(ModelGen::GetCube(boxTextures), texturedShader, {1.5f, 0.5f, 0.0f}));
-    gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, {0.0f, 2.0f, -2.0f}));
+    //gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, {0.0f, 2.0f, -2.0f}));
+	gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/sponza/sponza.obj"), texturedShader, { 0.0f, 0.0f, 0.0f }));
+	gameObjects.back().m_Scale = glm::vec3(0.01f);
     
     Core::Model skyboxModel = ModelGen::GetReversedCube({ skyboxTexture });
 

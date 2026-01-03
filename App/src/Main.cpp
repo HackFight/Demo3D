@@ -1,5 +1,5 @@
-#include "PhysicsTestLayer.h"
-//#include "TestLayer.h"
+//#include "PhysicsTestLayer.h"
+#include "TestLayer.h"
 
 #include "Core/Application.h"
 
@@ -13,9 +13,8 @@ int main()
 	appSpec.WindowSpec.Multisampling = false;
 
 	Core::Application app(appSpec);
-	//app.PushLayer<MainLayer>();
-	//app.PushLayer<TestLayer>();
-	app.PushLayer<PhysicsTestLayer>();
+	app.PushLayer<TestLayer>();
+	//app.PushLayer<PhysicsTestLayer>();
 	app.Run();
 	
 	return 0;

@@ -21,7 +21,7 @@ uniform mat4 lightSpaceMat;
 void main()
 {
     texCoord = aTexCoord;
-    normal = mat3(transpose(inverse(modelMat))) * aNormal;
+    normal = normalize(mat3(transpose(inverse(modelMat))) * aNormal);
     vertexColor = aColor;
     fragPos = vec3(modelMat * vec4(aPos, 1.0));
     fragPosLightSpace = lightSpaceMat * vec4(fragPos, 1.0);

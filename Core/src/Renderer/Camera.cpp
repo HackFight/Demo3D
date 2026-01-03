@@ -23,7 +23,7 @@ namespace Core
     {
         if (orthographic)
         {
-            return glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
+            return glm::ortho(-15.0f, 15.0f, -15.0f, 15.0f, 0.1f, 100.0f);
         }
         else
         {

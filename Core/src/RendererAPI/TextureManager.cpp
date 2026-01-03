@@ -50,6 +50,11 @@ namespace Core
             textures[texture].internalFormat = GL_RGB8;
 			textures[texture].format = GL_RGB;
         }
+        else if (nrChannels == 1)
+        {
+			textures[texture].internalFormat = GL_R8;
+            textures[texture].format = GL_RED;
+		}
 
         SetData(texture, GL_TEXTURE_2D, textures[texture].internalFormat, width, height, textures[texture].format, GL_UNSIGNED_BYTE, data, false, 0);
 		SetParameters(texture, GL_REPEAT, GL_NEAREST, GL_NEAREST);

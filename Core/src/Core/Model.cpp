@@ -79,10 +79,12 @@ namespace Core
             vector.z = mesh->mVertices[i].z;
             vertex.position = vector;
 
-            vector.x = mesh->mNormals[i].x;
-            vector.y = mesh->mNormals[i].y;
-            vector.z = mesh->mNormals[i].z;
-            vertex.normal = vector;
+            if (mesh->mNormals) {
+                vector.x = mesh->mNormals[i].x;
+                vector.y = mesh->mNormals[i].y;
+                vector.z = mesh->mNormals[i].z;
+                vertex.normal = vector;
+            }
 
             if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
             {
@@ -115,6 +117,10 @@ namespace Core
             textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
             std::vector<Mesh::Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
             textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+            std::vector<Mesh::Texture> emissionMaps = loadMaterialTextures(material, aiTextureType_EMISSIVE, "texture_emission");
+            textures.insert(textures.end(), emissionMaps.begin(), emissionMaps.end());
+            std::vector<Mesh::Texture> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal");
+            textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
         }
 
         return Mesh(vertices, indices, textures);
@@ -142,8 +148,8 @@ namespace Core
             if (!skip)
             {
                 Mesh::Texture texture;
-                texture.ptr = TextureManager::CreateTexture(filename.c_str(), true);
-                if(textures_loaded.size() < 1)
+                texture.ptr = TextureManager::CreateTexture(filename.c_str());
+                if(typeName == "texture_diffuse")
                 {
                     TextureManager::SetParameters(texture.ptr, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
                     TextureManager::GenerateMipmaps(texture.ptr);
