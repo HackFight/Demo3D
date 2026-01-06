@@ -24,7 +24,7 @@ namespace Core
     public:
         static uint32_t CreateVertexBuffer();
         static uint32_t CreateVertexBuffer(GLsizeiptr size, bool staticDraw = true);
-        static uint32_t CreateVertexBuffer(float* vertices, GLsizeiptr size, bool staticDraw = true);
+        static uint32_t CreateVertexBuffer(const float* vertices, GLsizeiptr size, bool staticDraw = true);
 
         static void Bind(uint32_t buffer);
         static void Unbind();
@@ -47,7 +47,7 @@ namespace Core
     class IndexBufferManager
     {
     public:
-        static uint32_t CreateIndexBuffer(uint32_t* indices, GLsizeiptr count);
+        static uint32_t CreateIndexBuffer(const uint32_t* indices, GLsizeiptr count);
 
         static void Bind(uint32_t buffer);
         static void Unbind();

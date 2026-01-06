@@ -19,7 +19,7 @@ namespace Core
         SetData(buffer, nullptr, size, staticDraw);
         return buffer;
     }
-    uint32_t VertexBufferManager::CreateVertexBuffer(float* vertices, GLsizeiptr size, bool staticDraw)
+    uint32_t VertexBufferManager::CreateVertexBuffer(const float* vertices, GLsizeiptr size, bool staticDraw)
     {
         uint32_t buffer = CreateVertexBuffer();
         SetData(buffer, vertices, size, staticDraw);
@@ -74,7 +74,7 @@ namespace Core
         indexBuffers.push_back(buffer);
         return indexBuffers.size() - 1;
     }
-    uint32_t IndexBufferManager::CreateIndexBuffer(uint32_t* indices, GLsizeiptr count)
+    uint32_t IndexBufferManager::CreateIndexBuffer(const uint32_t* indices, GLsizeiptr count)
     {
         uint32_t buffer = CreateIndexBuffer();
         indexBuffers.at(buffer).Count = count;
