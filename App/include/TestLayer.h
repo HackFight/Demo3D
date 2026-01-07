@@ -10,7 +10,7 @@
 //std
 #include <stdint.h>
 
-const int SHADOW_SIZE = 2048*4;
+const int SHADOW_SIZE = 2048;
 const int SHADOWMAP_TEXTURE_UNIT = 5;
 
 struct DirectionalLight

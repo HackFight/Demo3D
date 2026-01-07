@@ -25,7 +25,7 @@ namespace Platformer {
 
     void ResourceManager::Init() {
         //##### Shaders ######
-        textureShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", "shaders/texture.frag");
+        textureShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert",  RESOURCES_PATH "shaders/texture.frag");
 
         //##### VAOs #####
         //Quad
