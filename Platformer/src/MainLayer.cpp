@@ -74,7 +74,7 @@ void MainLayer::FixedUpdate(double fixedTimeStep) {
 }
 
 void MainLayer::LoadAssets() {
-
+    Platformer::ResourceManager::Init();
 }
 
 void MainLayer::PrintStats() {
