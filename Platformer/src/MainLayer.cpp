@@ -9,6 +9,7 @@
 
 //ImGui
 #include "ResourceManager.h"
+#include "Sprite.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -66,7 +67,9 @@ void MainLayer::OnUpdate(double ts) {
 }
 
 void MainLayer::OnRender() {
-
+    for(Platformer::Sprite sprite : sprites) {
+        //sprite.Render();
+    }
 }
 
 void MainLayer::FixedUpdate(double fixedTimeStep) {
@@ -75,6 +78,8 @@ void MainLayer::FixedUpdate(double fixedTimeStep) {
 
 void MainLayer::LoadAssets() {
     Platformer::ResourceManager::Init();
+    unsigned int whitePixelTexture = Platformer::ResourceManager::CreatePlainRGBATexture(1, 1);
+    sprites.push_back(Platformer::Sprite(whitePixelTexture));
 }
 
 void MainLayer::PrintStats() {

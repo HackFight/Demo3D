@@ -5,7 +5,6 @@
 #include "RendererAPI/FramebufferManager.h"
 #include "RendererAPI/ShaderManager.h"
 #include "RendererAPI/TextureManager.h"
-#include <cstdint>
 
 const std::vector<Core::Vertex> quadVertices {
     {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
@@ -52,6 +51,14 @@ namespace Platformer {
                 break;
         }
         return -1;
+    }
+
+    unsigned int ResourceManager::CreatePlainRGBATexture(int width, int height, unsigned char fill) {
+        unsigned char data[width*height*4];
+        for(int i = 0; i < width * height * 4; i++) {
+            data[i] = fill;
+        }
+        return Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, false, 0);
     }
 
     void ResourceManager::ReleaseAll() {

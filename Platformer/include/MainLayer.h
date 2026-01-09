@@ -2,9 +2,11 @@
 
 //Engine
 #include "Core/Layer.h"
+#include "Sprite.h"
 
 // libs
 #include <glm/glm.hpp>
+#include <vector>
 
 class MainLayer : public Core::Layer {
 
@@ -25,4 +27,6 @@ private:
     glm::vec2 oldFbSize;
     double lastMouseX, lastMouseY, tickAccumulator, secondsAccumulator, timer;
     unsigned int frameCounter, tickCounter;
+
+    std::vector<Platformer::Sprite> sprites;
 };

@@ -16,9 +16,7 @@ namespace Platformer {
     m_Texture(texture),
     m_Position(position),
     m_Scale(scale),
-    m_Color(color) {
-        
-    }
+    m_Color(color) { }
     Sprite::~Sprite() { }
 
     void Sprite::Render(Core::Camera camera, unsigned int shader) {
