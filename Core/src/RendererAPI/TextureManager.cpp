@@ -32,9 +32,11 @@ namespace Core
     {
         uint32_t texture = CreateTexture();
 
-        int width, height, nrChannels;
+        int width{}, height{}, nrChannels{};
+        unsigned char* data = nullptr;
+
         stbi_set_flip_vertically_on_load(flip);
-        unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
+        data = stbi_load(filename, &width, &height, &nrChannels, 0);
         if (data == nullptr)
         {
             std::cout << "Failed to load texture\n";
@@ -62,7 +64,7 @@ namespace Core
                 break;
             
             default:
-                std::cout << nrChannels << " is an unregistered amount of color channels!\n";
+                std::cout << nrChannels << " is an unregistered amount of color channels! [" << filename << "]\n";
         }
 
         SetData(texture, GL_TEXTURE_2D, textures[texture].internalFormat, width, height, textures[texture].format, GL_UNSIGNED_BYTE, data, false, 0);
