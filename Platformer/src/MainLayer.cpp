@@ -20,7 +20,7 @@ MainLayer::MainLayer() {
 	Core::RendererAPI::SetClearColor(glm::vec4(0.0f));
     oldFbSize = Core::Application::Get().GetFramebufferSize();
 
-    glfwSetInputMode(Core::Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(Core::Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &lastMouseX, &lastMouseY);
 
     // Setup Dear ImGui context
@@ -33,6 +33,10 @@ MainLayer::MainLayer() {
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(Core::Application::Get().GetWindow()->GetHandle(), true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
+
+    //##### Variables init #####
+	tickAccumulator = secondsAccumulator = timer = 0.0;
+	frameCounter = tickCounter = 0;
 
 	LoadAssets();
 }
@@ -82,6 +86,6 @@ void MainLayer::LoadAssets() {
     sprites.push_back(Platformer::Sprite(whitePixelTexture));
 }
 
-void MainLayer::PrintStats() {
+void MainLayer::PrintStats() const {
     std::cout << "##### Stats #####\nTime: " << timer << "s\nFPS: " << frameCounter << "\nTPS: " << tickCounter << "\n";
 }

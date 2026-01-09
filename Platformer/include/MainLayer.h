@@ -20,7 +20,7 @@ public:
 private:
     void FixedUpdate(double fixedTimeStep);
 	void LoadAssets();
-    void PrintStats();
+    void PrintStats() const;
 
     static const unsigned int TPS = 60;
 

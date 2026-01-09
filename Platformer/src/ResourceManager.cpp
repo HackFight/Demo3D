@@ -54,11 +54,13 @@ namespace Platformer {
     }
 
     unsigned int ResourceManager::CreatePlainRGBATexture(int width, int height, unsigned char fill) {
-        unsigned char data[width*height*4];
-        for(int i = 0; i < width * height * 4; i++) {
-            data[i] = fill;
-        }
-        return Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, false, 0);
+        unsigned char* data = new unsigned char[width * height * 4];
+        for(int i = 0; i < width * height * 4; i++) data[i] = fill;
+
+        unsigned int texture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGBA8, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data, false, 0);
+
+        delete[] data;
+        return texture;
     }
 
     void ResourceManager::ReleaseAll() {
