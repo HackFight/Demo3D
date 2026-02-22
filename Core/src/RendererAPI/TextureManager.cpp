@@ -44,12 +44,12 @@ namespace Core
 
         switch (nrChannels) {
             case 4:
-                textures[texture].internalFormat = GL_RGBA8;
+                textures[texture].internalFormat = GL_SRGB8_ALPHA8;
 			    textures[texture].format = GL_RGBA;
                 break;
 
             case 3:
-                textures[texture].internalFormat = GL_RGB8;
+                textures[texture].internalFormat = GL_SRGB8;
 			    textures[texture].format = GL_RGB;
                 break;
 

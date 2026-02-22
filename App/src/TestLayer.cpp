@@ -82,15 +82,11 @@ void TestLayer::OnUpdate(double ts)
         frameCounter = 0;
     }
 
-    
-
     ProcessInput(ts);
 }
 
 void TestLayer::OnRender()
 {
-    Core::RendererAPI::SRGBColorSpace(false);
-
     // Render shadowmap
     Core::RendererAPI::SetViewport(0, 0, SHADOW_SIZE, SHADOW_SIZE);
 
@@ -124,6 +120,7 @@ void TestLayer::OnRender()
     
     Core::ShaderManager::setmat4(blinnPhongShader, "lightSpaceMat", lightSpaceMat);
     Core::ShaderManager::setmat4(texturedShader, "lightSpaceMat", lightSpaceMat);
+    Core::ShaderManager::setBool(postProcessingShader, "gammaCorrection", gammaCorrection);
 	Core::ShaderManager::setBool(postProcessingShader, "toneMapping", toneMapping);
 	Core::ShaderManager::setFloat(postProcessingShader, "exposure", exposure);
 
@@ -139,8 +136,6 @@ void TestLayer::OnRender()
     Core::FramebufferManager::Unbind();
     Core::RendererAPI::ClearColor();
     Core::RendererAPI::ClearDepth();
-
-    if(gammaCorrection) Core::RendererAPI::SRGBColorSpace(true);
 
     screenQuad.Render(camera.coreCamera);
 
@@ -209,7 +204,8 @@ void TestLayer::LoadAssets()
     skyboxShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/skybox.vert", RESOURCES_PATH "shaders/skybox.frag");
 
     postProcessingShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/post.vert", RESOURCES_PATH "shaders/post.frag");
-    Core::ShaderManager::setBool(postProcessingShader, "toneMapping", false);
+    Core::ShaderManager::setBool(postProcessingShader, "gammaCorrection", gammaCorrection);
+    Core::ShaderManager::setBool(postProcessingShader, "toneMapping", toneMapping);
     Core::ShaderManager::setFloat(postProcessingShader, "exposure", 1.0f);
 
     shadowShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert", RESOURCES_PATH "shaders/empty.frag");

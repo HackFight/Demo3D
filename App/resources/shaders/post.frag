@@ -9,22 +9,15 @@ struct Material {
 
 uniform Material material;
 
+uniform bool gammaCorrection;
 uniform bool toneMapping;
 uniform float exposure;
 
 void main()
 { 
-    vec3 hdrColor = texture(material.texture_diffuse1, texCoord).rgb;
-
-    // reinhard tone mapping
-    vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);
-
-    if (toneMapping)
-    {
-        fragColor = vec4(mapped, 1.0);
-    }
-    else
-    {
-        fragColor = vec4(hdrColor, 1.0);
-    }
+    vec3 color = texture(material.texture_diffuse1, texCoord).rgb;
+    if (toneMapping) color = vec3(1.0) - exp(-color * exposure);
+    if (gammaCorrection) color = pow(color, vec3(1.0/2.2));
+    
+    fragColor = vec4(color, 1.0);
 }

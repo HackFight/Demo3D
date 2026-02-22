@@ -59,7 +59,7 @@ private:
     DirectionalLight sunLight
     {
         glm::vec3(1.0f, -2.0f, 0.1f),
-        glm::vec3(0.2f, 0.2f, 0.2f),
+        glm::vec3(0.01f, 0.01f, 0.01f),
         glm::vec3(1.0f, 1.0f, 1.0f),
         glm::vec3(1.0f, 1.0f, 1.0f)
     };
