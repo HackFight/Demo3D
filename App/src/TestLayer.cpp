@@ -110,6 +110,7 @@ void TestLayer::OnRender()
     {
         Core::TextureManager::Resize(framebufferColor, fb.x, fb.y);
         Core::RenderbufferManager::Resize(renderbuffer, fb.x, fb.y);
+        camera.coreCamera.aspectRatio = fb.x / fb.y;
         oldFbSize = fb;
     }
 
