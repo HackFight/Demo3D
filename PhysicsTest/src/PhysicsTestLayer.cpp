@@ -180,13 +180,13 @@ void PhysicsTestLayer::ProcessInput(double ts)
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_ESCAPE) == GLFW_RELEASE)
         canPress = true;
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_W) == GLFW_PRESS)
-        camera.coreCamera.ProcessKeyboard(Core::FORWARD, ts);
+        camera.ProcessKeyboard(App::FORWARD, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_S) == GLFW_PRESS)
-        camera.coreCamera.ProcessKeyboard(Core::BACKWARD, ts);
+        camera.ProcessKeyboard(App::BACKWARD, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_A) == GLFW_PRESS)
-        camera.coreCamera.ProcessKeyboard(Core::LEFT, ts);
+        camera.ProcessKeyboard(App::LEFT, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_D) == GLFW_PRESS)
-        camera.coreCamera.ProcessKeyboard(Core::RIGHT, ts);
+        camera.ProcessKeyboard(App::RIGHT, ts);
 
     double xpos, ypos;
     glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
@@ -195,7 +195,7 @@ void PhysicsTestLayer::ProcessInput(double ts)
     lastX = xpos;
     lastY = ypos;
     if(mouseDisabled)
-        camera.coreCamera.ProcessMouseMovement(xoffset, yoffset);
+        camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 void PhysicsTestLayer::LoadAssets()
@@ -394,6 +394,6 @@ void PhysicsTestLayer::LoadAssets()
 	camera.SetSkybox(skyboxModel, skyboxShader);
 
     lightCamera = App::Camera(-sunLight.direction * 10.0f);
-	lightCamera.coreCamera.orthographic = true;
+	//lightCamera.coreCamera.orthographic = true;
     lightCamera.coreCamera.lookAt({0.0f, 0.0f, 0.0f});
 }
