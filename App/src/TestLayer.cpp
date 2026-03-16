@@ -4,6 +4,7 @@
 #include "Core/Model.h"
 #include "GameObject.h"
 #include "MaterialGen.h"
+#include "Renderer/FlyCam.h"
 #include "RendererAPI/BufferManager.h"
 #include "RendererAPI/FramebufferManager.h"
 #include "RendererAPI/RendererAPI.h"
@@ -93,12 +94,12 @@ void TestLayer::OnRender()
     Core::FramebufferManager::Bind(shadowbuffer);
     Core::RendererAPI::ClearDepth();
 
-    glm::mat4 lightSpaceMat = lightCamera.coreCamera.getProjectionMatrix() * lightCamera.coreCamera.getViewMatrix();
+    glm::mat4 lightSpaceMat = lightCamera.getProjectionMatrix() * lightCamera.getViewMatrix();
 
     Core::ShaderManager::setmat4(shadowShader, "lightSpaceMat", lightSpaceMat);
     for(App::GameObject& obj : gameObjects)
     {
-        obj.Render(lightCamera.coreCamera, shadowShader);
+        obj.Render(lightCamera, shadowShader);
 	}
 
     // Ensure viewport matches the current framebuffer size every frame
@@ -110,7 +111,7 @@ void TestLayer::OnRender()
     {
         Core::TextureManager::Resize(framebufferColor, fb.x, fb.y);
         Core::RenderbufferManager::Resize(renderbuffer, fb.x, fb.y);
-        camera.coreCamera.aspectRatio = fb.x / fb.y;
+        camera.aspectRatio = fb.x / fb.y;
         oldFbSize = fb;
     }
 
@@ -129,7 +130,7 @@ void TestLayer::OnRender()
 
     for(App::GameObject& obj : gameObjects)
     {
-        obj.Render(camera.coreCamera);
+        obj.Render(camera);
 	}
 
 	camera.RenderSkybox();
@@ -138,7 +139,7 @@ void TestLayer::OnRender()
     Core::RendererAPI::ClearColor();
     Core::RendererAPI::ClearDepth();
 
-    screenQuad.Render(camera.coreCamera);
+    screenQuad.Render(camera);
 
     RenderGUI();
 }
@@ -167,13 +168,13 @@ void TestLayer::ProcessInput(double ts)
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_ESCAPE) == GLFW_RELEASE)
         canPress = true;
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(App::FORWARD, ts);
+        camera.ProcessKeyboard(Core::FORWARD, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(App::BACKWARD, ts);
+        camera.ProcessKeyboard(Core::BACKWARD, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(App::LEFT, ts);
+        camera.ProcessKeyboard(Core::LEFT, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(App::RIGHT, ts);
+        camera.ProcessKeyboard(Core::RIGHT, ts);
 
     double xpos, ypos;
     glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
@@ -272,7 +273,7 @@ void TestLayer::LoadAssets()
     gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Gold));
     gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/vyse-helmet/vyse-helmet.obj"), blinnPhongShader, { 0.0f ,1.5f, 0.0f }, {1.0f, 1.0f, 1.0f}, FLASHBANG));
     gameObjects.push_back(App::GameObject(ModelGen::GetCube(boxTextures), texturedShader, {1.5f, 0.5f, 0.0f}));
-    //gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, {0.0f, 2.0f, -2.0f}));
+    gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, {0.0f, 2.0f, -2.0f}));
 	gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/sponza/sponza.obj"), texturedShader, { 0.0f, 0.0f, 0.0f }));
 	gameObjects.back().m_Scale = glm::vec3(0.01f);
     
@@ -286,5 +287,5 @@ void TestLayer::LoadAssets()
 
     lightCamera = App::Camera(-sunLight.direction * 10.0f);
 	//lightCamera.coreCamera.orthographic = true;
-    lightCamera.coreCamera.lookAt({0.0f, 0.0f, 0.0f});
+    lightCamera.lookAt({0.0f, 0.0f, 0.0f});
 }

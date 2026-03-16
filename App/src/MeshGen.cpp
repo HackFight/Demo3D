@@ -8,6 +8,9 @@
 
 uint32_t MeshGen::GetQuad()
 {
+    // Peut 
+    //static ssize_t idx = -1;
+
     std::vector<Core::Vertex> vertices
     {
         {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
@@ -16,7 +19,7 @@ uint32_t MeshGen::GetQuad()
         {{-1.0f,  1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}}
     };
     uint32_t vertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)vertices.data(), vertices.size()*sizeof(Core::Vertex));
-    uint32_t indices[]{
+    uint32_t indices[] {
         0, 1, 2,
         0, 2, 3
     };
