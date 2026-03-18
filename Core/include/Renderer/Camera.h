@@ -2,67 +2,37 @@
 
 // libs
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
-// Default camera values
-const float YAW = -90.0f;
-const float PITCH = 0.0f;
-const float SPEED = 2.5f;
-const float SENSITIVITY = 0.1f;
 
 namespace Core {
+    const glm::vec3 DEFAULT_POSITION = glm::vec3(0.0f);
+    const glm::vec3 DEFAULT_UP = glm::vec3(0.0f, 1.0f, 0.0f);
+    const float DEFAULT_YAW = -90.0f;
+    const float DEFAULT_PITCH = 0.0f;
+    const float DEFAULT_AR = 16.0f/9.0f;
+    const float DEFAULT_FOVY = glm::radians(45.0f);
+    const float DEFAULT_ZNEAR = 0.1f;
+    const float DEFAULT_ZFAR = 100.0f;
 
-    enum CameraMovement
-    {
-        FORWARD,
-        BACKWARD,
-        LEFT,
-        RIGHT
-    };
-
-    // Default camera values
-    const float YAW         = -90.0f;
-    const float PITCH       =  0.0f;
-    const float SPEED       =  2.5f;
-    const float SENSITIVITY =  0.1f;
-    const float ZOOM        =  45.0f;
-
-    class Camera
-    {
+    class Camera {        
     public:
-        Camera(float posX = 0.0f, float posY = 0.0f, float posZ = 0.0f, float upX = 0.0f, float upY = 1.0f, float upZ = 0.0f, float yaw = -90.0f, float pitch = 0.0f);
+        Camera(
+            glm::vec3 position = DEFAULT_POSITION,
+            glm::vec3 up = DEFAULT_UP,
+            float yaw = DEFAULT_YAW,
+            float pitch = DEFAULT_PITCH,
+            float aspectRatio = DEFAULT_AR,
+            float fovy = DEFAULT_FOVY,
+            float zNear = DEFAULT_ZNEAR,
+            float zFar = DEFAULT_ZFAR
+        );
+        ~Camera();
 
         glm::mat4 getViewMatrix();
-        glm::mat4 getProjectionMatrix();
-
-		glm::vec3 getPos() { return position; }
-		float getPitch() { return Pitch; }
-		float getYaw() { return Yaw; }
-
-		void setPos(glm::vec3 pos) { position = pos; updateCameraVectors(); }
-		void setPitch(float pitch) { Pitch = pitch; updateCameraVectors(); }
-		void setYaw(float yaw) { Yaw = yaw; updateCameraVectors(); }
-
+        virtual glm::mat4 getProjectionMatrix() = 0;
         void lookAt(glm::vec3 point);
-
-        void ProcessKeyboard(CameraMovement direction, double deltaTime);
-        void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
-
-        float MovementSpeed;
-        float MouseSensitivity;
-        bool orthographic = false;
-
-    private:
         void updateCameraVectors();
 
-        glm::vec3 position;
-
-        glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-        glm::vec3 forward;
-        glm::vec3 up;
-        glm::vec3 right;
-
-        float Yaw;
-        float Pitch;
+        glm::vec3 position, forward, up, right, worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+        float yaw, pitch, aspectRatio, fovy, zNear, zFar;
     };
 }
