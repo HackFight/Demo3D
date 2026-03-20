@@ -9,19 +9,13 @@ namespace Core {
             glm::vec3 up,
             float yaw,
             float pitch,
-            float aspectRatio,
-            float fovy,
-            float zNear,
-            float zFar
+            float aspectRatio
         ) :
         position(position),
         up(up),
         yaw(yaw),
         pitch(pitch),
-        aspectRatio(aspectRatio),
-        fovy(fovy),
-        zNear(zNear),
-        zFar(zFar)
+        aspectRatio(aspectRatio)
         {
             updateCameraVectors();
         }

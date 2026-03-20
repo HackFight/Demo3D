@@ -6,8 +6,11 @@
 // App
 #include "MaterialGen.h"
 
-//std
+// std
 #include <cstdint>
+
+// libs
+#include <glm/ext/matrix_transform.hpp>
 
 namespace App
 {

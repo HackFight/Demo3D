@@ -9,9 +9,6 @@ namespace Core {
     const float DEFAULT_YAW = -90.0f;
     const float DEFAULT_PITCH = 0.0f;
     const float DEFAULT_AR = 16.0f/9.0f;
-    const float DEFAULT_FOVY = glm::radians(45.0f);
-    const float DEFAULT_ZNEAR = 0.1f;
-    const float DEFAULT_ZFAR = 100.0f;
 
     class Camera {        
     public:
@@ -20,10 +17,7 @@ namespace Core {
             glm::vec3 up = DEFAULT_UP,
             float yaw = DEFAULT_YAW,
             float pitch = DEFAULT_PITCH,
-            float aspectRatio = DEFAULT_AR,
-            float fovy = DEFAULT_FOVY,
-            float zNear = DEFAULT_ZNEAR,
-            float zFar = DEFAULT_ZFAR
+            float aspectRatio = DEFAULT_AR
         );
         ~Camera();
 
@@ -33,6 +27,6 @@ namespace Core {
         void updateCameraVectors();
 
         glm::vec3 position, forward, up, right, worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-        float yaw, pitch, aspectRatio, fovy, zNear, zFar;
+        float yaw, pitch, aspectRatio;
     };
 }

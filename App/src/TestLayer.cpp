@@ -259,7 +259,7 @@ void TestLayer::LoadAssets()
 
     //###### Frame & Render buffers ######
     renderbuffer = Core::RenderbufferManager::CreateRenderbuffer(GL_DEPTH24_STENCIL8, oldFbSize.x, oldFbSize.y, false, 0);
-    
+
     framebuffer = Core::FramebufferManager::CreateFramebuffer();
     Core::FramebufferManager::AttachTexture(framebuffer, framebufferColor);
     Core::FramebufferManager::AttachRenderbuffer(framebuffer, renderbuffer);
@@ -273,10 +273,10 @@ void TestLayer::LoadAssets()
     gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Gold));
     gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/vyse-helmet/vyse-helmet.obj"), blinnPhongShader, { 0.0f ,1.5f, 0.0f }, {1.0f, 1.0f, 1.0f}, FLASHBANG));
     gameObjects.push_back(App::GameObject(ModelGen::GetCube(boxTextures), texturedShader, {1.5f, 0.5f, 0.0f}));
-    gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, {0.0f, 2.0f, -2.0f}));
+    //gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, {0.0f, 2.0f, -2.0f}));
 	gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/sponza/sponza.obj"), texturedShader, { 0.0f, 0.0f, 0.0f }));
 	gameObjects.back().m_Scale = glm::vec3(0.01f);
-    
+
     Core::Model skyboxModel = ModelGen::GetReversedCube({ skyboxTexture });
 
     screenQuad = App::GameObject(ModelGen::GetQuad({ framebufferColor }), postProcessingShader);

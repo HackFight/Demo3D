@@ -4,6 +4,10 @@
 #include "Renderer/Camera.h"
 
 namespace Core {
+    const float DEFAULT_FOVY = glm::radians(45.0f);
+    const float DEFAULT_ZNEAR = 0.1f;
+    const float DEFAULT_ZFAR = 100.0f;
+
     class Camera3D : public Camera {
     public:
         Camera3D(
@@ -19,5 +23,7 @@ namespace Core {
         ~Camera3D();
 
         glm::mat4 getProjectionMatrix();
+
+        float fovy, zNear, zFar;
     };
 }

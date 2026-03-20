@@ -17,11 +17,8 @@ namespace Core {
         up,
         yaw,
         pitch,
-        aspectRatio,
-        fovy,
-        zNear,
-        zFar
-    ) {}
+        aspectRatio
+    ), fovy(fovy), zNear(zNear), zFar(zFar) {}
     Camera3D::~Camera3D() {}
 
     glm::mat4 Camera3D::getProjectionMatrix()
