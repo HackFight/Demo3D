@@ -5,6 +5,7 @@
 #include "GameObject.h"
 #include "MaterialGen.h"
 #include "Renderer/FlyCam.h"
+#include "Renderer/OrthographicCamera.h"
 #include "RendererAPI/BufferManager.h"
 #include "RendererAPI/FramebufferManager.h"
 #include "RendererAPI/RendererAPI.h"
@@ -285,7 +286,7 @@ void TestLayer::LoadAssets()
     camera = App::Camera(glm::vec3(0.0f, 1.0f, 3.0f));
 	camera.SetSkybox(skyboxModel, skyboxShader);
 
-    lightCamera = App::Camera(-sunLight.direction * 10.0f);
-	//lightCamera.coreCamera.orthographic = true;
+    lightCamera = Core::OrthographicCamera(-sunLight.direction * 10.0f);
+    lightCamera.cameraHeight=1000.0f;
     lightCamera.lookAt({0.0f, 0.0f, 0.0f});
 }

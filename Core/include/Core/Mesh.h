@@ -23,10 +23,10 @@ namespace Core
         Mesh(std::vector<Core::Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures, bool staticDraw = true);
         Mesh(uint32_t vertexBuffer, uint32_t indexBuffer, std::vector<Texture> textures);
 
-        void Draw(uint32_t shader);
+        void Draw(uint32_t shader) const;
 
-		uint32_t GetVertexBuffer() const { return m_VertexBuffer; }
-        uint32_t GetVertexArray() const { return vertexArray; }
+		uint32_t GetVertexBuffer() { return m_VertexBuffer; }
+        uint32_t GetVertexArray() { return vertexArray; }
 
     private:
         uint32_t m_VertexBuffer, m_IndexBuffer, vertexArray;

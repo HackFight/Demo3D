@@ -21,7 +21,7 @@ namespace Core
         Model(std::vector<Mesh> meshes);
         Model(Mesh mesh);
 
-        void Draw(uint32_t shader);
+        void Draw(uint32_t shader) const;
 
         Mesh& GetMesh(size_t index);
 

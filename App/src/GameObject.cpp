@@ -19,7 +19,7 @@ namespace App
 
 	GameObject::~GameObject() {}
 
-	void GameObject::Render(Core::Camera3D camera, uint32_t shader)
+	void GameObject::Render(Core::Camera& camera, uint32_t shader) const
 	{
 		Core::ShaderManager::setmat4(shader, "viewMat", camera.getViewMatrix());
 		Core::ShaderManager::setmat4(shader, "projMat", camera.getProjectionMatrix());
@@ -34,7 +34,7 @@ namespace App
 		m_Model.Draw(shader);
 	}
 
-	void GameObject::Render(Core::Camera3D camera)
+	void GameObject::Render(Core::Camera& camera) const
 	{
 		Render(camera, m_Shader);
 	}

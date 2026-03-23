@@ -1,8 +1,12 @@
 #pragma once
 
+#include "Renderer/Camera.h"
 #include "Renderer/Camera3D.h"
 
 namespace Core {
+
+    const float DEFAULT_SPEED = 1.5f;
+    const float DEFAULT_SENSITIVITY = 0.1f;
 
     enum CameraMovement
     {
@@ -14,12 +18,20 @@ namespace Core {
 
     class FlyCam : public Camera3D {
     public:
-        FlyCam(glm::vec3 position = glm::vec3(0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = -90.0f, float pitch = 0.0f, float speed = 1.5f, float sensitivity = 0.1f);
+        FlyCam(
+            glm::vec3 position = DEFAULT_POSITION,
+            glm::vec3 up = DEFAULT_UP,
+            float yaw = DEFAULT_YAW,
+            float pitch = DEFAULT_PITCH,
+            float speed = DEFAULT_SPEED,
+            float sensitivity = DEFAULT_SENSITIVITY
+        );
         ~FlyCam();
 
         void ProcessKeyboard(CameraMovement direction, double deltaTime);
         void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
 
-        float movementSpeed, mouseSensitivity;
+        float movementSpeed = DEFAULT_SPEED;
+        float mouseSensitivity = DEFAULT_SENSITIVITY;
     };
 }

@@ -7,18 +7,19 @@ namespace Core {
         glm::vec3 up,
         float yaw,
         float pitch,
-        float aspectRatio,
         float fovy,
+        float aspectRatio,
         float zNear,
         float zFar
-    ) :
-    Camera(
+    ) : Camera(
         position,
         up,
         yaw,
         pitch,
-        aspectRatio
-    ), fovy(fovy), zNear(zNear), zFar(zFar) {}
+        aspectRatio,
+        zNear,
+        zFar
+    ), fovy(fovy) {}
     Camera3D::~Camera3D() {}
 
     glm::mat4 Camera3D::getProjectionMatrix()

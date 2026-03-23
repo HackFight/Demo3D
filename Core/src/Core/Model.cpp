@@ -21,7 +21,7 @@ namespace Core
         : meshes(std::vector<Mesh>{mesh}) {}
 
 
-    void Model::Draw(uint32_t shader)
+    void Model::Draw(uint32_t shader) const
     {
         for (unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].Draw(shader);

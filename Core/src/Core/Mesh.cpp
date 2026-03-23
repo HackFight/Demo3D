@@ -25,7 +25,7 @@ namespace Core
         VertexArrayManager::SetIndexBuffer(vertexArray, indexBuffer);
     }
 
-    void Mesh::Draw(uint32_t shader)
+    void Mesh::Draw(uint32_t shader) const
     {
         unsigned int diffuseNr = 1;
         unsigned int specularNr = 1;

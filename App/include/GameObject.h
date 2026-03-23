@@ -1,7 +1,7 @@
 #pragma once
 
 // Engine
-#include "Renderer/Camera3D.h"
+#include "Renderer/Camera.h"
 #include "Core/Model.h"
 
 // App
@@ -18,8 +18,8 @@ namespace App
 		GameObject(Core::Model model = Core::Model(), uint32_t shader = 0, glm::vec3 position = glm::vec3(0.0f), glm::vec3 scale = glm::vec3(1.0f), BlinnPhongMaterial material = WhitePlastic);
 		~GameObject();
 
-		void Render(Core::Camera3D camera, uint32_t forcedShader);
-		void Render(Core::Camera3D camera);
+		void Render(Core::Camera& camera, uint32_t forcedShader) const;
+		void Render(Core::Camera& camera) const;
 
 		Core::Model GetModel() { return m_Model; }
 

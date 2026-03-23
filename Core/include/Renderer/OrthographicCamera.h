@@ -4,6 +4,8 @@
 #include "Renderer/Camera.h"
 
 namespace Core {
+    const float DEFAULT_CAMERA_HEIGHT = 10.0f;
+
     class OrthographicCamera : public Camera {
     public:
         OrthographicCamera(
@@ -11,10 +13,15 @@ namespace Core {
             glm::vec3 up = DEFAULT_UP,
             float yaw = DEFAULT_YAW,
             float pitch = DEFAULT_PITCH,
-            float aspectRatio = DEFAULT_AR
+            float cameraHeight = DEFAULT_CAMERA_HEIGHT,
+            float aspectRatio = DEFAULT_AR,
+            float zNear = DEFAULT_ZNEAR,
+            float zFar = DEFAULT_ZFAR
         );
         ~OrthographicCamera();
 
         glm::mat4 getProjectionMatrix();
+
+        float cameraHeight = DEFAULT_CAMERA_HEIGHT;
     };
 }

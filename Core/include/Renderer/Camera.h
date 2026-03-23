@@ -6,9 +6,14 @@
 namespace Core {
     const glm::vec3 DEFAULT_POSITION = glm::vec3(0.0f);
     const glm::vec3 DEFAULT_UP = glm::vec3(0.0f, 1.0f, 0.0f);
+    const glm::vec3 DEFAULT_FORWARD = glm::vec3(0.0f, 0.0f, -1.0f);
+    const glm::vec3 DEFAULT_RIGHT = glm::vec3(1.0f, 0.0f, 0.0f);
+    const glm::vec3 DEFAULT_WORLD_UP = glm::vec3(0.0f, 1.0f, 0.0f);
     const float DEFAULT_YAW = -90.0f;
     const float DEFAULT_PITCH = 0.0f;
     const float DEFAULT_AR = 16.0f/9.0f;
+    const float DEFAULT_ZNEAR = 0.1f;
+    const float DEFAULT_ZFAR = 100.0f;
 
     class Camera {        
     public:
@@ -17,7 +22,9 @@ namespace Core {
             glm::vec3 up = DEFAULT_UP,
             float yaw = DEFAULT_YAW,
             float pitch = DEFAULT_PITCH,
-            float aspectRatio = DEFAULT_AR
+            float aspectRatio = DEFAULT_AR,
+            float zNear = DEFAULT_ZNEAR,
+            float zFar = DEFAULT_ZFAR
         );
         ~Camera();
 
@@ -26,7 +33,15 @@ namespace Core {
         void lookAt(glm::vec3 point);
         void updateCameraVectors();
 
-        glm::vec3 position, forward, up, right, worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-        float yaw, pitch, aspectRatio;
+        glm::vec3 position = DEFAULT_POSITION;
+        glm::vec3 forward = DEFAULT_FORWARD;
+        glm::vec3 up = DEFAULT_UP;
+        glm::vec3 right = DEFAULT_RIGHT;
+        glm::vec3 worldUp = DEFAULT_WORLD_UP;
+        float yaw = DEFAULT_YAW;
+        float pitch = DEFAULT_PITCH;
+        float aspectRatio = DEFAULT_AR;
+        float zNear = DEFAULT_ZNEAR;
+        float zFar = DEFAULT_ZFAR;
     };
 }
