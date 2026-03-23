@@ -3,9 +3,6 @@
 // libs
 #include <glad/glad.h>
 
-//std
-#include <cstdint>
-
 // Engine
 #include "Renderer/FlyCam.h"
 #include "RendererAPI/RendererAPI.h"
@@ -17,13 +14,13 @@ namespace App
 		: skyboxShader(0), skyboxModel(Core::Model()), Core::FlyCam(position, up, yaw, pitch, speed, sensitivity)
     { }
 
-    void Camera::SetSkybox(Core::Model model, uint32_t shader)
+    void Camera::SetSkybox(Core::Model model, size_t shader)
     {
         skyboxShader = shader;
         skyboxModel = model;
     }
 
-    void Camera::RenderSkybox()
+    void Camera::RenderSkybox() const
     {
         Core::RendererAPI::SetDepthFunc(GL_LEQUAL);
 

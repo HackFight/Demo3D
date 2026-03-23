@@ -20,7 +20,7 @@ namespace Core {
         );
         ~Camera3D();
 
-        glm::mat4 getProjectionMatrix();
+        glm::mat4 getProjectionMatrix() const;
 
         float fovy = DEFAULT_FOVY;
     };

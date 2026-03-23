@@ -5,6 +5,7 @@
 
 //App
 #include "Camera.h"
+#include "Renderer/OrthographicCamera.h"
 #include "SoftBody.h"
 
 //std
@@ -43,7 +44,8 @@ private:
 
     uint32_t shadowbuffer, shadowmap, shadowShader, normalsShader;
 
-    App::Camera camera, lightCamera;
+    App::Camera camera;
+    Core::OrthographicCamera lightCamera;
     bool mouseDisabled = true;
     bool canPress = true;
     double lastX, lastY;

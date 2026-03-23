@@ -1,8 +1,6 @@
 #include "RendererAPI/TextureManager.h"
-#include "RendererAPI/BufferManager.h"
 
 // libs
-#include <cstdint>
 #include <stb_image/stb_image.h>
 
 // std
@@ -12,25 +10,25 @@
 namespace Core
 {
     std::vector<TextureInfo> TextureManager::textures;
-    uint32_t TextureManager::CreateTexture()
+    size_t TextureManager::CreateTexture()
     {
         TextureInfo texture;
 
-        glGenTextures(1, &texture.RendererID);
+        glGenTextures(1, &texture.rendererID);
 
         textures.push_back(texture);
         return textures.size() - 1;
     }
-    uint32_t TextureManager::CreateTexture(GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum dataType, const void* data, bool multisampled, GLsizei samples)
+    size_t TextureManager::CreateTexture(GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum dataType, const void* data, bool multisampled, GLsizei samples)
     {
-        uint32_t texture = CreateTexture();
+        size_t texture = CreateTexture();
         SetData(texture, target, internalFormat, width, height, format, dataType, data, multisampled, samples);
         SetParameters(texture, GL_REPEAT, GL_NEAREST, GL_NEAREST);
         return texture;
     }
-    uint32_t TextureManager::CreateTexture(const char* filename, bool flip)
+    size_t TextureManager::CreateTexture(const char* filename, bool flip)
     {
-        uint32_t texture = CreateTexture();
+        size_t texture = CreateTexture();
 
         int width{}, height{}, nrChannels{};
         unsigned char* data = nullptr;
@@ -73,12 +71,12 @@ namespace Core
 
         return texture;
     }
-    uint32_t TextureManager::CreateCubemap(std::vector<const char *> faces)
+    size_t TextureManager::CreateCubemap(std::vector<const char *> faces)
     {
-        uint32_t texture = CreateTexture();
+        size_t texture = CreateTexture();
 
         textures[texture].target = GL_TEXTURE_CUBE_MAP;
-        glBindTexture(GL_TEXTURE_CUBE_MAP, textures[texture].RendererID);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, textures[texture].rendererID);
         
         int width, height, nrChannels;
         for (unsigned int i = 0; i < faces.size(); i++)
@@ -138,12 +136,12 @@ namespace Core
         return texture;
     }
 
-    void TextureManager::Bind(uint32_t texture, int i)
+    void TextureManager::Bind(size_t texture, int i)
     {
         glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(textures[texture].target, textures[texture].RendererID);
+        glBindTexture(textures[texture].target, textures[texture].rendererID);
     }
-    void TextureManager::Unbind(uint32_t texture, int i)
+    void TextureManager::Unbind(size_t texture, int i)
     {
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(textures[texture].target, 0);
@@ -154,7 +152,7 @@ namespace Core
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    void TextureManager::SetData(uint32_t texture, GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum dataType, const void *data, bool multisampled, GLsizei samples)
+    void TextureManager::SetData(size_t texture, GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum dataType, const void *data, bool multisampled, GLsizei samples)
     {
         textures[texture].target = target;
         textures[texture].internalFormat = internalFormat;
@@ -167,7 +165,7 @@ namespace Core
 
         TextureInfo info = textures[texture];
 
-        glBindTexture(info.target, info.RendererID);
+        glBindTexture(info.target, info.rendererID);
         
         if(info.multisampled)
             glTexImage2DMultisample(info.target, info.samples, info.internalFormat, info.width, info.height, GL_TRUE);
@@ -175,34 +173,34 @@ namespace Core
             glTexImage2D(info.target, 0, info.internalFormat, info.width, info.height, 0, info.format, info.dataType, data);
     }
 
-    void TextureManager::Resize(uint32_t texture, GLsizei width, GLsizei height)
+    void TextureManager::Resize(size_t texture, GLsizei width, GLsizei height)
     {
         TextureInfo info = textures[texture];
         SetData(texture, info.target, info.internalFormat, width, height, info.format, info.dataType, nullptr, info.multisampled, info.samples);
     }
 
-    void TextureManager::GenerateMipmaps(uint32_t texture)
+    void TextureManager::GenerateMipmaps(size_t texture)
     {
         Bind(texture, 0);
         glGenerateMipmap(textures[texture].target);
     }
 
-    void TextureManager::SetParameters(uint32_t texture, GLint wrapping, GLint minFilter, GLint maxFilter)
+    void TextureManager::SetParameters(size_t texture, GLint wrapping, GLint minFilter, GLint maxFilter)
     {
         TextureInfo info = textures[texture];
 
-        glBindTexture(info.target, info.RendererID);
+        glBindTexture(info.target, info.rendererID);
         glTexParameteri(info.target, GL_TEXTURE_WRAP_S, wrapping);
         glTexParameteri(info.target, GL_TEXTURE_WRAP_T, wrapping);
         glTexParameteri(info.target, GL_TEXTURE_MIN_FILTER, minFilter);
         glTexParameteri(info.target, GL_TEXTURE_MAG_FILTER, maxFilter);
     }
 
-    void TextureManager::SetBorderColor(uint32_t texture, float r, float g, float b, float a)
+    void TextureManager::SetBorderColor(size_t texture, float r, float g, float b, float a)
     {
         TextureInfo info = textures[texture];
 
-        glBindTexture(info.target, info.RendererID);
+        glBindTexture(info.target, info.rendererID);
         float color[] = { r, g, b, a };
 		glTexParameterfv(info.target, GL_TEXTURE_BORDER_COLOR, color);
     }
@@ -226,7 +224,7 @@ namespace Core
         size_t total = 0;
         for (const TextureInfo& t : textures)
         {
-            if (t.RendererID == 0 || t.width == 0 || t.height == 0) continue;
+            if (t.rendererID == 0 || t.width == 0 || t.height == 0) continue;
             size_t bpp = _EstimateBppFromInternalFormat(t.internalFormat);
             size_t pixels = (size_t)t.width * (size_t)t.height;
             size_t bytes = pixels * bpp;
@@ -240,7 +238,7 @@ namespace Core
     {
         size_t totalBytes = EstimateTotalMemoryBytes();
         size_t texCount = 0;
-        for (const TextureInfo& t : textures) if (t.RendererID != 0) ++texCount;
+        for (const TextureInfo& t : textures) if (t.rendererID != 0) ++texCount;
         std::cout << "[TextureManager] Textures: " << texCount
             << ", Estimated GPU bytes: " << std::fixed << std::setprecision(2)
             << (totalBytes / 1024.0 / 1024.0) << " MB\n";
@@ -250,10 +248,10 @@ namespace Core
     {
         for (auto& info : textures)
         {
-            if (info.RendererID != 0)
+            if (info.rendererID != 0)
             {
-                glDeleteTextures(1, &info.RendererID);
-                info.RendererID = 0;
+                glDeleteTextures(1, &info.rendererID);
+                info.rendererID = 0;
             }
         }
         textures.clear();

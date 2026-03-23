@@ -5,6 +5,7 @@
 #include "GameObject.h"
 #include "MaterialGen.h"
 #include "PhysicsConstraints.h"
+#include "Renderer/OrthographicCamera.h"
 #include "RendererAPI/BufferManager.h"
 #include "RendererAPI/FramebufferManager.h"
 #include "RendererAPI/RendererAPI.h"
@@ -100,12 +101,12 @@ void PhysicsTestLayer::OnRender()
     Core::FramebufferManager::Bind(shadowbuffer);
     Core::RendererAPI::ClearDepth();
 
-    glm::mat4 lightSpaceMat = lightCamera.coreCamera.getProjectionMatrix() * lightCamera.coreCamera.getViewMatrix();
+    glm::mat4 lightSpaceMat = lightCamera.getProjectionMatrix() * lightCamera.getViewMatrix();
 
     Core::ShaderManager::setmat4(shadowShader, "lightSpaceMat", lightSpaceMat);
     for(App::GameObject& obj : gameObjects)
     {
-        obj.Render(lightCamera.coreCamera, shadowShader);
+        obj.Render(lightCamera, shadowShader);
 	}
 
     // Ensure viewport matches the current framebuffer size every frame
@@ -117,7 +118,7 @@ void PhysicsTestLayer::OnRender()
     {
         Core::TextureManager::Resize(framebufferColor, fb.x, fb.y);
         Core::RenderbufferManager::Resize(renderbuffer, fb.x, fb.y);
-        camera.coreCamera.aspectRatio = fb.x / fb.y;
+        camera.aspectRatio = fb.x / fb.y;
         oldFbSize = fb;
     }
 
@@ -137,7 +138,7 @@ void PhysicsTestLayer::OnRender()
 
     for(App::GameObject& obj : gameObjects)
     {
-        obj.Render(camera.coreCamera);
+        obj.Render(camera);
 	}
 
     /*
@@ -152,7 +153,7 @@ void PhysicsTestLayer::OnRender()
     Core::RendererAPI::ClearColor();
     Core::RendererAPI::ClearDepth();
 
-    screenQuad.Render(camera.coreCamera);
+    screenQuad.Render(camera);
 
     RenderGUI();
 }
@@ -181,13 +182,13 @@ void PhysicsTestLayer::ProcessInput(double ts)
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_ESCAPE) == GLFW_RELEASE)
         canPress = true;
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(App::FORWARD, ts);
+        camera.ProcessKeyboard(Core::FORWARD, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(App::BACKWARD, ts);
+        camera.ProcessKeyboard(Core::BACKWARD, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(App::LEFT, ts);
+        camera.ProcessKeyboard(Core::LEFT, ts);
     if (glfwGetKey(Core::Application::Get().GetWindow()->GetHandle(), GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(App::RIGHT, ts);
+        camera.ProcessKeyboard(Core::RIGHT, ts);
 
     double xpos, ypos;
     glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &xpos, &ypos);
@@ -237,7 +238,7 @@ void PhysicsTestLayer::LoadAssets()
         RESOURCES_PATH "textures/skyboxes/default/back.jpg"
     });
 
-    std::vector<uint32_t> groundTextures =
+    std::vector<size_t> groundTextures =
     {
         Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/default.png")
     };
@@ -260,7 +261,7 @@ void PhysicsTestLayer::LoadAssets()
 	Core::FramebufferManager::AttachTexture(shadowbuffer, shadowmap);
 
 	//###### GameObjects ######
-    gameObjects.push_back(App::GameObject(ModelGen::GetPlane(10, groundTextures), texturedShader));
+    gameObjects.push_back(App::GameObject(ModelGen::getPlane(10, groundTextures), texturedShader));
 
     std::vector<Core::Vertex> cubeVertices =
     {
@@ -386,15 +387,14 @@ void PhysicsTestLayer::LoadAssets()
         CyanPlastic);
 	gameObjects.push_back(jellyCube);
     
-    Core::Model skyboxModel = ModelGen::GetReversedCube({ skyboxTexture });
+    Core::Model skyboxModel = ModelGen::getReversedCube({ skyboxTexture });
 
-    screenQuad = App::GameObject(ModelGen::GetQuad({ framebufferColor }), postProcessingShader);
+    screenQuad = App::GameObject(ModelGen::getQuad({ framebufferColor }), postProcessingShader);
 
 	//###### Cameras ######
     camera = App::Camera(glm::vec3(0.0f, 1.0f, 3.0f));
 	camera.SetSkybox(skyboxModel, skyboxShader);
 
-    lightCamera = App::Camera(-sunLight.direction * 10.0f);
-	//lightCamera.coreCamera.orthographic = true;
-    lightCamera.coreCamera.lookAt({0.0f, 0.0f, 0.0f});
+	lightCamera = Core::OrthographicCamera(-sunLight.direction * 10.0f);
+    lightCamera.lookAt({0.0f, 0.0f, 0.0f});
 }

@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 
 //std
-#include <stdint.h>
 #include <vector>
 
 namespace Core
@@ -22,15 +21,15 @@ namespace Core
     class VertexBufferManager
     {
     public:
-        static uint32_t CreateVertexBuffer();
-        static uint32_t CreateVertexBuffer(GLsizeiptr size, bool staticDraw = true);
-        static uint32_t CreateVertexBuffer(const float* vertices, GLsizeiptr size, bool staticDraw = true);
+        static size_t CreateVertexBuffer();
+        static size_t CreateVertexBuffer(GLsizeiptr size, bool staticDraw = true);
+        static size_t CreateVertexBuffer(const float* vertices, GLsizeiptr size, bool staticDraw = true);
 
-        static void Bind(uint32_t buffer);
+        static void Bind(size_t buffer);
         static void Unbind();
 
-        static void SetData(uint32_t buffer, const void* data, GLsizeiptr size, bool staticDraw);
-		static void SetSubData(uint32_t buffer, const void* data, GLsizeiptr size, GLsizeiptr offset);
+        static void SetData(size_t buffer, const void* data, GLsizeiptr size, bool staticDraw);
+		static void SetSubData(size_t buffer, const void* data, GLsizeiptr size, GLsizeiptr offset);
 
         static void ReleaseAll();
 
@@ -40,47 +39,47 @@ namespace Core
 
     struct IndexBufferInfo
     {
-        GLuint RendererID = 0;
-        GLsizeiptr Count = 0;
+        GLuint rendererID = 0;
+        GLsizeiptr count = 0;
     };
 
     class IndexBufferManager
     {
     public:
-        static uint32_t CreateIndexBuffer(const uint32_t* indices, GLsizeiptr count);
+        static size_t CreateIndexBuffer(const uint32_t* indices, GLsizeiptr count);
 
-        static void Bind(uint32_t buffer);
+        static void Bind(size_t buffer);
         static void Unbind();
 
-        static GLsizeiptr GetCount(uint32_t buffer);
+        static GLsizeiptr GetCount(size_t buffer);
 
         static void ReleaseAll();
 
     private:
-        static uint32_t CreateIndexBuffer();
+        static size_t CreateIndexBuffer();
         static std::vector<IndexBufferInfo> indexBuffers;
     };
 
     struct VertexArrayInfo
     {
-        GLuint RendererID = 0;
-        uint32_t vertexBuffer = 0;
-        uint32_t indexBuffer = 0;
+        GLuint rendererID = 0;
+        size_t vertexBuffer = 0;
+        size_t indexBuffer = 0;
     };
 
     class VertexArrayManager
     {
     public:
-        static uint32_t CreateVertexArray();
+        static size_t CreateVertexArray();
 
-        static void Bind(uint32_t vertexArray);
+        static void Bind(size_t vertexArray);
         static void Unbind();
 
-        static void AddVertexBuffer(uint32_t vertexArray, uint32_t buffer);
-        static void SetIndexBuffer(uint32_t vertexArray, uint32_t buffer);
+        static void AddVertexBuffer(size_t vertexArray, size_t buffer);
+        static void SetIndexBuffer(size_t vertexArray, size_t buffer);
 
-        static GLsizeiptr GetIndexCount(uint32_t vertexArray);
-        static VertexArrayInfo GetVAOInfo(uint32_t vertexArray);
+        static GLsizeiptr GetIndexCount(size_t vertexArray);
+        static VertexArrayInfo GetVAOInfo(size_t vertexArray);
 
         static void ReleaseAll();
 

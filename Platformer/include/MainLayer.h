@@ -2,6 +2,7 @@
 
 //Engine
 #include "Core/Layer.h"
+#include "Renderer/OrthographicCamera.h"
 #include "Sprite.h"
 
 // libs
@@ -27,6 +28,8 @@ private:
     glm::vec2 oldFbSize;
     double lastMouseX, lastMouseY, tickAccumulator, secondsAccumulator, timer;
     unsigned int frameCounter, tickCounter;
+
+    Core::OrthographicCamera camera;
 
     std::vector<Platformer::Sprite> sprites;
 };

@@ -28,8 +28,8 @@ namespace Core {
         );
         ~Camera();
 
-        glm::mat4 getViewMatrix();
-        virtual glm::mat4 getProjectionMatrix() = 0;
+        glm::mat4 getViewMatrix() const;
+        virtual glm::mat4 getProjectionMatrix() const = 0;
         void lookAt(glm::vec3 point);
         void updateCameraVectors();
 

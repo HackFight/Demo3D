@@ -3,7 +3,7 @@
 //std
 #include <cstdint>
 
-Core::Model ModelGen::GetQuad(std::vector<uint32_t> textures)
+Core::Model ModelGen::getQuad(std::vector<size_t> textures)
 {
     std::vector<Core::Vertex> vertices
     {
@@ -21,7 +21,7 @@ Core::Model ModelGen::GetQuad(std::vector<uint32_t> textures)
 	return Core::Model(Core::Mesh(vertices, indices, toMeshTextures(textures)));
 }
 
-Core::Model ModelGen::GetCube(std::vector<uint32_t> textures)
+Core::Model ModelGen::getCube(std::vector<size_t> textures)
 {
     std::vector<Core::Vertex> vertices
     {
@@ -78,7 +78,7 @@ Core::Model ModelGen::GetCube(std::vector<uint32_t> textures)
     
     return Core::Model(Core::Mesh(vertices, indices, toMeshTextures(textures)));
 }
-Core::Model ModelGen::GetReversedCube(std::vector<uint32_t> textures)
+Core::Model ModelGen::getReversedCube(std::vector<size_t> textures)
 {
     std::vector<Core::Vertex> vertices
     {
@@ -136,7 +136,7 @@ Core::Model ModelGen::GetReversedCube(std::vector<uint32_t> textures)
     return Core::Model(Core::Mesh(vertices, indices, toMeshTextures(textures)));
 }
 
-Core::Model ModelGen::GetPlane(int size, std::vector<uint32_t> textures)
+Core::Model ModelGen::getPlane(int size, std::vector<size_t> textures)
 {
     std::vector<Core::Vertex> vertices;
     for (int x = 0; x <= size; x++)
@@ -167,7 +167,7 @@ Core::Model ModelGen::GetPlane(int size, std::vector<uint32_t> textures)
     return Core::Model(Core::Mesh(vertices, indices, toMeshTextures(textures)));
 }
 
-std::vector<Core::Mesh::Texture> ModelGen::toMeshTextures(std::vector<uint32_t> textures)
+std::vector<Core::Mesh::Texture> ModelGen::toMeshTextures(std::vector<size_t> textures)
 {
     std::vector<Core::Mesh::Texture> meshTextures;
     for (size_t i = 0; i < textures.size(); i++)

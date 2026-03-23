@@ -36,12 +36,12 @@ private:
     void ProcessInput(double ts);
 	void LoadAssets();
 
-    uint32_t blinnPhongShader, texturedShader, skyboxShader, postProcessingShader, normalsDebug;
+    size_t blinnPhongShader, texturedShader, skyboxShader, postProcessingShader, normalsDebug;
     
-    uint32_t framebuffer, framebufferColor, renderbuffer;
+    size_t framebuffer, framebufferColor, renderbuffer;
     App::GameObject screenQuad;
 
-    uint32_t shadowbuffer, shadowmap, shadowShader;
+    size_t shadowbuffer, shadowmap, shadowShader;
 
     App::Camera camera;
     Core::OrthographicCamera lightCamera;

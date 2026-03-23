@@ -1,24 +1,23 @@
 #include "GameObject.h"
 
 // Engine
-#include "Renderer/Camera.h"
 #include "RendererAPI/ShaderManager.h"
 
 // App
 #include "MaterialGen.h"
 
-//std
-#include <cstdint>
+
+// libs
 #include <glm/ext/matrix_transform.hpp>
 
 namespace App
 {
-	GameObject::GameObject(Core::Model model, uint32_t shader, glm::vec3 position, glm::vec3 scale, BlinnPhongMaterial material)
+	GameObject::GameObject(Core::Model model, size_t shader, glm::vec3 position, glm::vec3 scale, BlinnPhongMaterial material)
 		: m_Model(model), m_Shader(shader), m_Position(position), m_Scale(scale), m_Material(material) {}
 
 	GameObject::~GameObject() {}
 
-	void GameObject::Render(Core::Camera camera, uint32_t shader)
+	void GameObject::Render(Core::Camera& camera, size_t shader) const
 	{
 		Core::ShaderManager::setmat4(shader, "viewMat", camera.getViewMatrix());
 		Core::ShaderManager::setmat4(shader, "projMat", camera.getProjectionMatrix());
@@ -33,7 +32,7 @@ namespace App
 		m_Model.Draw(shader);
 	}
 
-	void GameObject::Render(Core::Camera camera)
+	void GameObject::Render(Core::Camera& camera) const
 	{
 		Render(camera, m_Shader);
 	}

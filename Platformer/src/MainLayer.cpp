@@ -4,6 +4,7 @@
 #include <iostream>
 
 //Engine
+#include "Renderer/OrthographicCamera.h"
 #include "RendererAPI/RendererAPI.h"
 #include "Core/Application.h"
 
@@ -71,8 +72,8 @@ void MainLayer::OnUpdate(double ts) {
 }
 
 void MainLayer::OnRender() {
-    for(Platformer::Sprite sprite : sprites) {
-        //sprite.Render();
+    for(Platformer::Sprite& sprite : sprites) {
+        sprite.Render(camera);
     }
 }
 
@@ -82,8 +83,11 @@ void MainLayer::FixedUpdate(double fixedTimeStep) {
 
 void MainLayer::LoadAssets() {
     Platformer::ResourceManager::Init();
+
     unsigned int whitePixelTexture = Platformer::ResourceManager::CreatePlainRGBATexture(1, 1);
     sprites.push_back(Platformer::Sprite(whitePixelTexture));
+
+    camera = Core::OrthographicCamera();
 }
 
 void MainLayer::PrintStats() const {

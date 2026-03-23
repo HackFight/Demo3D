@@ -19,8 +19,9 @@ namespace Core {
             pitch,
             aspectRatio
         ), cameraHeight(cameraHeight) { }
+    OrthographicCamera::~OrthographicCamera() {}
     
-    glm::mat4 OrthographicCamera::getProjectionMatrix() {
+    glm::mat4 OrthographicCamera::getProjectionMatrix() const {
         float cameraWidth = cameraHeight*aspectRatio;
         return glm::ortho(
             -cameraWidth/2.0f, cameraWidth/2.0f,

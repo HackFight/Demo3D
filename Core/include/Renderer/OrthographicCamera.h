@@ -5,11 +5,12 @@
 
 namespace Core {
     const float DEFAULT_CAMERA_HEIGHT = 10.0f;
+    const glm::vec3 DEFAULT_ORTHO_POSITION = glm::vec3(0.0f, 0.0f, 1.0f);
 
     class OrthographicCamera : public Camera {
     public:
         OrthographicCamera(
-            glm::vec3 position = DEFAULT_POSITION,
+            glm::vec3 position = DEFAULT_ORTHO_POSITION,
             glm::vec3 up = DEFAULT_UP,
             float yaw = DEFAULT_YAW,
             float pitch = DEFAULT_PITCH,
@@ -20,7 +21,7 @@ namespace Core {
         );
         ~OrthographicCamera();
 
-        glm::mat4 getProjectionMatrix();
+        glm::mat4 getProjectionMatrix() const;
 
         float cameraHeight = DEFAULT_CAMERA_HEIGHT;
     };

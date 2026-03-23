@@ -1,6 +1,7 @@
 #pragma once
 
-#include <stdint.h>
+// std
+#include <cstddef>
 
 enum BlinnPhongMaterial
 {
@@ -39,5 +40,5 @@ enum BlinnPhongMaterial
 class MaterialGen
 {
 public:
-    static void setBlinnPhongMaterial(uint32_t shader, BlinnPhongMaterial material);
+    static void setBlinnPhongMaterial(size_t shader, BlinnPhongMaterial material);
 };

@@ -1,9 +1,8 @@
 #include "MaterialGen.h"
 
 #include "RendererAPI/ShaderManager.h"
-#include <cstdint>
 
-void MaterialGen::setBlinnPhongMaterial(uint32_t shader, BlinnPhongMaterial material)
+void MaterialGen::setBlinnPhongMaterial(size_t shader, BlinnPhongMaterial material)
 {
 	switch (material)
 	{

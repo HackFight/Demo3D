@@ -1,7 +1,6 @@
 #include "RendererAPI/FramebufferManager.h"
 
 //libs
-#include <cstdint>
 #include <glm/glm.hpp>
 
 //std
@@ -14,37 +13,37 @@
 namespace Core
 {
     std::vector<FramebufferInfo> FramebufferManager::framebuffers;
-    uint32_t FramebufferManager::CreateFramebuffer()
+    size_t FramebufferManager::CreateFramebuffer()
     {
         FramebufferInfo framebuffer;
-        glGenFramebuffers(1, &framebuffer.RendererID);
+        glGenFramebuffers(1, &framebuffer.rendererID);
 
         framebuffers.push_back(framebuffer);
         return framebuffers.size() - 1;
     }
 
-    void FramebufferManager::Bind(uint32_t framebuffer)
+    void FramebufferManager::Bind(size_t framebuffer)
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[framebuffer].RendererID);
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[framebuffer].rendererID);
     }
     void FramebufferManager::Unbind()
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void FramebufferManager::AttachTexture(uint32_t framebuffer, uint32_t texture)
+    void FramebufferManager::AttachTexture(size_t framebuffer, size_t texture)
     {
         FramebufferInfo framebufferInfo = framebuffers[framebuffer];
         TextureInfo textureInfo = TextureManager::GetTextureInfo(texture);
 
-        if(framebufferInfo.Width == 0 && framebufferInfo.Height == 0)
+        if(framebufferInfo.width == 0 && framebufferInfo.height == 0)
 		{
-            framebuffers[framebuffer].Width = textureInfo.width;
-            framebuffers[framebuffer].Height = textureInfo.height;
+            framebuffers[framebuffer].width = textureInfo.width;
+            framebuffers[framebuffer].height = textureInfo.height;
 		}
         else
         {
-            if (framebufferInfo.Width != textureInfo.width || framebufferInfo.Height != textureInfo.height)
+            if (framebufferInfo.width != textureInfo.width || framebufferInfo.height != textureInfo.height)
             {
 				std::cout << "Warning: Attaching texture of different size to framebuffer!\n";
             }
@@ -64,23 +63,23 @@ namespace Core
 		}
 
         Bind(framebuffer);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, attachement, textureInfo.target, textureInfo.RendererID, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, attachement, textureInfo.target, textureInfo.rendererID, 0);
         Unbind();
     }
 
-    void FramebufferManager::AttachRenderbuffer(uint32_t framebuffer, uint32_t renderbuffer)
+    void FramebufferManager::AttachRenderbuffer(size_t framebuffer, size_t renderbuffer)
     {
         FramebufferInfo framebufferInfo = framebuffers[framebuffer];
         RenderbufferInfo renderbufferInfo = RenderbufferManager::GetRenderbufferInfo(renderbuffer);
 
-        if(framebufferInfo.Width == 0 && framebufferInfo.Height == 0)
+        if(framebufferInfo.width == 0 && framebufferInfo.height == 0)
 		{
-            framebuffers[framebuffer].Width = renderbufferInfo.width;
-            framebuffers[framebuffer].Height = renderbufferInfo.height;
+            framebuffers[framebuffer].width = renderbufferInfo.width;
+            framebuffers[framebuffer].height = renderbufferInfo.height;
 		}
         else
         {
-            if (framebufferInfo.Width != renderbufferInfo.width || framebufferInfo.Height != renderbufferInfo.height)
+            if (framebufferInfo.width != renderbufferInfo.width || framebufferInfo.height != renderbufferInfo.height)
             {
 				std::cout << "Warning: Attaching renderbuffer of different size to framebuffer!\n";
             }
@@ -100,47 +99,47 @@ namespace Core
 		}
 
         Bind(framebuffer);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachement, GL_RENDERBUFFER, renderbufferInfo.RendererID);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachement, GL_RENDERBUFFER, renderbufferInfo.rendererID);
         Unbind();
     }
 
-    void FramebufferManager::Blit(uint32_t framebuffer)
+    void FramebufferManager::Blit(size_t framebuffer)
     {
         FramebufferInfo info = framebuffers[framebuffer];
 
         glm::vec2 fbSize = Application::Get().GetFramebufferSize();
-        if (info.Width != fbSize.x || info.Height != fbSize.y)
+        if (info.width != fbSize.x || info.height != fbSize.y)
         {
             std::cout << "Warning: Blitting framebuffer to window of different size!\n";
 		}
 
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, info.RendererID);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, info.rendererID);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-        glBlitFramebuffer(0, 0, info.Width, info.Height, 0, 0, fbSize.x, fbSize.y, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+        glBlitFramebuffer(0, 0, info.width, info.height, 0, 0, fbSize.x, fbSize.y, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
     }
-    void FramebufferManager::Blit(uint32_t framebuffer, uint32_t destinationFramebuffer)
+    void FramebufferManager::Blit(size_t framebuffer, size_t destinationFramebuffer)
     {
         FramebufferInfo info = framebuffers[framebuffer];
         FramebufferInfo destInfo = framebuffers[destinationFramebuffer];
 
-        if (info.Width != destInfo.Width || info.Height != destInfo.Height)
+        if (info.width != destInfo.width || info.height != destInfo.height)
         {
             std::cout << "Warning: Blitting framebuffer to framebuffer of different size!\n";
 		}
 
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, info.RendererID);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destInfo.RendererID);
-        glBlitFramebuffer(0, 0, info.Width, info.Height, 0, 0, destInfo.Width, destInfo.Height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, info.rendererID);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destInfo.rendererID);
+        glBlitFramebuffer(0, 0, info.width, info.height, 0, 0, destInfo.width, destInfo.height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
     }
 
     void FramebufferManager::ReleaseAll()
     {
         for(FramebufferInfo framebuffer : framebuffers)
         {
-            if (framebuffer.RendererID != 0)
+            if (framebuffer.rendererID != 0)
             {
-                glDeleteFramebuffers(1, &framebuffer.RendererID);
-                framebuffer.RendererID = 0;
+                glDeleteFramebuffers(1, &framebuffer.rendererID);
+                framebuffer.rendererID = 0;
             }
         }
     }
@@ -148,31 +147,31 @@ namespace Core
 
 
     std::vector<RenderbufferInfo> RenderbufferManager::renderbuffers;
-    uint32_t RenderbufferManager::CreateRenderbuffer()
+    size_t RenderbufferManager::CreateRenderbuffer()
     {
         RenderbufferInfo renderbuffer;
-        glGenRenderbuffers(1, &renderbuffer.RendererID);
+        glGenRenderbuffers(1, &renderbuffer.rendererID);
 
         renderbuffers.push_back(renderbuffer);
         return renderbuffers.size() - 1;
     }
-    uint32_t RenderbufferManager::CreateRenderbuffer(GLint internalFormat, GLsizei width, GLsizei height, bool multisampled, GLsizei samples)
+    size_t RenderbufferManager::CreateRenderbuffer(GLint internalFormat, GLsizei width, GLsizei height, bool multisampled, GLsizei samples)
     {
-        uint32_t renderbuffer = CreateRenderbuffer();
+        size_t renderbuffer = CreateRenderbuffer();
         SetData(renderbuffer, internalFormat, width, height, multisampled, samples);
         return renderbuffer;
     }
 
-    void RenderbufferManager::Bind(uint32_t renderbuffer)
+    void RenderbufferManager::Bind(size_t renderbuffer)
     {
-        glBindRenderbuffer(GL_RENDERBUFFER, renderbuffers[renderbuffer].RendererID);
+        glBindRenderbuffer(GL_RENDERBUFFER, renderbuffers[renderbuffer].rendererID);
     }
     void RenderbufferManager::Unbind()
     {
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
     }
 
-    void RenderbufferManager::SetData(uint32_t renderbuffer, GLint internalFormat, GLsizei width, GLsizei height, bool multisampled, GLsizei samples)
+    void RenderbufferManager::SetData(size_t renderbuffer, GLint internalFormat, GLsizei width, GLsizei height, bool multisampled, GLsizei samples)
     {
         renderbuffers[renderbuffer].internalFormat = internalFormat;
 		renderbuffers[renderbuffer].width = width;
@@ -193,7 +192,7 @@ namespace Core
         }
     }
 
-    void RenderbufferManager::Resize(uint32_t renderbuffer, GLsizei width, GLsizei height)
+    void RenderbufferManager::Resize(size_t renderbuffer, GLsizei width, GLsizei height)
     {
         RenderbufferInfo info = renderbuffers[renderbuffer];
         SetData(renderbuffer, info.internalFormat, width, height, info.multisampled, info.samples);
@@ -203,10 +202,10 @@ namespace Core
     {
         for (auto& renderbuffer : renderbuffers)
         {
-            if (renderbuffer.RendererID != 0)
+            if (renderbuffer.rendererID != 0)
             {
-                glDeleteRenderbuffers(1, &renderbuffer.RendererID);
-                renderbuffer.RendererID = 0;
+                glDeleteRenderbuffers(1, &renderbuffer.rendererID);
+                renderbuffer.rendererID = 0;
             }
         }
         renderbuffers.clear();

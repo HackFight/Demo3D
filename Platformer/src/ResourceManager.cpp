@@ -19,8 +19,8 @@ const uint32_t quadIndices[] {
 
 namespace Platformer {
 
-    unsigned int ResourceManager::quadVAO;
-    unsigned int ResourceManager::textureShader;
+    size_t ResourceManager::quadVAO;
+    size_t ResourceManager::textureShader;
 
     void ResourceManager::Init() {
         //##### Shaders ######
@@ -35,7 +35,7 @@ namespace Platformer {
         Core::VertexArrayManager::SetIndexBuffer(quadVAO, indexBuffer);
     }
 
-    unsigned int ResourceManager::GetVAO(Primitive primitive) {
+    size_t ResourceManager::GetVAO(Primitive primitive) {
         switch (primitive) {
             case Quad:
                 return quadVAO;
@@ -44,7 +44,7 @@ namespace Platformer {
         return -1;
     };
 
-    unsigned int ResourceManager::GetShader(Shader shader) {
+    size_t ResourceManager::GetShader(Shader shader) {
         switch (shader) {
             case Texture:
                 return textureShader;
@@ -53,7 +53,7 @@ namespace Platformer {
         return -1;
     }
 
-    unsigned int ResourceManager::CreatePlainRGBATexture(int width, int height, unsigned char fill) {
+    size_t ResourceManager::CreatePlainRGBATexture(int width, int height, unsigned char fill) {
         unsigned char* data = new unsigned char[width * height * 4];
         for(int i = 0; i < width * height * 4; i++) data[i] = fill;
 

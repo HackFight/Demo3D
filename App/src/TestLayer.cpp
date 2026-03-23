@@ -228,14 +228,14 @@ void TestLayer::LoadAssets()
         RESOURCES_PATH "textures/skyboxes/default/back.jpg"
     });
 
-    std::vector<uint32_t> groundTextures =
+    std::vector<size_t> groundTextures =
     {
         Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/default.png")
     };
     Core::TextureManager::SetParameters(groundTextures.at(0), GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
     Core::TextureManager::GenerateMipmaps(groundTextures.at(0));
 
-    std::vector<uint32_t> wallTextures =
+    std::vector<size_t> wallTextures =
     {
         Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/brick-wall.png"),
         emptyTexture,
@@ -245,7 +245,7 @@ void TestLayer::LoadAssets()
     Core::TextureManager::SetParameters(wallTextures.at(0), GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
     Core::TextureManager::GenerateMipmaps(wallTextures.at(0));
 
-    std::vector<uint32_t> boxTextures =
+    std::vector<size_t> boxTextures =
     {
         Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png", true),
         Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box-specular.png", true)
@@ -269,24 +269,23 @@ void TestLayer::LoadAssets()
 	Core::FramebufferManager::AttachTexture(shadowbuffer, shadowmap);
 
 	//###### GameObjects ######
-    gameObjects.push_back(App::GameObject(ModelGen::GetPlane(10, groundTextures), texturedShader));
-    gameObjects.push_back(App::GameObject(ModelGen::GetQuad(wallTextures), texturedShader, {-1.5f ,0.5f, 0.0f}, {0.5f, 0.5f, 0.5f}, Gold));
-    gameObjects.push_back(App::GameObject(ModelGen::GetCube(), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Gold));
+    gameObjects.push_back(App::GameObject(ModelGen::getPlane(10, groundTextures), texturedShader));
+    gameObjects.push_back(App::GameObject(ModelGen::getQuad(wallTextures), texturedShader, {-1.5f ,0.5f, 0.0f}, {0.5f, 0.5f, 0.5f}, Gold));
+    gameObjects.push_back(App::GameObject(ModelGen::getCube(), blinnPhongShader, { 0.0f ,0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Gold));
     gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/vyse-helmet/vyse-helmet.obj"), blinnPhongShader, { 0.0f ,1.5f, 0.0f }, {1.0f, 1.0f, 1.0f}, FLASHBANG));
-    gameObjects.push_back(App::GameObject(ModelGen::GetCube(boxTextures), texturedShader, {1.5f, 0.5f, 0.0f}));
+    gameObjects.push_back(App::GameObject(ModelGen::getCube(boxTextures), texturedShader, {1.5f, 0.5f, 0.0f}));
     //gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/backpack/backpack.obj"), texturedShader, {0.0f, 2.0f, -2.0f}));
 	gameObjects.push_back(App::GameObject(Core::Model(RESOURCES_PATH "models/sponza/sponza.obj"), texturedShader, { 0.0f, 0.0f, 0.0f }));
 	gameObjects.back().m_Scale = glm::vec3(0.01f);
 
-    Core::Model skyboxModel = ModelGen::GetReversedCube({ skyboxTexture });
+    Core::Model skyboxModel = ModelGen::getReversedCube({ skyboxTexture });
 
-    screenQuad = App::GameObject(ModelGen::GetQuad({ framebufferColor }), postProcessingShader);
+    screenQuad = App::GameObject(ModelGen::getQuad({ framebufferColor }), postProcessingShader);
 
 	//###### Cameras ######
     camera = App::Camera(glm::vec3(0.0f, 1.0f, 3.0f));
 	camera.SetSkybox(skyboxModel, skyboxShader);
 
     lightCamera = Core::OrthographicCamera(-sunLight.direction * 10.0f);
-    lightCamera.cameraHeight=1000.0f;
     lightCamera.lookAt({0.0f, 0.0f, 0.0f});
 }

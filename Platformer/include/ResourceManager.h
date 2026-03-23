@@ -1,5 +1,8 @@
 #pragma once
 
+//libs
+#include <cstddef>
+
 namespace Platformer {
 
     class ResourceManager {
@@ -12,13 +15,13 @@ namespace Platformer {
         };
 
         static void Init();
-        static unsigned int GetVAO(Primitive primitive);
-        static unsigned int GetShader(Shader shader);
-        static unsigned int CreatePlainRGBATexture(int width, int height, unsigned char fill = 255);
+        static size_t GetVAO(Primitive primitive);
+        static size_t GetShader(Shader shader);
+        static size_t CreatePlainRGBATexture(int width, int height, unsigned char fill = 255);
         static void ReleaseAll();
 
     private:
-        static unsigned int quadVAO;
-        static unsigned int textureShader;
+        static size_t quadVAO;
+        static size_t textureShader;
     };
 }

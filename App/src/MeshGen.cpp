@@ -3,10 +3,9 @@
 #include "RendererAPI/BufferManager.h"
 
 // std
-#include <cstdint>
 #include <vector>
 
-uint32_t MeshGen::GetQuad()
+size_t MeshGen::getQuad()
 {
     // Peut 
     //static ssize_t idx = -1;
@@ -18,21 +17,21 @@ uint32_t MeshGen::GetQuad()
         {{ 1.0f,  1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
         {{-1.0f,  1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}}
     };
-    uint32_t vertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)vertices.data(), vertices.size()*sizeof(Core::Vertex));
+    size_t vertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)vertices.data(), vertices.size()*sizeof(Core::Vertex));
     uint32_t indices[] {
         0, 1, 2,
         0, 2, 3
     };
-    uint32_t indexBuffer = Core::IndexBufferManager::CreateIndexBuffer(indices, 6);
+    size_t indexBuffer = Core::IndexBufferManager::CreateIndexBuffer(indices, 6);
 
-    uint32_t vertexArray = Core::VertexArrayManager::CreateVertexArray();
+    size_t vertexArray = Core::VertexArrayManager::CreateVertexArray();
     Core::VertexArrayManager::AddVertexBuffer(vertexArray, vertexBuffer);
     Core::VertexArrayManager::SetIndexBuffer(vertexArray, indexBuffer);
 
     return vertexArray;
 }
 
-uint32_t MeshGen::GetCube()
+size_t MeshGen::getCube()
 {
     std::vector<Core::Vertex> vertices
     {
@@ -66,7 +65,7 @@ uint32_t MeshGen::GetCube()
         {{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
         {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}}
     };
-    uint32_t vertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)vertices.data(), vertices.size()*sizeof(Core::Vertex));
+    size_t vertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)vertices.data(), vertices.size()*sizeof(Core::Vertex));
     uint32_t indices[]{
         0, 1, 2,
         0, 2, 3,
@@ -86,16 +85,16 @@ uint32_t MeshGen::GetCube()
         20, 21, 22,
         20, 22, 23
     };
-    uint32_t indexBuffer = Core::IndexBufferManager::CreateIndexBuffer(indices, 36);
+    size_t indexBuffer = Core::IndexBufferManager::CreateIndexBuffer(indices, 36);
 
-    uint32_t vertexArray = Core::VertexArrayManager::CreateVertexArray();
+    size_t vertexArray = Core::VertexArrayManager::CreateVertexArray();
     Core::VertexArrayManager::AddVertexBuffer(vertexArray, vertexBuffer);
     Core::VertexArrayManager::SetIndexBuffer(vertexArray, indexBuffer);
 
     return vertexArray;
 }
 
-uint32_t MeshGen::GetReversedCube()
+size_t MeshGen::getReversedCube()
 {
     std::vector<Core::Vertex> vertices
     {
@@ -129,7 +128,7 @@ uint32_t MeshGen::GetReversedCube()
         {{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
         {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}}
     };
-    uint32_t vertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)vertices.data(), vertices.size()*sizeof(Core::Vertex));
+    size_t vertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)vertices.data(), vertices.size()*sizeof(Core::Vertex));
     uint32_t indices[]{
         0, 2, 1,
         0, 3, 2,
@@ -149,16 +148,16 @@ uint32_t MeshGen::GetReversedCube()
         20, 22, 21,
         20, 23, 22
     };
-    uint32_t indexBuffer = Core::IndexBufferManager::CreateIndexBuffer(indices, 36);
+    size_t indexBuffer = Core::IndexBufferManager::CreateIndexBuffer(indices, 36);
 
-    uint32_t vertexArray = Core::VertexArrayManager::CreateVertexArray();
+    size_t vertexArray = Core::VertexArrayManager::CreateVertexArray();
     Core::VertexArrayManager::AddVertexBuffer(vertexArray, vertexBuffer);
     Core::VertexArrayManager::SetIndexBuffer(vertexArray, indexBuffer);
 
     return vertexArray;
 }
 
-uint32_t MeshGen::GetPlane(const int size)
+size_t MeshGen::getPlane(const int size)
 {
     std::vector<Core::Vertex> vertices;
     for(int x = 0; x <= size; x++)
@@ -168,7 +167,7 @@ uint32_t MeshGen::GetPlane(const int size)
             vertices.push_back({{x - size/2.0f, 0.0f, z - size/2.0f}, {0.0f, 1.0f, 0.0f}, {x, z}, {x+z, x+z, 1.0f}});
         }
 	}
-    uint32_t vertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)vertices.data(), vertices.size() * sizeof(Core::Vertex));
+    size_t vertexBuffer = Core::VertexBufferManager::CreateVertexBuffer((float*)vertices.data(), vertices.size() * sizeof(Core::Vertex));
     
     std::vector<uint32_t> indices;
     for (int z = 0; z < size; z++)
@@ -186,9 +185,9 @@ uint32_t MeshGen::GetPlane(const int size)
             indices.push_back(x +     (z + 1) * length);
         }
     }
-    uint32_t indexBuffer = Core::IndexBufferManager::CreateIndexBuffer((uint32_t*)indices.data(), indices.size());
+    size_t indexBuffer = Core::IndexBufferManager::CreateIndexBuffer((uint32_t*)indices.data(), indices.size());
 
-    uint32_t vertexArray = Core::VertexArrayManager::CreateVertexArray();
+    size_t vertexArray = Core::VertexArrayManager::CreateVertexArray();
     Core::VertexArrayManager::AddVertexBuffer(vertexArray, vertexBuffer);
     Core::VertexArrayManager::SetIndexBuffer(vertexArray, indexBuffer);
 
