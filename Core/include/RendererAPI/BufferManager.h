@@ -33,6 +33,8 @@ namespace Core
 
         static void ReleaseAll();
 
+        static int GetBuffersCount() { return vertexBuffers.size(); }
+
     private:
         static std::vector<GLuint> vertexBuffers;
     };
@@ -54,6 +56,8 @@ namespace Core
         static GLsizeiptr GetCount(size_t buffer);
 
         static void ReleaseAll();
+
+        static int GetBuffersCount() { return indexBuffers.size(); }
 
     private:
         static size_t CreateIndexBuffer();
@@ -82,6 +86,8 @@ namespace Core
         static VertexArrayInfo GetVAOInfo(size_t vertexArray);
 
         static void ReleaseAll();
+
+        static int GetVertexArraysCount() { return vertexArrays.size(); }
 
     private:
         static std::vector<VertexArrayInfo> vertexArrays;

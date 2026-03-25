@@ -4,11 +4,12 @@
 #include <iostream>
 
 //Engine
-#include "Renderer/OrthographicCamera.h"
+#include "RendererAPI/BufferManager.h"
 #include "RendererAPI/RendererAPI.h"
 #include "Core/Application.h"
 
 //ImGui
+#include "RendererAPI/TextureManager.h"
 #include "ResourceManager.h"
 #include "Sprite.h"
 #include "imgui/imgui.h"
@@ -72,6 +73,19 @@ void MainLayer::OnUpdate(double ts) {
 }
 
 void MainLayer::OnRender() {
+    // Clear frame buffer
+    Core::RendererAPI::ClearColor();
+    Core::RendererAPI::ClearDepth();
+
+    // Check viewport size and resize stuff if needed
+    glm::vec2 fb = Core::Application::Get().GetFramebufferSize();
+    if (oldFbSize != fb) {
+        Core::RendererAPI::SetViewport(0, 0, (int)fb.x, (int)fb.y);
+        camera.aspectRatio = fb.x / fb.y;
+        oldFbSize = fb;
+    }
+
+    // Render sprites
     for(Platformer::Sprite& sprite : sprites) {
         sprite.Render(camera);
     }
@@ -84,12 +98,25 @@ void MainLayer::FixedUpdate(double fixedTimeStep) {
 void MainLayer::LoadAssets() {
     Platformer::ResourceManager::Init();
 
-    unsigned int whitePixelTexture = Platformer::ResourceManager::CreatePlainRGBATexture(1, 1);
+    size_t whitePixelTexture = Platformer::ResourceManager::CreatePlainRGBATexture(1, 1);
     sprites.push_back(Platformer::Sprite(whitePixelTexture));
+
+    size_t redstoneOreTexture = Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/redstone-ore.png", true);
+    sprites.push_back(Platformer::Sprite(redstoneOreTexture, {2.0f, 0.0f}));
+
+    size_t boxTexture = Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png", true);
+    sprites.push_back(Platformer::Sprite(boxTexture, {-2.0f, 0.0f}));
 
     camera = Core::OrthographicCamera();
 }
 
 void MainLayer::PrintStats() const {
-    std::cout << "##### Stats #####\nTime: " << timer << "s\nFPS: " << frameCounter << "\nTPS: " << tickCounter << "\n";
+    std::cout
+    << "##### Stats #####\nTime : " << timer
+    << "s\nFPS : " << frameCounter
+    << "\nTPS : " << tickCounter
+    << "\nTextures : " << Core::TextureManager::GetTextureCount()
+    << "\nVertex buffers : " << Core::VertexBufferManager::GetBuffersCount()
+    << "\nIndex buffers : " << Core::IndexBufferManager::GetBuffersCount()
+    << "\n";
 }

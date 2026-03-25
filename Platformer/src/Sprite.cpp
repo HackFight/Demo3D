@@ -5,6 +5,7 @@
 #include "RendererAPI/ShaderManager.h"
 
 // Platformer
+#include "RendererAPI/TextureManager.h"
 #include "ResourceManager.h"
 
 // libs
@@ -37,6 +38,7 @@ namespace Platformer {
 		Core::ShaderManager::setmat4(shader, "projMat", camera.getProjectionMatrix());
 		Core::ShaderManager::setmat4(shader, "modelMat", glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(m_Position, 0.0f)), glm::vec3(m_Scale,1.0f)));
 
+        Core::TextureManager::Bind(m_Texture, 0);
 		Core::ShaderManager::setInt(shader, "texUnit", 0);
 
 		Core::ShaderManager::set3f(shader, "viewPos", camera.position);
