@@ -1,5 +1,6 @@
 ##### Visual Studio
 .vs/
+.vscode/
 
 ##### CMake
 CMakeLists.txt.user
