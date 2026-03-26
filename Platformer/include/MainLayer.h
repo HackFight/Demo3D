@@ -1,7 +1,9 @@
 #pragma once
 
-//Engine
+//Engine    Core::RendererAPI::ClearColor();
+
 #include "Core/Layer.h"
+#include "Layer.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Sprite.h"
 
@@ -28,8 +30,10 @@ private:
     glm::vec2 oldFbSize;
     double lastMouseX, lastMouseY, tickAccumulator, secondsAccumulator, timer;
     unsigned int frameCounter, tickCounter;
+    size_t multisampledFramebuffer, postFramebuffer;
 
     Core::OrthographicCamera camera;
 
     std::vector<Platformer::Sprite> sprites;
+    std::vector<Platformer::Layer> layers;
 };

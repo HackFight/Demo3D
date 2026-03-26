@@ -1,20 +1,28 @@
 #include "MainLayer.h"
 
-//std
+// std
+#include <cstddef>
 #include <iostream>
+
+// Platformer
+#include "ResourceManager.h"
+#include "Sprite.h"
+#include "Layer.h"
 
 //Engine
 #include "RendererAPI/BufferManager.h"
+#include "RendererAPI/FramebufferManager.h"
 #include "RendererAPI/RendererAPI.h"
+#include "RendererAPI/TextureManager.h"
 #include "Core/Application.h"
 
 //ImGui
-#include "RendererAPI/TextureManager.h"
-#include "ResourceManager.h"
-#include "Sprite.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+
+// libs
+#include <glm/trigonometric.hpp>
 
 MainLayer::MainLayer() {
 
@@ -73,6 +81,9 @@ void MainLayer::OnUpdate(double ts) {
 }
 
 void MainLayer::OnRender() {
+    // Bind multisampled frame buffer
+    Core::FramebufferManager::Bind(multisampledFramebuffer);
+
     // Clear frame buffer
     Core::RendererAPI::ClearColor();
     Core::RendererAPI::ClearDepth();
@@ -80,7 +91,9 @@ void MainLayer::OnRender() {
     // Check viewport size and resize stuff if needed
     glm::vec2 fb = Core::Application::Get().GetFramebufferSize();
     if (oldFbSize != fb) {
-        Core::RendererAPI::SetViewport(0, 0, (int)fb.x, (int)fb.y);
+        Core::RendererAPI::SetViewport(0, 0, fb.x, fb.y);
+        Core::FramebufferManager::Resize(multisampledFramebuffer, fb.x, fb.y);
+        Core::FramebufferManager::Resize(postFramebuffer, fb.x, fb.y);
         camera.aspectRatio = fb.x / fb.y;
         oldFbSize = fb;
     }
@@ -89,25 +102,53 @@ void MainLayer::OnRender() {
     for(Platformer::Sprite& sprite : sprites) {
         sprite.Render(camera);
     }
+
+    // Unbind previous frame buffer and render it's texture on a fullscreen quad with post-processing.
+    Core::FramebufferManager::Bind(postFramebuffer);
+    Core::RendererAPI::ClearColor();
+    Core::RendererAPI::ClearDepth();
+    Core::FramebufferManager::Blit(multisampledFramebuffer, postFramebuffer);
+
+    Core::FramebufferManager::Unbind();
+    Core::RendererAPI::ClearColor();
+    Core::RendererAPI::ClearDepth();
+
+    for(Platformer::Layer& layer : layers) {
+        layer.Render();
+    }
 }
 
 void MainLayer::FixedUpdate(double fixedTimeStep) {
-
+    sprites.at(0).rotation += 6.0f * fixedTimeStep;
 }
 
 void MainLayer::LoadAssets() {
     Platformer::ResourceManager::Init();
 
     size_t whitePixelTexture = Platformer::ResourceManager::CreatePlainRGBATexture(1, 1);
-    sprites.push_back(Platformer::Sprite(whitePixelTexture));
+    sprites.push_back(Platformer::Sprite(whitePixelTexture, {0.0f, 0.0f}, 2.0f));
 
-    size_t redstoneOreTexture = Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/redstone-ore.png", true);
+    size_t redstoneOreTexture = Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/redstone-ore.png");
     sprites.push_back(Platformer::Sprite(redstoneOreTexture, {2.0f, 0.0f}));
 
-    size_t boxTexture = Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png", true);
+    size_t boxTexture = Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png");
     sprites.push_back(Platformer::Sprite(boxTexture, {-2.0f, 0.0f}));
 
     camera = Core::OrthographicCamera();
+    camera.cameraHeight = 4.0f;
+
+    size_t multisampledFramebufferTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D_MULTISAMPLE, GL_RGB8, oldFbSize.x, oldFbSize.y, 0, 0, 0, true, 4);
+    size_t multisampledRenderbuffer = Core::RenderbufferManager::CreateRenderbuffer(GL_DEPTH24_STENCIL8, oldFbSize.x, oldFbSize.y, true, 4);
+    multisampledFramebuffer = Core::FramebufferManager::CreateFramebuffer();
+    Core::FramebufferManager::AttachTexture(multisampledFramebuffer, multisampledFramebufferTexture);
+    Core::FramebufferManager::AttachRenderbuffer(multisampledFramebuffer, multisampledRenderbuffer);
+
+    size_t postFramebufferTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGB8, oldFbSize.x, oldFbSize.y, GL_RGB, GL_UNSIGNED_BYTE, nullptr, false, 0);
+    Core::TextureManager::SetParameters(postFramebufferTexture, GL_REPEAT, GL_LINEAR, GL_LINEAR);
+    postFramebuffer = Core::FramebufferManager::CreateFramebuffer();
+    Core::FramebufferManager::AttachTexture(postFramebuffer, postFramebufferTexture);
+
+    layers.push_back(Platformer::Layer(postFramebufferTexture, Platformer::ResourceManager::GetShader(Platformer::ResourceManager::Shader::PostProcessing)));
 }
 
 void MainLayer::PrintStats() const {

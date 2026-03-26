@@ -105,13 +105,12 @@ void TestLayer::OnRender()
 
     // Ensure viewport matches the current framebuffer size every frame
     glm::vec2 fb = Core::Application::Get().GetFramebufferSize();
-    Core::RendererAPI::SetViewport(0, 0, (int)fb.x, (int)fb.y);
+    Core::RendererAPI::SetViewport(0, 0, fb.x, fb.y);
 
     // Resize the buffer if needed
     if(oldFbSize != fb)
     {
-        Core::TextureManager::Resize(framebufferColor, fb.x, fb.y);
-        Core::RenderbufferManager::Resize(renderbuffer, fb.x, fb.y);
+        Core::FramebufferManager::Resize(framebuffer, fb.x, fb.y);
         camera.aspectRatio = fb.x / fb.y;
         oldFbSize = fb;
     }
@@ -254,8 +253,11 @@ void TestLayer::LoadAssets()
     Core::TextureManager::GenerateMipmaps(boxTextures.at(0));
 
     framebufferColor = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGB16F, oldFbSize.x, oldFbSize.y, GL_RGB, GL_FLOAT, nullptr, false, 0);
+    Core::TextureManager::SetParameters(framebufferColor, GL_REPEAT, GL_LINEAR, GL_LINEAR);
 
 	shadowmap = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_DEPTH_COMPONENT24, SHADOW_SIZE, SHADOW_SIZE, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr, false, 0);
+    Core::TextureManager::SetParameters(shadowmap, GL_CLAMP_TO_BORDER, GL_LINEAR, GL_LINEAR);
+    Core::TextureManager::SetBorderColor(shadowmap, 0.0f, 0.0f, 0.0f, 1.0f);
     Core::TextureManager::Bind(shadowmap, SHADOWMAP_TEXTURE_UNIT);
 
     //###### Frame & Render buffers ######
@@ -287,5 +289,6 @@ void TestLayer::LoadAssets()
 	camera.SetSkybox(skyboxModel, skyboxShader);
 
     lightCamera = Core::OrthographicCamera(-sunLight.direction * 10.0f);
+    lightCamera.aspectRatio = 1.0f;
     lightCamera.lookAt({0.0f, 0.0f, 0.0f});
 }

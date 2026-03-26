@@ -8,10 +8,11 @@ namespace Platformer {
     class ResourceManager {
     public:
         enum Primitive {
-            Quad,
+            Quad
         };
         enum Shader {
             Texture,
+            PostProcessing
         };
 
         static void Init();
@@ -22,6 +23,6 @@ namespace Platformer {
 
     private:
         static size_t quadVAO;
-        static size_t textureShader;
+        static size_t textureShader, postProcessingShader;
     };
 }

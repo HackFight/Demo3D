@@ -23,10 +23,10 @@ namespace Core
     {
         size_t texture = CreateTexture();
         SetData(texture, target, internalFormat, width, height, format, dataType, data, multisampled, samples);
-        SetParameters(texture, GL_REPEAT, GL_NEAREST, GL_NEAREST);
+        //SetParameters(texture, GL_REPEAT, GL_NEAREST, GL_NEAREST);
         return texture;
     }
-    size_t TextureManager::CreateTexture(const char* filename, bool flip)
+    size_t TextureManager::CreateTexture(const char* filename, bool linearize, bool flip)
     {
         size_t texture = CreateTexture();
 
@@ -42,12 +42,12 @@ namespace Core
 
         switch (nrChannels) {
             case 4:
-                textures[texture].internalFormat = GL_SRGB8_ALPHA8;
+                textures[texture].internalFormat = linearize ? GL_SRGB8_ALPHA8 : GL_RGBA8;
 			    textures[texture].format = GL_RGBA;
                 break;
 
             case 3:
-                textures[texture].internalFormat = GL_SRGB8;
+                textures[texture].internalFormat = linearize ? GL_SRGB8 : GL_RGB8;
 			    textures[texture].format = GL_RGB;
                 break;
 
@@ -163,7 +163,7 @@ namespace Core
         textures[texture].multisampled = multisampled;
         textures[texture].samples = samples;
 
-        TextureInfo info = textures[texture];
+        TextureInfo const info = textures[texture];
 
         glBindTexture(info.target, info.rendererID);
         
@@ -187,7 +187,7 @@ namespace Core
 
     void TextureManager::SetParameters(size_t texture, GLint wrapping, GLint minFilter, GLint maxFilter)
     {
-        TextureInfo info = textures[texture];
+        TextureInfo const info = textures[texture];
 
         glBindTexture(info.target, info.rendererID);
         glTexParameteri(info.target, GL_TEXTURE_WRAP_S, wrapping);
@@ -198,7 +198,7 @@ namespace Core
 
     void TextureManager::SetBorderColor(size_t texture, float r, float g, float b, float a)
     {
-        TextureInfo info = textures[texture];
+        TextureInfo const info = textures[texture];
 
         glBindTexture(info.target, info.rendererID);
         float color[] = { r, g, b, a };

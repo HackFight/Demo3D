@@ -148,8 +148,9 @@ namespace Core
             if (!skip)
             {
                 Mesh::Texture texture;
-                texture.ptr = TextureManager::CreateTexture(filename.c_str());
-                if(typeName == "texture_diffuse")
+                bool isDiffuse = typeName == "texture_diffuse";
+                texture.ptr = TextureManager::CreateTexture(filename.c_str(), isDiffuse);
+                if(isDiffuse)
                 {
                     TextureManager::SetParameters(texture.ptr, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
                     TextureManager::GenerateMipmaps(texture.ptr);

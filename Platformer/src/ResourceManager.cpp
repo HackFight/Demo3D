@@ -20,11 +20,12 @@ const uint32_t quadIndices[] {
 namespace Platformer {
 
     size_t ResourceManager::quadVAO;
-    size_t ResourceManager::textureShader;
+    size_t ResourceManager::textureShader, ResourceManager::postProcessingShader;
 
     void ResourceManager::Init() {
         //##### Shaders ######
         textureShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/default.vert",  RESOURCES_PATH "shaders/texture.frag");
+        postProcessingShader = Core::ShaderManager::CreateShader(RESOURCES_PATH "shaders/layer.vert",  RESOURCES_PATH "shaders/post.frag");
 
         //##### VAOs #####
         //Quad
@@ -48,6 +49,9 @@ namespace Platformer {
         switch (shader) {
             case Texture:
                 return textureShader;
+                break;
+            case PostProcessing:
+                return postProcessingShader;
                 break;
         }
         return -1;

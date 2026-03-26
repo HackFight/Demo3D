@@ -246,8 +246,11 @@ void PhysicsTestLayer::LoadAssets()
     Core::TextureManager::GenerateMipmaps(groundTextures.at(0));
 
     framebufferColor = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGB16F, oldFbSize.x, oldFbSize.y, GL_RGB, GL_FLOAT, nullptr, false, 0);
+    Core::TextureManager::SetParameters(framebufferColor, GL_REPEAT, GL_LINEAR, GL_LINEAR);
 
 	shadowmap = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_DEPTH_COMPONENT24, SHADOW_SIZE, SHADOW_SIZE, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr, false, 0);
+    Core::TextureManager::SetParameters(shadowmap, GL_CLAMP_TO_BORDER, GL_LINEAR, GL_LINEAR);
+    Core::TextureManager::SetBorderColor(shadowmap, 0.0f, 0.0f, 0.0f, 0.0f);
     Core::TextureManager::Bind(shadowmap, SHADOWMAP_TEXTURE_UNIT);
 
     //###### Frame & Render buffers ######

@@ -26,7 +26,7 @@ namespace Core
     public:
         static size_t CreateTexture();
         static size_t CreateTexture(GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum dataType, const void* data, bool multisampled, GLsizei samples);
-        static size_t CreateTexture(const char* filename, bool flip = false);
+        static size_t CreateTexture(const char* filename, bool linearize = true, bool flip = false);
         static size_t CreateCubemap(std::vector<const char*> faces);
 
         static void Bind(size_t texture, int i);
