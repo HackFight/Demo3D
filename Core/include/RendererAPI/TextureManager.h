@@ -40,8 +40,8 @@ namespace Core
         static void SetParameters(size_t texture, GLint wrapping, GLint minFilter, GLint maxFilter);
         static void SetBorderColor(size_t texture, float r, float g, float b, float a);
 
-        static TextureInfo GetTextureInfo(size_t texture) { return textures[texture]; }
-        static int GetTextureCount() { return textures.size(); }
+        static TextureInfo GetTextureInfo(size_t texture) { return textures.at(texture); }
+        static int GetTexturesCount() { return textures.size(); }
 
         static void ReleaseAll();
 

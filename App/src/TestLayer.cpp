@@ -98,8 +98,7 @@ void TestLayer::OnRender()
     glm::mat4 lightSpaceMat = lightCamera.getProjectionMatrix() * lightCamera.getViewMatrix();
 
     Core::ShaderManager::setmat4(shadowShader, "lightSpaceMat", lightSpaceMat);
-    for(App::GameObject& obj : gameObjects)
-    {
+    for(App::GameObject& obj : gameObjects) {
         obj.Render(lightCamera, shadowShader);
 	}
 
@@ -108,8 +107,7 @@ void TestLayer::OnRender()
     Core::RendererAPI::SetViewport(0, 0, fb.x, fb.y);
 
     // Resize the buffer if needed
-    if(oldFbSize != fb)
-    {
+    if(oldFbSize != fb) {
         Core::FramebufferManager::Resize(framebuffer, fb.x, fb.y);
         camera.aspectRatio = fb.x / fb.y;
         oldFbSize = fb;

@@ -82,7 +82,7 @@ void MainLayer::OnUpdate(double ts) {
 
 void MainLayer::OnRender() {
     // Bind multisampled frame buffer
-    Core::FramebufferManager::Bind(multisampledFramebuffer);
+    Core::FramebufferManager::Bind(msaa ? multisampledFramebuffer : postFramebuffer);
 
     // Clear frame buffer
     Core::RendererAPI::ClearColor();
@@ -103,11 +103,13 @@ void MainLayer::OnRender() {
         sprite.Render(camera);
     }
 
-    // Unbind previous frame buffer and render it's texture on a fullscreen quad with post-processing.
-    Core::FramebufferManager::Bind(postFramebuffer);
-    Core::RendererAPI::ClearColor();
-    Core::RendererAPI::ClearDepth();
-    Core::FramebufferManager::Blit(multisampledFramebuffer, postFramebuffer);
+    if (msaa) {
+        // Unbind previous frame buffer and render it's texture on a fullscreen quad with post-processing.
+        Core::FramebufferManager::Bind(postFramebuffer);
+        Core::RendererAPI::ClearColor();
+        Core::RendererAPI::ClearDepth();
+        Core::FramebufferManager::Blit(multisampledFramebuffer, postFramebuffer);
+    }
 
     Core::FramebufferManager::Unbind();
     Core::RendererAPI::ClearColor();
@@ -116,6 +118,23 @@ void MainLayer::OnRender() {
     for(Platformer::Layer& layer : layers) {
         layer.Render();
     }
+
+    RenderGUI();
+}
+
+void MainLayer::RenderGUI() {
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::Begin("Random cool things");
+    ImGui::Text("Hemlo :3");
+	ImGui::Checkbox("4xMSAA", &msaa);
+    ImGui::End();
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void MainLayer::FixedUpdate(double fixedTimeStep) {
@@ -128,10 +147,10 @@ void MainLayer::LoadAssets() {
     size_t whitePixelTexture = Platformer::ResourceManager::CreatePlainRGBATexture(1, 1);
     sprites.push_back(Platformer::Sprite(whitePixelTexture, {0.0f, 0.0f}, 2.0f));
 
-    size_t redstoneOreTexture = Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/redstone-ore.png");
+    size_t redstoneOreTexture = Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/redstone-ore.png", true, true);
     sprites.push_back(Platformer::Sprite(redstoneOreTexture, {2.0f, 0.0f}));
 
-    size_t boxTexture = Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png");
+    size_t boxTexture = Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/box.png", true, true);
     sprites.push_back(Platformer::Sprite(boxTexture, {-2.0f, 0.0f}));
 
     camera = Core::OrthographicCamera();
@@ -156,7 +175,7 @@ void MainLayer::PrintStats() const {
     << "##### Stats #####\nTime : " << timer
     << "s\nFPS : " << frameCounter
     << "\nTPS : " << tickCounter
-    << "\nTextures : " << Core::TextureManager::GetTextureCount()
+    << "\nTextures : " << Core::TextureManager::GetTexturesCount()
     << "\nVertex buffers : " << Core::VertexBufferManager::GetBuffersCount()
     << "\nIndex buffers : " << Core::IndexBufferManager::GetBuffersCount()
     << "\n";

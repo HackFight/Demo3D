@@ -1,7 +1,6 @@
 #pragma once
 
-//Engine    Core::RendererAPI::ClearColor();
-
+//Engine
 #include "Core/Layer.h"
 #include "Layer.h"
 #include "Renderer/OrthographicCamera.h"
@@ -24,8 +23,10 @@ private:
     void FixedUpdate(double fixedTimeStep);
 	void LoadAssets();
     void PrintStats() const;
+    void RenderGUI();
 
     static const unsigned int TPS = 60;
+    bool msaa = true;
 
     glm::vec2 oldFbSize;
     double lastMouseX, lastMouseY, tickAccumulator, secondsAccumulator, timer;
