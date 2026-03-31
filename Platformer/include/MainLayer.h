@@ -3,6 +3,7 @@
 //Engine
 #include "Core/Layer.h"
 #include "Layer.h"
+#include "Player.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Sprite.h"
 
@@ -37,4 +38,6 @@ private:
 
     std::vector<Platformer::Sprite> sprites;
     std::vector<Platformer::Layer> layers;
+    glm::vec2 gravity{0.0f, -9.81f};
+    Platformer::Player player;
 };

@@ -6,7 +6,7 @@
 namespace Platformer {
     class Layer {
     public:
-        Layer(size_t texture, size_t shader);
+        Layer(size_t texture = -1, size_t shader = -1);
         ~Layer();
 
         void Render(size_t shader);
