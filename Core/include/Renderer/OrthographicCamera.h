@@ -21,7 +21,7 @@ namespace Core {
         );
         ~OrthographicCamera();
 
-        glm::mat4 getProjectionMatrix() const;
+        glm::mat4 getProjectionMatrix();
 
         float cameraHeight = DEFAULT_CAMERA_HEIGHT;
     };

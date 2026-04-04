@@ -22,7 +22,7 @@ namespace Core {
     ), fovy(fovy) {}
     Camera3D::~Camera3D() {}
 
-    glm::mat4 Camera3D::getProjectionMatrix() const {
+    glm::mat4 Camera3D::getProjectionMatrix() {
         return glm::perspective(fovy, aspectRatio, zNear, zFar);
     }
 }

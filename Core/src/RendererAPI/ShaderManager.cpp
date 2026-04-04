@@ -144,46 +144,46 @@ namespace Core
         glUseProgram(0);
     }
 
-    void ShaderManager::setBool(size_t shader, const std::string& name, bool value)
+    void ShaderManager::setBool(size_t shader, std::string name, bool value)
     {
         Bind(shader);
-        glUniform1i(glGetUniformLocation(shaders[shader], name.c_str()), (int)value);
+        glUniform1i(glGetUniformLocation(shaders.at(shader), name.c_str()), (int)value);
     }
-    void ShaderManager::setInt(size_t shader, const std::string& name, int value)
+    void ShaderManager::setInt(size_t shader, std::string name, int value)
     {
         Bind(shader);
-        glUniform1i(glGetUniformLocation(shaders[shader], name.c_str()), value);
+        glUniform1i(glGetUniformLocation(shaders.at(shader), name.c_str()), value);
     }
-    void ShaderManager::setFloat(size_t shader, const std::string& name, float value)
+    void ShaderManager::setFloat(size_t shader, std::string name, float value)
     {
         Bind(shader);
-        glUniform1f(glGetUniformLocation(shaders[shader], name.c_str()), value);
+        glUniform1f(glGetUniformLocation(shaders.at(shader), name.c_str()), value);
     }
-    void ShaderManager::set2f(size_t shader, const std::string& name, float v1, float v2)
+    void ShaderManager::set2f(size_t shader, std::string name, float v1, float v2)
     {
         Bind(shader);
-        glUniform2f(glGetUniformLocation(shaders[shader], name.c_str()), v1, v2);
+        glUniform2f(glGetUniformLocation(shaders.at(shader), name.c_str()), v1, v2);
     }
-    void ShaderManager::set2f(size_t shader, const std::string& name, glm::vec2 v)
+    void ShaderManager::set2f(size_t shader, std::string name, glm::vec2 v)
     {
         Bind(shader);
-        glUniform2f(glGetUniformLocation(shaders[shader], name.c_str()), v.x, v.y);
+        glUniform2f(glGetUniformLocation(shaders.at(shader), name.c_str()), v.x, v.y);
     }
-    void ShaderManager::set3f(size_t shader, const std::string& name, float v1, float v2, float v3)
+    void ShaderManager::set3f(size_t shader, std::string name, float v1, float v2, float v3)
     {
         Bind(shader);
-        glUniform3f(glGetUniformLocation(shaders[shader], name.c_str()), v1, v2, v3);
+        glUniform3f(glGetUniformLocation(shaders.at(shader), name.c_str()), v1, v2, v3);
     }
-    void ShaderManager::set3f(size_t shader, const std::string& name, glm::vec3 v)
+    void ShaderManager::set3f(size_t shader, std::string name, glm::vec3 v)
     {
         Bind(shader);
-        glUniform3f(glGetUniformLocation(shaders[shader], name.c_str()), v.x, v.y, v.z);
+        glUniform3f(glGetUniformLocation(shaders.at(shader), name.c_str()), v.x, v.y, v.z);
     }
 
-    void ShaderManager::setmat4(size_t shader, const std::string& name, glm::mat4 mat)
+    void ShaderManager::setmat4(size_t shader, std::string name, glm::mat4 mat)
     {
         Bind(shader);
-        glUniformMatrix4fv(glGetUniformLocation(shaders[shader], name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
+        glUniformMatrix4fv(glGetUniformLocation(shaders.at(shader), name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
     }
 
     void ShaderManager::ReleaseAll()

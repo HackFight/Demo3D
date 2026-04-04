@@ -1,7 +1,6 @@
 #pragma once
 
 // libs
-#include <cstdint>
 #include <glm/glm.hpp>
 
 namespace Core {
@@ -18,20 +17,22 @@ namespace Core {
 	{
 	public:
 		static void Init();
-		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+		static void SetViewport(int x, int y, int width, int height);
+		static void SetScissors(int x, int y, int width, int height);
+		static void EnableScissors(bool b);
 
-		static void SetClearColor(const glm::vec4 color);
+		static void SetClearColor(glm::vec4 color);
 		static void ClearColor();
 		static void ClearDepth();
 		static void DepthTest(bool b);
-		static void SetDepthFunc(uint32_t func);
+		static void SetDepthFunc(int func);
 		static void SRGBColorSpace(bool b);
 		static void UnbindAllTextures();
 		static void SetCullMode(CullSide cull);
 
-		static void DrawIndexed(const uint32_t vertexArray, uint32_t indexCount = 0);
-		static void DrawLines(const uint32_t vertexArray, uint32_t vertexCount);
-		static void DrawPoints(const uint32_t vertexArray, uint32_t vertexCount);
+		static void DrawIndexed(size_t vertexArray, size_t indexCount = 0);
+		static void DrawLines(size_t vertexArray, size_t vertexCount);
+		static void DrawPoints(size_t vertexArray, size_t vertexCount);
 		
 		static void SetLineWidth(float width);
 	};

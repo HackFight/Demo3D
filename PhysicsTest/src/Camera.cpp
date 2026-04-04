@@ -20,7 +20,7 @@ namespace App
         skyboxModel = model;
     }
 
-    void Camera::RenderSkybox() const
+    void Camera::RenderSkybox()
     {
         Core::RendererAPI::SetDepthFunc(GL_LEQUAL);
 

@@ -4,12 +4,11 @@
 #include <iostream>
 
 // Platformer
-#include "Player.h"
-#include "ResourceManager.h"
-#include "Sprite.h"
+#include "AssetsManager.h"
 #include "Layer.h"
 
 //Engine
+#include "Renderer/Camera.h"
 #include "RendererAPI/BufferManager.h"
 #include "RendererAPI/FramebufferManager.h"
 #include "RendererAPI/RendererAPI.h"
@@ -24,156 +23,168 @@
 // libs
 #include <glm/trigonometric.hpp>
 
-MainLayer::MainLayer() {
+namespace Platformer {
+    MainLayer::MainLayer() {
 
-    Core::RendererAPI::Init();
-	Core::RendererAPI::SetClearColor(glm::vec4(0.0f));
-    oldFbSize = Core::Application::Get().GetFramebufferSize();
+        Core::RendererAPI::Init();
+        Core::RendererAPI::SetClearColor(glm::vec4(0.0f));
+        oldFbSize = Core::Application::Get().GetFramebufferSize();
 
-    glfwSetInputMode(Core::Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &lastMouseX, &lastMouseY);
+        glfwSetInputMode(Core::Application::Get().GetWindow()->GetHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwGetCursorPos(Core::Application::Get().GetWindow()->GetHandle(), &lastMouseX, &lastMouseY);
 
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+        // Setup Dear ImGui context
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(Core::Application::Get().GetWindow()->GetHandle(), true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
-    ImGui_ImplOpenGL3_Init();
+        // Setup Platform/Renderer backends
+        ImGui_ImplGlfw_InitForOpenGL(Core::Application::Get().GetWindow()->GetHandle(), true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+        ImGui_ImplOpenGL3_Init();
 
-    //##### Variables init #####
-	tickAccumulator = secondsAccumulator = timer = 0.0;
-	frameCounter = tickCounter = 0;
+        //##### Variables init #####
+        tickAccumulator = secondsAccumulator = timer = 0.0;
+        frameCounter = tickCounter = 0;
 
-	LoadAssets();
-}
-MainLayer::~MainLayer() {
+        LoadAssets();
+    }
+    MainLayer::~MainLayer() {
 
-    Platformer::ResourceManager::ReleaseAll();
+        Platformer::AssetsManager::ReleaseAll();
 
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-}
-
-void MainLayer::OnUpdate(double ts) {
-    timer += ts;
-    tickAccumulator += ts;
-    secondsAccumulator += ts;
-
-    if(secondsAccumulator >= 1.0) {
-        PrintStats();
-        tickCounter = frameCounter = 0;
-        secondsAccumulator -= 1.0;
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
     }
 
-    double fixedTimeStep = 1.0/TPS;
-    if(tickAccumulator >= fixedTimeStep) {
-        FixedUpdate(fixedTimeStep);
-        tickCounter++;
-        tickAccumulator -= fixedTimeStep;
+    void MainLayer::OnUpdate(double ts) {
+        timer += ts;
+        tickAccumulator += ts;
+        secondsAccumulator += ts;
+
+        if(secondsAccumulator >= 1.0) {
+            PrintStats();
+            tickCounter = frameCounter = 0;
+            secondsAccumulator -= 1.0;
+        }
+
+        double fixedTimeStep = 1.0/TPS;
+        if(tickAccumulator >= fixedTimeStep) {
+            FixedUpdate(fixedTimeStep);
+            tickCounter++;
+            tickAccumulator -= fixedTimeStep;
+        }
+
+        frameCounter++;
     }
 
-    frameCounter++;
+    void MainLayer::OnRender() {
+        // Bind intermediaryFramebuffer
+        Core::FramebufferManager::Bind(intermediaryFramebuffer);
 
-    player.update(ts);
-}
+        for (int i=0; i<16; i++) {
+            Core::RendererAPI::SetViewport((int)(i%4) * RENDER_BUFFER_SCALE.x, (int)(i/4) * RENDER_BUFFER_SCALE.y, RENDER_BUFFER_SCALE.x, RENDER_BUFFER_SCALE.y);
+            Core::RendererAPI::EnableScissors(true);
+            Core::RendererAPI::SetScissors((int)(i%4) * RENDER_BUFFER_SCALE.x, (int)(i/4) * RENDER_BUFFER_SCALE.y, RENDER_BUFFER_SCALE.x, RENDER_BUFFER_SCALE.y);
+            
+            // Clear frame buffer
+            Core::RendererAPI::SetClearColor(glm::vec4(i/16.0f, i/16.0f, i/16.0f, 1.0f));
+            Core::RendererAPI::ClearColor();
+            Core::RendererAPI::ClearDepth();
 
-void MainLayer::OnRender() {
-    // Bind multisampled frame buffer or directly the final framebuffer
-    size_t framebuffer = msaa ? multisampledFramebuffer : postFramebuffer;
-    Core::FramebufferManager::Bind(framebuffer);
+            // Render anything there is to render
+            Platformer::SpritesManager::RenderSprites(camera);
+        }
+        Core::RendererAPI::EnableScissors(false);
 
-    // Clear frame buffer
-    Core::RendererAPI::ClearColor();
-    Core::RendererAPI::ClearDepth();
+        // Resize stuff
+        glm::vec2 windowSize = Core::Application::Get().GetFramebufferSize();
+        if (windowSize.x/windowSize.y == ASPECT_RATIO) {
+            Core::RendererAPI::SetViewport(0, 0, windowSize.x, windowSize.y);
+        } else if (windowSize.x/windowSize.y < ASPECT_RATIO) {
+            int sizeX, sizeY;
+            sizeX = windowSize.x;
+            sizeX -= sizeX%4;
+            sizeY = sizeX/ASPECT_RATIO;
+            Core::RendererAPI::SetViewport(0, 0, sizeX, sizeY);
+        } else {
+            int sizeX, sizeY;
+            sizeY = windowSize.y;
+            sizeY -= sizeY%4;
+            sizeX = sizeY*ASPECT_RATIO;
+            Core::RendererAPI::SetViewport(0, 0, sizeX, sizeY);
+        }
 
-    // Check viewport size and resize stuff if needed
-    glm::vec2 fb = Core::Application::Get().GetFramebufferSize();
-    if (oldFbSize != fb) {
-        Core::RendererAPI::SetViewport(0, 0, fb.x, fb.y);
-        if(msaa) { Core::FramebufferManager::Resize(multisampledFramebuffer, fb.x, fb.y); }
-        Core::FramebufferManager::Resize(postFramebuffer, fb.x, fb.y);
-        camera.aspectRatio = fb.x / fb.y;
-        oldFbSize = fb;
-    }
+        if (oldFbSize != windowSize) {
+            //Core::FramebufferManager::Resize(postFramebuffer, windowSize.x, windowSize.y);
+            oldFbSize = windowSize;
+        }
 
-    // Render sprites
-    for(Platformer::Sprite& sprite : sprites) {
-        sprite.Render(camera);
-    }
-    player.render(camera);
-
-    if (msaa) {
-        // Unbind previous frame buffer and render it's texture on a fullscreen quad with post-processing.
-        Core::FramebufferManager::Bind(postFramebuffer);
+        Core::FramebufferManager::Unbind();
         Core::RendererAPI::ClearColor();
         Core::RendererAPI::ClearDepth();
-        Core::FramebufferManager::Blit(multisampledFramebuffer, postFramebuffer);
+
+        layers.at(0).Render();
+
+        RenderGUI();
     }
 
-    Core::FramebufferManager::Unbind();
-    Core::RendererAPI::ClearColor();
-    Core::RendererAPI::ClearDepth();
+    void MainLayer::RenderGUI() {
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
-    layers.at(0).Render();
+        ImGui::Begin("Random cool things");
+        ImGui::Text("Hemlo :3");
+        ImGui::End();
 
-    RenderGUI();
-}
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
 
-void MainLayer::RenderGUI() {
-    // Start the Dear ImGui frame
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
+    void MainLayer::FixedUpdate(double fixedTimeStep) {
+        SpritesManager::sprites.at(0).rotation += 10 * fixedTimeStep;
+    }
 
-    ImGui::Begin("Random cool things");
-    ImGui::Text("Hemlo :3");
-	ImGui::Checkbox("4xMSAA", &msaa);
-    ImGui::End();
+    void MainLayer::LoadAssets() {
+        Platformer::AssetsManager::Init();
 
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
+        // Sprites
+        size_t redstoneTexture = Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/redstone-ore.png");
+        Core::TextureManager::SetParameters(redstoneTexture, GL_REPEAT, GL_NEAREST, GL_NEAREST);
+        Platformer::SpritesManager::CreateSprite(redstoneTexture);
 
-void MainLayer::FixedUpdate(double fixedTimeStep) {
-    player.acceleration = gravity;
-    player.move(fixedTimeStep);
-}
+        // Cameras
+        camera = Core::OrthographicCamera();
+        camera.cameraHeight = RENDER_BUFFER_SCALE.y/16;
 
-void MainLayer::LoadAssets() {
-    Platformer::ResourceManager::Init();
+        // Framebuffers
+        size_t intermediaryFramebufferTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGBA8, RENDER_BUFFER_SCALE.x * 4, RENDER_BUFFER_SCALE.y * 4, GL_RGBA, GL_UNSIGNED_BYTE, nullptr, false, 0);
+        Core::TextureManager::SetParameters(intermediaryFramebufferTexture, GL_REPEAT, GL_NEAREST, GL_NEAREST);
+        intermediaryFramebuffer = Core::FramebufferManager::CreateFramebuffer();
+        Core::FramebufferManager::AttachTexture(intermediaryFramebuffer, intermediaryFramebufferTexture);
 
-    size_t whitePixelTexture = Platformer::ResourceManager::CreatePlainRGBATexture(1, 1);
-    player.sprite.texture = whitePixelTexture;
+        size_t postFramebufferTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGB8, oldFbSize.x, oldFbSize.y, GL_RGB, GL_UNSIGNED_BYTE, nullptr, false, 0);
+        Core::TextureManager::SetParameters(postFramebufferTexture, GL_REPEAT, GL_NEAREST, GL_NEAREST);
+        postFramebuffer = Core::FramebufferManager::CreateFramebuffer();
+        Core::FramebufferManager::AttachTexture(postFramebuffer, postFramebufferTexture);
 
-    camera = Core::OrthographicCamera();
-    camera.cameraHeight = 4.0f;
+        // Layers
+        layers.push_back(Platformer::Layer(intermediaryFramebufferTexture, Platformer::AssetsManager::GetShader(Platformer::AssetsManager::Shader::Intermediary)));
+    }
 
-    size_t multisampledFramebufferTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D_MULTISAMPLE, GL_RGB8, oldFbSize.x, oldFbSize.y, 0, 0, 0, true, 4);
-    size_t multisampledRenderbuffer = Core::RenderbufferManager::CreateRenderbuffer(GL_DEPTH24_STENCIL8, oldFbSize.x, oldFbSize.y, true, 4);
-    multisampledFramebuffer = Core::FramebufferManager::CreateFramebuffer();
-    Core::FramebufferManager::AttachTexture(multisampledFramebuffer, multisampledFramebufferTexture);
-    Core::FramebufferManager::AttachRenderbuffer(multisampledFramebuffer, multisampledRenderbuffer);
-
-    size_t postFramebufferTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGB8, oldFbSize.x, oldFbSize.y, GL_RGB, GL_UNSIGNED_BYTE, nullptr, false, 0);
-    Core::TextureManager::SetParameters(postFramebufferTexture, GL_REPEAT, GL_NEAREST, GL_NEAREST);
-    postFramebuffer = Core::FramebufferManager::CreateFramebuffer();
-    Core::FramebufferManager::AttachTexture(postFramebuffer, postFramebufferTexture);
-
-    layers.push_back(Platformer::Layer(postFramebufferTexture, Platformer::ResourceManager::GetShader(Platformer::ResourceManager::Shader::PostProcessing)));
-}
-
-void MainLayer::PrintStats() const {
-    std::cout
-    << "##### Stats #####\nTime : " << timer
-    << "s\nFPS : " << frameCounter
-    << "\nTPS : " << tickCounter
-    << "\nTextures : " << Core::TextureManager::GetTexturesCount()
-    << "\nVertex buffers : " << Core::VertexBufferManager::GetBuffersCount()
-    << "\nIndex buffers : " << Core::IndexBufferManager::GetBuffersCount()
-    << "\n";
+    void MainLayer::PrintStats() {
+        std::cout
+        << "##### Stats #####\nTime : " << timer
+        << "s\nFPS : " << frameCounter
+        << "\nTPS : " << tickCounter
+        << "\nTextures : " << Core::TextureManager::GetTexturesCount()
+        << "\nVertex buffers : " << Core::VertexBufferManager::GetBuffersCount()
+        << "\nIndex buffers : " << Core::IndexBufferManager::GetBuffersCount()
+        << "\nSprites : " << Platformer::SpritesManager::GetSpritesCount()
+        << "\n";
+    }
 }

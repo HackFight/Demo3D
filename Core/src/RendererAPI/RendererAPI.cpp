@@ -2,6 +2,7 @@
 #include "RendererAPI/BufferManager.h"
 
 // libs
+#include <cstddef>
 #include <cstdint>
 #include <glad/glad.h>
 
@@ -16,12 +17,18 @@ namespace Core {
 		glEnable(GL_LINE_SMOOTH);
 	}
 
-	void RendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	void RendererAPI::SetViewport(int x, int y, int width, int height)
 	{
 		glViewport(x, y, width, height);
 	}
+	void RendererAPI::SetScissors(int x, int y, int width, int height) {
+		glScissor(x, y, width, height);
+	}
+	void RendererAPI::EnableScissors(bool b) {
+		b ? glEnable(GL_SCISSOR_TEST) : glDisable(GL_SCISSOR_TEST);
+	}
 
-	void RendererAPI::SetClearColor(const glm::vec4 color)
+	void RendererAPI::SetClearColor(glm::vec4 color)
 	{
 		glClearColor(color.r, color.g, color.b, color.a);
 	}
@@ -38,7 +45,7 @@ namespace Core {
 	{
 		b ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
 	}
-	void RendererAPI::SetDepthFunc(uint32_t func)
+	void RendererAPI::SetDepthFunc(int func)
 	{
 		glDepthFunc(func);
 	}
@@ -77,20 +84,20 @@ namespace Core {
 		}
 	}
 
-	void RendererAPI::DrawIndexed(const uint32_t vertexArray, uint32_t indexCount)
+	void RendererAPI::DrawIndexed(size_t vertexArray, size_t indexCount)
 	{
 		VertexArrayManager::Bind(vertexArray);
 		uint32_t count = indexCount ? indexCount : VertexArrayManager::GetIndexCount(vertexArray);
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
-	void RendererAPI::DrawLines(const uint32_t vertexArray, uint32_t vertexCount)
+	void RendererAPI::DrawLines(size_t vertexArray, size_t vertexCount)
 	{
 		VertexArrayManager::Bind(vertexArray);
 		glDrawArrays(GL_LINES, 0, vertexCount);
 	}
 
-	void RendererAPI::DrawPoints(const uint32_t vertexArray, uint32_t vertexCount)
+	void RendererAPI::DrawPoints(size_t vertexArray, size_t vertexCount)
 	{
 		VertexArrayManager::Bind(vertexArray);
 		glDrawArrays(GL_POINT, 0, vertexCount);

@@ -25,7 +25,7 @@ namespace Core {
         }
     Camera::~Camera() { }
 
-    glm::mat4 Camera::getViewMatrix() const {
+    glm::mat4 Camera::getViewMatrix() {
         return glm::lookAt(position, position + forward, worldUp);
     }
 

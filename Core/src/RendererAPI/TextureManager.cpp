@@ -29,7 +29,7 @@ namespace Core
     {
         size_t texture = CreateTexture();
 
-        int width{}, height{}, nrChannels{};
+        int width, height, nrChannels;
         unsigned char* data = nullptr;
 
         stbi_set_flip_vertically_on_load(flip);

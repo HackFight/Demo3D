@@ -15,7 +15,7 @@ namespace Core {
     const float DEFAULT_ZNEAR = 0.1f;
     const float DEFAULT_ZFAR = 100.0f;
 
-    class Camera {        
+    class Camera {
     public:
         Camera(
             glm::vec3 position = DEFAULT_POSITION,
@@ -28,8 +28,8 @@ namespace Core {
         );
         ~Camera();
 
-        glm::mat4 getViewMatrix() const;
-        virtual glm::mat4 getProjectionMatrix() const = 0;
+        glm::mat4 getViewMatrix();
+        virtual glm::mat4 getProjectionMatrix() = 0;
         void lookAt(glm::vec3 point);
         void updateCameraVectors();
 

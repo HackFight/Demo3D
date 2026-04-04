@@ -1,7 +1,7 @@
 #include "Layer.h"
 
 // Platformer
-#include "ResourceManager.h"
+#include "AssetsManager.h"
 
 // Engine
 #include "RendererAPI/RendererAPI.h"
@@ -15,7 +15,7 @@ namespace Platformer {
     Layer::Layer(size_t texture, size_t shader) :
     texture(texture),
     shader(shader),
-    vao(ResourceManager::GetVAO(ResourceManager::Quad))
+    vao(AssetsManager::GetVAO(AssetsManager::Quad))
     { }
     Layer::~Layer() {}
 
