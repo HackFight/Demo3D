@@ -5,10 +5,8 @@
 
 // Platformer
 #include "AssetsManager.h"
-#include "Layer.h"
 
 //Engine
-#include "Renderer/Camera.h"
 #include "RendererAPI/BufferManager.h"
 #include "RendererAPI/FramebufferManager.h"
 #include "RendererAPI/RendererAPI.h"
@@ -52,7 +50,7 @@ namespace Platformer {
     }
     MainLayer::~MainLayer() {
 
-        Platformer::AssetsManager::ReleaseAll();
+         AssetsManager::ReleaseAll();
 
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
@@ -81,23 +79,31 @@ namespace Platformer {
     }
 
     void MainLayer::OnRender() {
-        // Bind intermediaryFramebuffer
+        // Render each layer individually and store them in the intermediary buffer next to each other.
         Core::FramebufferManager::Bind(intermediaryFramebuffer);
+        Core::RendererAPI::ClearColor();
+        Core::RendererAPI::ClearDepth();
 
-        for (int i=0; i<16; i++) {
-            Core::RendererAPI::SetViewport((int)(i%4) * RENDER_BUFFER_SCALE.x, (int)(i/4) * RENDER_BUFFER_SCALE.y, RENDER_BUFFER_SCALE.x, RENDER_BUFFER_SCALE.y);
+        for (int i=0; i<PIXEL_SIZE*PIXEL_SIZE; i++) {
+            Core::RendererAPI::SetViewport((int)(i%PIXEL_SIZE) * RENDER_BUFFER_SCALE.x, (int)(i/PIXEL_SIZE) * RENDER_BUFFER_SCALE.y, RENDER_BUFFER_SCALE.x, RENDER_BUFFER_SCALE.y);
             Core::RendererAPI::EnableScissors(true);
-            Core::RendererAPI::SetScissors((int)(i%4) * RENDER_BUFFER_SCALE.x, (int)(i/4) * RENDER_BUFFER_SCALE.y, RENDER_BUFFER_SCALE.x, RENDER_BUFFER_SCALE.y);
-            
-            // Clear frame buffer
-            Core::RendererAPI::SetClearColor(glm::vec4(i/16.0f, i/16.0f, i/16.0f, 1.0f));
-            Core::RendererAPI::ClearColor();
-            Core::RendererAPI::ClearDepth();
+            Core::RendererAPI::SetScissors((int)(i%PIXEL_SIZE) * RENDER_BUFFER_SCALE.x, (int)(i/PIXEL_SIZE) * RENDER_BUFFER_SCALE.y, RENDER_BUFFER_SCALE.x, RENDER_BUFFER_SCALE.y);
 
-            // Render anything there is to render
-            Platformer::SpritesManager::RenderSprites(camera);
+            // Render all the objects of the layer.
+            if(i==0) {
+                 SpritesManager::RenderSprites(camera, layer0_sprites);
+            }
         }
         Core::RendererAPI::EnableScissors(false);
+
+        // Render all the layers together in the postFramebuffer
+        Core::FramebufferManager::Bind(postFramebuffer);
+        Core::RendererAPI::ClearColor();
+        Core::RendererAPI::ClearDepth();
+        Core::RendererAPI::DepthTest(false);
+        Core::RendererAPI::SetViewport(0, 0, RENDER_BUFFER_SCALE.x, RENDER_BUFFER_SCALE.y);
+        SpritesManager::RenderSprites(camera, layers);
+        Core::RendererAPI::DepthTest(true);
 
         // Resize stuff
         glm::vec2 windowSize = Core::Application::Get().GetFramebufferSize();
@@ -106,27 +112,33 @@ namespace Platformer {
         } else if (windowSize.x/windowSize.y < ASPECT_RATIO) {
             int sizeX, sizeY;
             sizeX = windowSize.x;
-            sizeX -= sizeX%4;
+            sizeX -= sizeX%PIXEL_SIZE;
             sizeY = sizeX/ASPECT_RATIO;
-            Core::RendererAPI::SetViewport(0, 0, sizeX, sizeY);
+
+            int posY, posX;
+            posX = (windowSize.x - sizeX) / 2;
+            posY = (windowSize.y - sizeY) / 2;
+            Core::RendererAPI::SetViewport(posX, posY, sizeX, sizeY);
         } else {
             int sizeX, sizeY;
             sizeY = windowSize.y;
-            sizeY -= sizeY%4;
+            sizeY -= sizeY%PIXEL_SIZE;
             sizeX = sizeY*ASPECT_RATIO;
-            Core::RendererAPI::SetViewport(0, 0, sizeX, sizeY);
+
+            int posX, posY;
+            posX = (windowSize.x - sizeX) / 2;
+            posY = (windowSize.y - sizeY) / 2;
+            Core::RendererAPI::SetViewport(posX, posY, sizeX, sizeY);
         }
 
-        if (oldFbSize != windowSize) {
-            //Core::FramebufferManager::Resize(postFramebuffer, windowSize.x, windowSize.y);
-            oldFbSize = windowSize;
-        }
-
+        // Render the postprocessing buffer on screen
         Core::FramebufferManager::Unbind();
+        Core::RendererAPI::SetClearColor(glm::vec4(1.0f));
         Core::RendererAPI::ClearColor();
         Core::RendererAPI::ClearDepth();
+        Core::RendererAPI::SetClearColor({0.0f, 0.0f, 0.0f, 1.0f});
 
-        layers.at(0).Render();
+        SpritesManager::RenderSprite(camera, postSprite);
 
         RenderGUI();
     }
@@ -150,30 +162,32 @@ namespace Platformer {
     }
 
     void MainLayer::LoadAssets() {
-        Platformer::AssetsManager::Init();
-
-        // Sprites
-        size_t redstoneTexture = Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/redstone-ore.png");
-        Core::TextureManager::SetParameters(redstoneTexture, GL_REPEAT, GL_NEAREST, GL_NEAREST);
-        Platformer::SpritesManager::CreateSprite(redstoneTexture);
+         AssetsManager::Init();
 
         // Cameras
         camera = Core::OrthographicCamera();
         camera.cameraHeight = RENDER_BUFFER_SCALE.y/16;
 
         // Framebuffers
-        size_t intermediaryFramebufferTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGBA8, RENDER_BUFFER_SCALE.x * 4, RENDER_BUFFER_SCALE.y * 4, GL_RGBA, GL_UNSIGNED_BYTE, nullptr, false, 0);
+        size_t intermediaryFramebufferTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGBA8, RENDER_BUFFER_SCALE.x * PIXEL_SIZE, RENDER_BUFFER_SCALE.y * PIXEL_SIZE, GL_RGBA, GL_UNSIGNED_BYTE, nullptr, false, 0);
         Core::TextureManager::SetParameters(intermediaryFramebufferTexture, GL_REPEAT, GL_NEAREST, GL_NEAREST);
         intermediaryFramebuffer = Core::FramebufferManager::CreateFramebuffer();
         Core::FramebufferManager::AttachTexture(intermediaryFramebuffer, intermediaryFramebufferTexture);
 
-        size_t postFramebufferTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGB8, oldFbSize.x, oldFbSize.y, GL_RGB, GL_UNSIGNED_BYTE, nullptr, false, 0);
+        size_t postFramebufferTexture = Core::TextureManager::CreateTexture(GL_TEXTURE_2D, GL_RGB8, RENDER_BUFFER_SCALE.x, RENDER_BUFFER_SCALE.y, GL_RGB, GL_UNSIGNED_BYTE, nullptr, false, 0);
         Core::TextureManager::SetParameters(postFramebufferTexture, GL_REPEAT, GL_NEAREST, GL_NEAREST);
         postFramebuffer = Core::FramebufferManager::CreateFramebuffer();
         Core::FramebufferManager::AttachTexture(postFramebuffer, postFramebufferTexture);
 
+        // Sprites
+        size_t redstoneTexture = Core::TextureManager::CreateTexture(RESOURCES_PATH "textures/redstone-ore.png");
+        Core::TextureManager::SetParameters(redstoneTexture, GL_REPEAT, GL_NEAREST, GL_NEAREST);
+        layer0_sprites.push_back( SpritesManager::CreateSprite(redstoneTexture));
+
+        postSprite = SpritesManager::CreateSprite(postFramebufferTexture, AssetsManager::GetVAO(AssetsManager::QuadPrimitive), AssetsManager::GetShader(AssetsManager::PostProcessingShader));
+
         // Layers
-        layers.push_back(Platformer::Layer(intermediaryFramebufferTexture, Platformer::AssetsManager::GetShader(Platformer::AssetsManager::Shader::Intermediary)));
+        layers.push_back( SpritesManager::CreateSprite(intermediaryFramebufferTexture, AssetsManager::GetLayerVAO(0), AssetsManager::GetShader(AssetsManager::IntermediaryShader)));
     }
 
     void MainLayer::PrintStats() {
@@ -184,7 +198,7 @@ namespace Platformer {
         << "\nTextures : " << Core::TextureManager::GetTexturesCount()
         << "\nVertex buffers : " << Core::VertexBufferManager::GetBuffersCount()
         << "\nIndex buffers : " << Core::IndexBufferManager::GetBuffersCount()
-        << "\nSprites : " << Platformer::SpritesManager::GetSpritesCount()
+        << "\nSprites : " <<  SpritesManager::GetSpritesCount()
         << "\n";
     }
 }
